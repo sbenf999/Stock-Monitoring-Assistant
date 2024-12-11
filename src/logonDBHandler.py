@@ -60,7 +60,7 @@ class logonDBHandler:
     
     def validateUser(self, providedUsername, providedPassword):
         mycursor = self.connection.cursor()
-        mycursor.execute('SELECT id, access_level FROM users WHERE username = ? AND password = ?', (logonDBHandler.hashData(providedUsername), logonDBHandler.hashData(providedPassword)))
+        mycursor.execute('SELECT id, access_level FROM users WHERE username = ? AND password = ?', (providedUsername, logonDBHandler.hashData(providedPassword)))
         user = mycursor.fetchone()
         self.connection.close()
         
