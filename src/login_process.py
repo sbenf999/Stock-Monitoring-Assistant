@@ -43,28 +43,32 @@ class Logon(customtkinter.CTk):
         self.buttonLogon = customtkinter.CTkButton(self.loginFrame, text="Login", command=self.logonProcess)
         self.buttonLogon.grid(row=2, column=0, sticky="w", padx=(12, 0), pady=12)
         
-        self.buttonChangePassword = customtkinter.CTkButton(self.loginFrame, text="Change password", command=self.on_closing)
+        self.buttonChangePassword = customtkinter.CTkButton(self.loginFrame, text="Change password", command=self.onClosing)
         self.buttonChangePassword.grid(row=2, column=1, sticky="w", padx=(12, 12), pady=12)
         
-        self.buttonExit = customtkinter.CTkButton(self.loginFrame, text="Exit", command=self.on_closing)
+        self.buttonExit = customtkinter.CTkButton(self.loginFrame, text="Exit", command=self.onClosing)
         self.buttonExit.grid(row=2, column=2, sticky="w", padx=(0, 12), pady=12)
 
         #test with admin user
-        logonDBHandler.createUser("admin", 12345, 1)
+        logon_ = logonDBHandler()
+        logon_.initializeDatabase()
+        logon_.createUserCreds("admin", 12345, 1)
 
     def logonProcess(self):
-        logonDBHandler.initializeDatabase()
-        
-        login = logonDBHandler.validateUser(self.usernameEntry.get(), self.passwordEntry.get())
+        logon_ = logonDBHandler()
+        logon_.initializeDatabase()
+
+        login = logon_.validateUser(self.usernameEntry.get(), self.passwordEntry.get())
         if login:
             print("Hoorah")
-            return True
+            self.newWindow()
         
         else:
             self.usernameEntry.configure(text_color="red")
             self.passwordEntry.configure(text_color="red")
         
     def newWindow(self):
+        self.onClosing()
         #Define the new window (this should ideally be your application that needed logging into)
         loginSuccess = customtkinter.CTk()
         loginSuccess.geometry(f"{500}x{500}")
