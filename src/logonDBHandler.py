@@ -35,7 +35,7 @@ class logonDBHandler:
             CREATE TABLE IF NOT EXISTS users (
                 id VARCHAR(50) PRIMARY KEY,
                 username VARCHAR(50) NOT NULL,
-                password VARCHAR(50) NOT NULL,
+                password VARCHAR(64) NOT NULL,
                 access_level VARCHAR(50) NOT NULL
             )
         ''')
@@ -43,13 +43,10 @@ class logonDBHandler:
         self.connection.commit()
 
     def createUserCreds(self, username, password, accessLevel):
-        #user_id = str(uuid.uuid4())
- 
+        user_id = str(uuid.uuid4())
         mycursor = self.connection.cursor()
 
-        sql = "INSERT INTO users (id, username, password, access_level)  (%s, %s, %s, %s)"
-        val = ("1", username, logonDBHandler.hashData(str(password)), accessLevel)
-        mycursor.execute(sql, val)
+        mycursor.execute("""INSERT INTO users (id, username, password, access_level) VALUES ('%s', '%s', '%s', '%s')""" % (user_id,username, logonDBHandler.hashData(str(password)), accessLevel))
 
         self.connection.commit()
 
@@ -73,13 +70,3 @@ class logonDBHandler:
     
     def hashData(data):
         return hashlib.sha256(str.encode(data)).hexdigest()
-
-"""  
-#<=======================GENERIC-FUNCTIONS=======================>#
-
-def createUser(username, password, accessLevel):
-    newConnection = logonDBHandler()
-    newConnection.initializeDatabase()
-
-    newConnection.createUserCreds(username, password, accessLevel)
-"""
