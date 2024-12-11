@@ -5,7 +5,7 @@
 
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
 
-A stock monitoring application written in Java for a local business
+A stock monitoring application written in Python for a local business
 
 
 ## Contributing
