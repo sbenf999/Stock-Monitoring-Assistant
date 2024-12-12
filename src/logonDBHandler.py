@@ -3,7 +3,6 @@ from mysql.connector import errorcode
 import hashlib
 import uuid
 
-
 class logonDBHandler:
     __username = "root"
     __password = "BeltMadness3"

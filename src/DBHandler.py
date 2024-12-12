@@ -1,0 +1,1 @@
+#create parent class for database handling. Derive the logonDBHandler from this when you have the time
