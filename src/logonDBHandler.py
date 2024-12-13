@@ -47,6 +47,7 @@ class logonDBHandler:
 
         if self.validateUser(username, password):
                 print("User already exists")
+                return False
         else:
             mycursor.execute("""INSERT INTO users (id, username, password, access_level) VALUES ('%s', '%s', '%s', '%s')""" % (user_id,username, logonDBHandler.hashData(str(password)), accessLevel))
 
@@ -62,7 +63,7 @@ class logonDBHandler:
     
     def validateUser(self, providedUsername, providedPassword):
         mycursor = self.connection.cursor()
-        mycursor.execute('SELECT id, access_level FROM users WHERE username = ? AND password = ?', (providedUsername, logonDBHandler.hashData(str(providedPassword))))
+        mycursor.execute('SELECT id, access_level FROM users WHERE username = %s AND password = %s', (providedUsername, logonDBHandler.hashData(str(providedPassword))))
         data = mycursor.fetchall()
         
         if data:
@@ -72,11 +73,14 @@ class logonDBHandler:
         
     def changePasswordProcess(self, username, old_password, new_password):
         mycursor = self.connection.cursor()
-        mycursor.executemany("SELECT password FROM users WHERE username = ?", (username,))
+        mycursor.execute("SELECT password FROM users WHERE username = %s", (username,))
         current_password = mycursor.fetchall()
-        
-        if current_password == self.hashData(str(old_password)):
-            mycursor.execute('UPDATE users SET password = ? WHERE username = ?', (self.hashData(str(new_password), self.hashData(str(username)))))
+
+        if current_password is None:
+            return False
+
+        if current_password[0][0] == logonDBHandler.hashData(str(old_password)):
+            mycursor.execute('UPDATE users SET password = %s WHERE username = %s', (logonDBHandler.hashData(str(new_password)), username))
             self.connection.commit()
             
             return True
