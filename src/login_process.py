@@ -1,6 +1,7 @@
 import customtkinter
 import os
 from logonDBHandler import *
+from changePassword import *
 
 customtkinter.set_default_color_theme("dark-blue")
 
@@ -43,7 +44,7 @@ class Logon(customtkinter.CTk):
         self.buttonLogon = customtkinter.CTkButton(self.loginFrame, text="Login", command=self.logonProcess)
         self.buttonLogon.grid(row=2, column=0, sticky="w", padx=(12, 0), pady=12)
         
-        self.buttonChangePassword = customtkinter.CTkButton(self.loginFrame, text="Change password", command=self.onClosing)
+        self.buttonChangePassword = customtkinter.CTkButton(self.loginFrame, text="Change password", command=self.changePasswordWindow)
         self.buttonChangePassword.grid(row=2, column=1, sticky="w", padx=(12, 12), pady=12)
         
         self.buttonExit = customtkinter.CTkButton(self.loginFrame, text="Exit", command=self.onClosing)
@@ -66,6 +67,10 @@ class Logon(customtkinter.CTk):
         else:
             self.usernameEntry.configure(text_color="red")
             self.passwordEntry.configure(text_color="red")
+
+    def changePasswordWindow(self):
+        changePasswordWin = changePassword()
+        changePasswordWin.mainloop()
         
     def newWindow(self):
         self.onClosing()

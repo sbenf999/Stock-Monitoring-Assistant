@@ -54,10 +54,11 @@ class changePassword(customtkinter.CTk):
         self.buttonExit.grid(row=3, column=2, sticky="w", padx=(0, 12), pady=12)
         
     def change(self):
-        logonDBHandler.initializeDatabase()
+        logon_ = logonDBHandler()
+        logon_.initializeDatabase()
         
         print(self.usernameEntry.get(), self.oldPasswordEntry.get(), self.newPasswordEntry.get())
-        changePass = logonDBHandler.changePasswordProcess(self.usernameEntry.get(), self.oldPasswordEntry.get(), self.newPasswordEntry.get())
+        changePass = logon_.changePasswordProcess(self.usernameEntry.get(), self.oldPasswordEntry.get(), self.newPasswordEntry.get())
         
         if changePass:
             print("Password Changed")
@@ -73,6 +74,4 @@ class changePassword(customtkinter.CTk):
     def on_closing(self, event=0):
         self.destroy()
         
-if __name__ == "__main__":
-    app = changePassword()
-    app.mainloop()
+

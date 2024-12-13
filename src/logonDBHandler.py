@@ -13,7 +13,7 @@ class logonDBHandler:
 
     def __init__(self):
         try:
-            self.connection = mysql.connector.connect(user=self.__username,password=self.__password, host=self.__host, database=self.__database, auth_plugin='mysql_native_password') #auth_plugin='mysql_native_password' needed to be added to self.connection as this was throwing a cache error. Possible cause of issue on the school computers?
+            self.connection = mysql.connector.connect(user=self.__username,password=self.__password, host=self.__host, database=self.__database, auth_plugin='mysql_native_password') 
             self.cursor = self.connection.cursor(prepared=True)   
 
         except mysql.connector.Error as err:
@@ -45,7 +45,10 @@ class logonDBHandler:
         user_id = str(uuid.uuid4())
         mycursor = self.connection.cursor()
 
-        mycursor.execute("""INSERT INTO users (id, username, password, access_level) VALUES ('%s', '%s', '%s', '%s')""" % (user_id,username, logonDBHandler.hashData(str(password)), accessLevel))
+        if self.validateUser(username, password):
+                print("User already exists")
+        else:
+            mycursor.execute("""INSERT INTO users (id, username, password, access_level) VALUES ('%s', '%s', '%s', '%s')""" % (user_id,username, logonDBHandler.hashData(str(password)), accessLevel))
 
         self.connection.commit()
 
@@ -59,12 +62,28 @@ class logonDBHandler:
     
     def validateUser(self, providedUsername, providedPassword):
         mycursor = self.connection.cursor()
-        mycursor.execute('SELECT id, access_level FROM users WHERE username = ? AND password = ?', (providedUsername, logonDBHandler.hashData(providedPassword)))
-        user = mycursor.fetchone()
-        self.connection.close()
+        mycursor.execute('SELECT id, access_level FROM users WHERE username = ? AND password = ?', (providedUsername, logonDBHandler.hashData(str(providedPassword))))
+        data = mycursor.fetchall()
         
-        return user
-    
+        if data:
+            return True
+        else:
+            return False
+        
+    def changePasswordProcess(self, username, old_password, new_password):
+        mycursor = self.connection.cursor()
+        mycursor.executemany("SELECT password FROM users WHERE username = ?", (username,))
+        current_password = mycursor.fetchall()
+        
+        if current_password == self.hashData(str(old_password)):
+            mycursor.execute('UPDATE users SET password = ? WHERE username = ?', (self.hashData(str(new_password), self.hashData(str(username)))))
+            self.connection.commit()
+            
+            return True
+        
+        else:
+            return False
+        
     #<=======================STATIC-METHODS=======================>#
     
     def hashData(data):
