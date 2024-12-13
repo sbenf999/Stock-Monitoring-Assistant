@@ -1,5 +1,6 @@
 import customtkinter
 from logonDBHandler import *
+from forgotPassword import *
 
 customtkinter.set_default_color_theme("dark-blue")
 
@@ -20,7 +21,6 @@ class changePassword(customtkinter.CTk):
         self.bind("<Shift-q>", self.on_closing)
         self.bind("<Command-w>", self.on_closing)
         self.createcommand('tk::mac::Quit', self.on_closing)
-        self.after(201, lambda :self.iconbitmap('person.ico'))
         
         #create change password frame
         self.changePasswordFrame = customtkinter.CTkFrame(self, corner_radius=10)
@@ -69,7 +69,8 @@ class changePassword(customtkinter.CTk):
             self.oldPasswordEntry.configure(text_color="red")
     
     def forgotPassword(self):
-        pass
+        forgotPasswordWin = forgotPassword()
+        forgotPasswordWin.mainloop()
     
     def on_closing(self, event=0):
         self.destroy()

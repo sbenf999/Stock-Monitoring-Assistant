@@ -2,6 +2,8 @@ import mysql.connector
 from mysql.connector import errorcode
 import hashlib
 import uuid
+import string
+import secrets
 
 class logonDBHandler:
     __username = "root"
@@ -32,10 +34,11 @@ class logonDBHandler:
         mycursor = self.connection.cursor()
         mycursor.execute('''
             CREATE TABLE IF NOT EXISTS users (
-                id VARCHAR(50) PRIMARY KEY,
+                user_id VARCHAR(50) PRIMARY KEY,
                 username VARCHAR(50) NOT NULL,
                 password VARCHAR(64) NOT NULL,
-                access_level VARCHAR(50) NOT NULL
+                access_level VARCHAR(50) NOT NULL,
+                recovery_code VARCHAR(100) NOT NULL         
             )
         ''')
 
@@ -46,16 +49,19 @@ class logonDBHandler:
         mycursor = self.connection.cursor()
 
         if self.validateUser(username, password):
-                print("User already exists")
-                return False
+            print("User already exists")
+            return False
+        
         else:
-            mycursor.execute("""INSERT INTO users (id, username, password, access_level) VALUES ('%s', '%s', '%s', '%s')""" % (user_id,username, logonDBHandler.hashData(str(password)), accessLevel))
+            recoveryCode = self.createAccRecoveryCode()
+            print(f"Recovery code: {recoveryCode}")
+            mycursor.execute("""INSERT INTO users (user_id, username, password, access_level, recovery_code) VALUES ('%s', '%s', '%s', '%s', '%s')""" % (user_id,username, logonDBHandler.hashData(str(password)), accessLevel, logonDBHandler.hashData(str(recoveryCode))))
 
         self.connection.commit()
 
     def readUserCreds(self):
         mycursor = self.connection.cursor()
-        mycursor.execute('SELECT id, username, password, access_level FROM users')
+        mycursor.execute('SELECT user_id, username, password, access_level FROM users')
         rows = mycursor.fetchall()
         self.connection.close()
         
@@ -63,7 +69,7 @@ class logonDBHandler:
     
     def validateUser(self, providedUsername, providedPassword):
         mycursor = self.connection.cursor()
-        mycursor.execute('SELECT id, access_level FROM users WHERE username = %s AND password = %s', (providedUsername, logonDBHandler.hashData(str(providedPassword))))
+        mycursor.execute('SELECT user_id, access_level FROM users WHERE username = %s AND password = %s', (providedUsername, logonDBHandler.hashData(str(providedPassword))))
         data = mycursor.fetchall()
         
         if data:
@@ -88,6 +94,29 @@ class logonDBHandler:
         else:
             return False
         
+    def createAccRecoveryCode(self):
+        recoveryCode = ""
+        for i in range(3):
+            recoveryCode += secrets.choice(string.ascii_uppercase)
+
+        recoveryCode += "-"
+        for i in range(3):
+            recoveryCode += secrets.choice(string.digits)
+
+        return recoveryCode
+
+    def validateRecoveryCode(self, username, leftH, rightH):
+        mycursor = self.connection.cursor()
+        mycursor.execute('SELECT recovery_code FROM users WHERE username = %s', (username,))
+        result = mycursor.fetchone()[0]
+
+        recoveryCode = f"{leftH}-{rightH}"
+        if logonDBHandler.hashData(str(recoveryCode)) == result:
+            return True
+        
+        return False
+
+
     #<=======================STATIC-METHODS=======================>#
     
     def hashData(data):

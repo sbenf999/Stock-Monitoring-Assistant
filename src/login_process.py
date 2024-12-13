@@ -1,5 +1,6 @@
 import customtkinter
 import os
+import tkinter
 from logonDBHandler import *
 from changePassword import *
 
@@ -22,7 +23,6 @@ class Logon(customtkinter.CTk):
         self.bind("<Shift-q>", self.onClosing)
         self.bind("<Command-w>", self.onClosing)
         self.createcommand('tk::mac::Quit', self.onClosing)
-        self.after(201, lambda :self.iconbitmap('icos/person.ico'))
           
         #create login frame
         self.loginFrame = customtkinter.CTkFrame(self, corner_radius=10)
@@ -51,9 +51,10 @@ class Logon(customtkinter.CTk):
         self.buttonExit.grid(row=2, column=2, sticky="w", padx=(0, 12), pady=12)
 
         #test with admin user
-        #logon_ = logonDBHandler()
-        #logon_.initializeDatabase()
+        logon_ = logonDBHandler()
+        logon_.initializeDatabase()
         #logon_.createUserCreds("admin", 12345, 1)
+        #print(logon_.validateRecoveryCode("admin", "VQX", "511"))
 
     def logonProcess(self):
         logon_ = logonDBHandler()
