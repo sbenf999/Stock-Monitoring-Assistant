@@ -88,7 +88,7 @@ class logonDBHandler:
     def changePasswordProcess(self, username, old_password, new_password):
         mycursor = self.connection.cursor()
         mycursor.execute("SELECT password FROM users WHERE username = %s", (username,))
-        current_password = mycursor.fetchone()
+        current_password = mycursor.fetchall()
 
         if current_password is None:
             return False
