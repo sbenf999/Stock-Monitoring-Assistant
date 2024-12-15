@@ -4,6 +4,7 @@ import hashlib
 import uuid
 import string
 import secrets
+from popUpWindow import *
 
 class logonDBHandler:
     __username = "root"
@@ -53,12 +54,15 @@ class logonDBHandler:
         mycursor = self.connection.cursor()
 
         if self.validateUser(username, password):
-            print("User already exists")
+            message = popUpWindow("User already exists")
+            message.create()
             return False
         
         else:
             recoveryCode = self.createAccRecoveryCode()
             print(f"Recovery code: {recoveryCode}")
+            message = popUpWindow(f"Recovery code: {recoveryCode}")
+            message.create()
             mycursor.execute("""INSERT INTO users (user_id, username, password, access_level, recovery_code) VALUES ('%s', '%s', '%s', '%s', '%s')""" % (user_id,username, logonDBHandler.hashData(str(password)), accessLevel, logonDBHandler.hashData(str(recoveryCode))))
 
         self.connection.commit()
@@ -131,7 +135,6 @@ class logonDBHandler:
             return True
         
         return False
-
 
     #<=======================STATIC-METHODS=======================>#
     

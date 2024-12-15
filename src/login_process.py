@@ -54,7 +54,6 @@ class Logon(customtkinter.CTk):
         logon_ = logonDBHandler()
         logon_.initializeDatabase()
         logon_.createUserCreds("admin", 12345, 1)
-        print(logon_.validateRecoveryCode("admin", "SCR", "326"))
 
     def logonProcess(self):
         logon_ = logonDBHandler()
