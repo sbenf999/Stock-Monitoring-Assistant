@@ -1,5 +1,6 @@
 import customtkinter
 from logonDBHandler import *
+from changePassword import *
 
 customtkinter.set_default_color_theme("dark-blue")
 
@@ -50,7 +51,22 @@ class forgotPassword(customtkinter.CTk):
         self.buttonExit.grid(row=3, column=2, sticky="w", padx=(12, 165), pady=12)
         
     def validateRecoveryPassword(self):
-        pass
+        check = logonDBHandler()
+        check.initializeDatabase()
+        
+        if check.validateRecoveryCode(self.usernameEntry.get(), self.leftHandRCEntry.get(), self.rightHandRCEntry.get()):
+            tempPass = check.genTempPass()
+            print(f"Temporary password: {tempPass} - use this password to create a new password")
+            check.changePasswordOutright(self.usernameEntry.get(), tempPass)
+            # you now need to generate a new recovery code. this code is not displayed to the user, rather emailed, as a form of security.
+            self.on_closing()
+            changePasswordWin = changePassword()
+            changePasswordWin.mainloop()
+
+        else:
+            self.usernameEntry.configure(text_color="red")
+            self.leftHandRCEntry.configure(text_color="red")
+            self.rightHandRCEntry.configure(text_color="red")
     
     def on_closing(self, event=0):
         self.destroy()

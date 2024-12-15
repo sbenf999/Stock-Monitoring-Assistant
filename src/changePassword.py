@@ -1,6 +1,7 @@
 import customtkinter
 from logonDBHandler import *
 from forgotPassword import *
+from popUpWindow import *
 
 customtkinter.set_default_color_theme("dark-blue")
 
@@ -62,7 +63,9 @@ class changePassword(customtkinter.CTk):
         
         if changePass:
             print("Password Changed")
-            return True
+            self.on_closing()
+            box = popUpWindow("Password changed successfuly")
+            box.create()
             
         else:
             self.usernameEntry.configure(text_color="red")

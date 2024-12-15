@@ -32,17 +32,21 @@ class logonDBHandler:
 
     def initializeDatabase(self):
         mycursor = self.connection.cursor()
-        mycursor.execute('''
-            CREATE TABLE IF NOT EXISTS users (
-                user_id VARCHAR(50) PRIMARY KEY,
-                username VARCHAR(50) NOT NULL,
-                password VARCHAR(64) NOT NULL,
-                access_level VARCHAR(50) NOT NULL,
-                recovery_code VARCHAR(100) NOT NULL         
-            )
-        ''')
+        try:
+            mycursor.execute('''
+                CREATE TABLE IF NOT EXISTS users (
+                    user_id VARCHAR(50) PRIMARY KEY,
+                    username VARCHAR(50) NOT NULL,
+                    password VARCHAR(64) NOT NULL,
+                    access_level VARCHAR(50) NOT NULL,
+                    recovery_code VARCHAR(100) NOT NULL         
+                )
+            ''')
 
-        self.connection.commit()
+            self.connection.commit()
+        
+        except Exception as error:
+            return False
 
     def createUserCreds(self, username, password, accessLevel):
         user_id = str(uuid.uuid4())
@@ -69,9 +73,9 @@ class logonDBHandler:
     
     def validateUser(self, providedUsername, providedPassword):
         mycursor = self.connection.cursor()
-        mycursor.execute('SELECT user_id, access_level FROM users WHERE username = %s AND password = %s', (providedUsername, logonDBHandler.hashData(str(providedPassword))))
+        mycursor.execute('SELECT user_id, access_level FROM users WHERE username = %s OR password = %s', (providedUsername, logonDBHandler.hashData(str(providedPassword))))
         data = mycursor.fetchall()
-        
+        print(data)
         if data:
             return True
         else:
@@ -94,6 +98,18 @@ class logonDBHandler:
         else:
             return False
         
+    def genTempPass(self):
+        tempPass = ""
+        for i in range (4):
+            tempPass += secrets.choice(string.digits)
+        
+        return tempPass
+    
+    def changePasswordOutright(self, accountName, newPassword):
+        mycursor = self.connection.cursor()
+        mycursor.execute('UPDATE users SET password = %s WHERE username = %s', (logonDBHandler.hashData(str(newPassword)), accountName))
+        self.connection.commit()
+
     def createAccRecoveryCode(self):
         recoveryCode = ""
         for i in range(3):
