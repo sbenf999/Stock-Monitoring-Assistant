@@ -67,6 +67,8 @@ class forgotPassword(customtkinter.CTk):
             self.usernameEntry.configure(text_color="red")
             self.leftHandRCEntry.configure(text_color="red")
             self.rightHandRCEntry.configure(text_color="red")
+            message = popUpWindow("Incorrect information")
+            message.create()
     
     def on_closing(self, event=0):
         self.destroy()

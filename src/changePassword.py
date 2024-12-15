@@ -64,12 +64,14 @@ class changePassword(customtkinter.CTk):
         if changePass:
             print("Password Changed")
             self.on_closing()
-            box = popUpWindow("Password changed successfuly")
-            box.create()
+            message = popUpWindow("Password changed successfuly")
+            message.create()
             
         else:
             self.usernameEntry.configure(text_color="red")
             self.oldPasswordEntry.configure(text_color="red")
+            message = popUpWindow("Incorrect information")
+            message.create()
     
     def forgotPassword(self):
         forgotPasswordWin = forgotPassword()

@@ -67,6 +67,8 @@ class Logon(customtkinter.CTk):
         else:
             self.usernameEntry.configure(text_color="red")
             self.passwordEntry.configure(text_color="red")
+            message = popUpWindow("Incorrect username or password")
+            message.create()
 
     def changePasswordWindow(self):
         changePasswordWin = changePassword()

@@ -88,12 +88,12 @@ class logonDBHandler:
     def changePasswordProcess(self, username, old_password, new_password):
         mycursor = self.connection.cursor()
         mycursor.execute("SELECT password FROM users WHERE username = %s", (username,))
-        current_password = mycursor.fetchall()
+        current_password = mycursor.fetchone()
 
         if current_password is None:
             return False
 
-        if current_password[0][0] == logonDBHandler.hashData(str(old_password)):
+        elif current_password[0][0] == logonDBHandler.hashData(str(old_password)):
             mycursor.execute('UPDATE users SET password = %s WHERE username = %s', (logonDBHandler.hashData(str(new_password)), username))
             self.connection.commit()
             
