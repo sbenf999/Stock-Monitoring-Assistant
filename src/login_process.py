@@ -3,6 +3,8 @@ import os
 import tkinter
 from logonDBHandler import *
 from changePassword import *
+from mainApp import *
+from time import sleep
 
 customtkinter.set_default_color_theme("dark-blue")
 
@@ -76,23 +78,10 @@ class Logon(customtkinter.CTk):
         
     def newWindow(self):
         self.onClosing()
-        #Define the new window (this should ideally be your application that needed logging into)
-        loginSuccess = customtkinter.CTk()
-        loginSuccess.geometry(f"{500}x{500}")
-        loginSuccess.title("App")
-        
-        #Add widgets
-        frame_new = customtkinter.CTkFrame(master=loginSuccess,width=450, height=450, corner_radius=10)
-        frame_new.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
+        message = popUpWindow("You have successfully logged in")
+        message.create()
+        app = App()
+        app.mainloop()
 
-        label_new = customtkinter.CTkLabel(master=frame_new, width=200, height=60, corner_radius=10, fg_color=("gray70", "gray35"), text="You have successfully logged in")
-        label_new.place(relx=0.5, rely=0.3, anchor=tkinter.CENTER)
-        
-        loginSuccess.mainloop()
-    
     def onClosing(self, event=0):
         self.destroy()
-
-if __name__ == "__main__":
-    app = Logon()
-    app.mainloop()

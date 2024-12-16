@@ -2,6 +2,7 @@ import customtkinter
 from tkinter import ttk
 from logonDBHandler import *
 from changePassword import *
+from login_process import *
 from popUpWindow import *
 
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
@@ -34,10 +35,9 @@ class App(customtkinter.CTk):
         #height=(self.onResize()[0]), width=(self.onResize()[1])
         self.tabview = customtkinter.CTkTabview(master=self)
         self.tabview.grid(column=1, row=0)
-        self.tabview.add("Home")
-        self.tabview.add("Record a delivery")
-        self.tabview.add("Stock counting")
-        self.tabview.set("Home")
+        tabs = ["Home", "Record a delivery", "Stock counting", "Data view", "Add product", "Add supplier", "Weekly report", "Profit margins", "Settings "]
+        for tab in tabs:
+            self.tabview.add(tab)
 
         #create a section of buttons for stock taking tools
         self.label1 = customtkinter.CTkLabel(self.sidebar_frame, text="Stock taking tools:", font=customtkinter.CTkFont(size=12))
@@ -46,7 +46,7 @@ class App(customtkinter.CTk):
         self.sidebar_button_1.grid(row=2, column=0, padx=20, pady=10)
         self.sidebar_button_2 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Stock Counting"), text="Stock Counting")
         self.sidebar_button_2.grid(row=3, column=0, padx=20, pady=10)
-        self.sidebar_button_3 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Data View"), text="Data View")
+        self.sidebar_button_3 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Data View"), text="Data view")
         self.sidebar_button_3.grid(row=4, column=0, padx=20, pady=10)
 
         #create a section of buttons for database tools, such as adding a product or supplier
@@ -64,16 +64,17 @@ class App(customtkinter.CTk):
         seperator2.grid(row=9, column=0, padx=20, pady=10)
         self.label3 = customtkinter.CTkLabel(self.sidebar_frame, text="Data tools:", font=customtkinter.CTkFont(size=12))
         self.label3.grid(row=10, column=0, padx=20)
-        self.sidebar_button_5 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Add supplier"), text="Data view")
+        self.sidebar_button_5 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Weekly report"), text="Weekly report")
         self.sidebar_button_5.grid(row=11, column=0, padx=20, pady=10)
-        self.sidebar_button_5 = customtkinter.CTkButton(self.sidebar_frame, command=self.sidebar_button_event, text="Weekly report")
-        self.sidebar_button_5.grid(row=12, column=0, padx=20, pady=10)
-        self.sidebar_button_6 = customtkinter.CTkButton(self.sidebar_frame, command=self.sidebar_button_event, text="Profit Margins")
-        self.sidebar_button_6.grid(row=13, column=0, padx=20, pady=10)
+        self.sidebar_button_6 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Profit margins"), text="Profit margins")
+        self.sidebar_button_6.grid(row=12, column=0, padx=20, pady=10)
+        self.sidebar_button_7 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Settings"), text="Settings")
+        self.sidebar_button_7.grid(row=13, column=0, padx=20, pady=(10,10))
 
+    #function for buttons in the sidebar - used for navigating the tabview on the right
     def goToTab(self, tabName):
         self.tabview.set(tabName)
 
 if __name__ == "__main__":
-    app = App()
-    app.mainloop()
+    login = Logon()
+    login.mainloop()
