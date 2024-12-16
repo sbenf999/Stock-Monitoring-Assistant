@@ -2,10 +2,11 @@ import customtkinter
 from logonDBHandler import *
 from forgotPassword import *
 from popUpWindow import *
+from windowSuperClass import superWindow
 
 customtkinter.set_default_color_theme("dark-blue")
 
-class changePassword(customtkinter.CTk):
+class changePassword(superWindow):
     
     APP_NAME = "Change Password"
     WIDTH = 500
@@ -17,11 +18,6 @@ class changePassword(customtkinter.CTk):
         self.title(changePassword.APP_NAME)
         self.geometry(str(changePassword.WIDTH) + "x" + str(changePassword.HEIGHT))
         self.minsize(changePassword.WIDTH, changePassword.HEIGHT)
-
-        self.protocol("WM_DELETE_WINDOW", self.on_closing)
-        self.bind("<Shift-q>", self.on_closing)
-        self.bind("<Command-w>", self.on_closing)
-        self.createcommand('tk::mac::Quit', self.on_closing)
         
         #create change password frame
         self.changePasswordFrame = customtkinter.CTkFrame(self, corner_radius=10)
@@ -51,7 +47,7 @@ class changePassword(customtkinter.CTk):
         self.buttonForgotPassword = customtkinter.CTkButton(self.changePasswordFrame, text="Forgot password", command=self.forgotPassword)
         self.buttonForgotPassword.grid(row=3, column=1, sticky="w", padx=(12, 12), pady=12)
         
-        self.buttonExit = customtkinter.CTkButton(self.changePasswordFrame, text="Exit", command=self.on_closing)
+        self.buttonExit = customtkinter.CTkButton(self.changePasswordFrame, text="Exit", command=self.onClosing)
         self.buttonExit.grid(row=3, column=2, sticky="w", padx=(0, 12), pady=12)
         
     def change(self):
@@ -77,7 +73,5 @@ class changePassword(customtkinter.CTk):
         forgotPasswordWin = forgotPassword()
         forgotPasswordWin.mainloop()
     
-    def on_closing(self, event=0):
-        self.destroy()
-        
+
 

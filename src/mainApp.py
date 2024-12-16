@@ -4,11 +4,12 @@ from logonDBHandler import *
 from changePassword import *
 from login_process import *
 from popUpWindow import *
+from windowSuperClass import superWindow
 
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
-class App(customtkinter.CTk):
+class App(superWindow):
 
     WIDTH = 1100
     HEIGHT = 580

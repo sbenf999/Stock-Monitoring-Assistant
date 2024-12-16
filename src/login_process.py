@@ -3,12 +3,13 @@ import os
 import tkinter
 from logonDBHandler import *
 from changePassword import *
+from windowSuperClass import superWindow
 from mainApp import *
 from time import sleep
 
 customtkinter.set_default_color_theme("dark-blue")
 
-class Logon(customtkinter.CTk):
+class Logon(superWindow):
     
     APP_NAME = "Login Window"
     WIDTH = 500
@@ -20,11 +21,6 @@ class Logon(customtkinter.CTk):
         self.title(Logon.APP_NAME)
         self.geometry(str(Logon.WIDTH) + "x" + str(Logon.HEIGHT))
         self.minsize(Logon.WIDTH, Logon.HEIGHT)
-
-        self.protocol("WM_DELETE_WINDOW", self.onClosing)
-        self.bind("<Shift-q>", self.onClosing)
-        self.bind("<Command-w>", self.onClosing)
-        self.createcommand('tk::mac::Quit', self.onClosing)
           
         #create login frame
         self.loginFrame = customtkinter.CTkFrame(self, corner_radius=10)
@@ -83,5 +79,3 @@ class Logon(customtkinter.CTk):
         app = App()
         app.mainloop()
 
-    def onClosing(self, event=0):
-        self.destroy()

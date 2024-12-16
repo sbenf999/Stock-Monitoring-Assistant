@@ -1,10 +1,11 @@
 import customtkinter
 from logonDBHandler import *
 from changePassword import *
+from windowSuperClass import superWindow
 
 customtkinter.set_default_color_theme("dark-blue")
 
-class forgotPassword(customtkinter.CTk):
+class forgotPassword(superWindow):
     
     APP_NAME = "Forgot Password"
     WIDTH = 500
@@ -16,11 +17,6 @@ class forgotPassword(customtkinter.CTk):
         self.title(forgotPassword.APP_NAME)
         self.geometry(str(forgotPassword.WIDTH) + "x" + str(forgotPassword.HEIGHT))
         self.minsize(forgotPassword.WIDTH, forgotPassword.HEIGHT)
-
-        self.protocol("WM_DELETE_WINDOW", self.on_closing)
-        self.bind("<Shift-q>", self.on_closing)
-        self.bind("<Command-w>", self.on_closing)
-        self.createcommand('tk::mac::Quit', self.on_closing)
         
         #create change password frame
         self.forgotPasswordFrame = customtkinter.CTkFrame(self, corner_radius=10)
@@ -47,7 +43,7 @@ class forgotPassword(customtkinter.CTk):
         self.buttonValidate = customtkinter.CTkButton(self.forgotPasswordFrame, text="Validate R.C.", command=self.validateRecoveryPassword)
         self.buttonValidate.grid(row=3, column=0, sticky="w", padx=(12, 0), pady=12)
         
-        self.buttonExit = customtkinter.CTkButton(self.forgotPasswordFrame, text="Exit", command=self.on_closing)
+        self.buttonExit = customtkinter.CTkButton(self.forgotPasswordFrame, text="Exit", command=self.onClosing)
         self.buttonExit.grid(row=3, column=2, sticky="w", padx=(12, 165), pady=12)
         
     def validateRecoveryPassword(self):
@@ -71,9 +67,6 @@ class forgotPassword(customtkinter.CTk):
             self.rightHandRCEntry.configure(text_color="red")
             message = popUpWindow("Incorrect information")
             message.create()
-    
-    def on_closing(self, event=0):
-        self.destroy()
 
 if __name__ == "__main__":
     test = forgotPassword()
