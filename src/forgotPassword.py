@@ -29,8 +29,8 @@ class forgotPassword(customtkinter.CTk):
         self.usernameLabel = customtkinter.CTkLabel(self.forgotPasswordFrame, text="Enter Username:", anchor="w")
         self.usernameLabel.grid(row=0, column=0)
         
-        self.usernameEntry = customtkinter.CTkEntry(self.forgotPasswordFrame, placeholder_text="Username...")
-        self.usernameEntry.grid(row=0, column=1, columnspan=2, sticky="nsew", padx=(12), pady=12)
+        self.userEntry = customtkinter.CTkEntry(self.forgotPasswordFrame, placeholder_text="Username...")
+        self.userEntry.grid(row=0, column=1, columnspan=2, sticky="nsew", padx=(12), pady=12)
         
         self.leftHandRCLabel = customtkinter.CTkLabel(self.forgotPasswordFrame, text="Left-hand R.C.:", anchor="w")
         self.leftHandRCLabel.grid(row=1, column=0)
@@ -54,17 +54,19 @@ class forgotPassword(customtkinter.CTk):
         check = logonDBHandler()
         check.initializeDatabase()
         
-        if check.validateRecoveryCode(self.usernameEntry.get(), self.leftHandRCEntry.get(), self.rightHandRCEntry.get()):
+        if check.validateRecoveryCode(self.userEntry.get(), self.leftHandRCEntry.get(), self.rightHandRCEntry.get()):
             tempPass = check.genTempPass()
             print(f"Temporary password: {tempPass} - use this password to create a new password")
-            check.changePasswordOutright(self.usernameEntry.get(), tempPass)
-            # you now need to generate a new recovery code. this code is not displayed to the user, rather emailed, as a form of security.
+            message = popUpWindow(f"Temporary password: {tempPass}")
+            message.create()
+            check.changePasswordOutright(self.userEntry.get(), tempPass)
             self.on_closing()
+            # you now need to generate a new recovery code. this code is not displayed to the user, rather emailed, as a form of security.
             changePasswordWin = changePassword()
             changePasswordWin.mainloop()
 
         else:
-            self.usernameEntry.configure(text_color="red")
+            self.userEntry.configure(text_color="red")
             self.leftHandRCEntry.configure(text_color="red")
             self.rightHandRCEntry.configure(text_color="red")
             message = popUpWindow("Incorrect information")

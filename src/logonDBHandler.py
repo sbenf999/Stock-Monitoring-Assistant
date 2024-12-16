@@ -63,8 +63,10 @@ class logonDBHandler:
             print(f"Recovery code: {recoveryCode}")
             message = popUpWindow(f"Recovery code: {recoveryCode}")
             message.create()
-            mycursor.execute("""INSERT INTO users (user_id, username, password, access_level, recovery_code) VALUES ('%s', '%s', '%s', '%s', '%s')""" % (user_id,username, logonDBHandler.hashData(str(password)), accessLevel, logonDBHandler.hashData(str(recoveryCode))))
-
+            try:
+                mycursor.execute("""INSERT INTO users (user_id, username, password, access_level, recovery_code) VALUES ('%s', '%s', '%s', '%s', '%s')""" % (user_id,username, logonDBHandler.hashData(str(password)), accessLevel, logonDBHandler.hashData(str(recoveryCode))))
+            except Exception as e:
+                print(e)
         self.connection.commit()
 
     def readUserCreds(self):
@@ -78,7 +80,7 @@ class logonDBHandler:
     def validateUser(self, providedUsername, providedPassword):
         mycursor = self.connection.cursor()
         mycursor.execute('SELECT user_id, access_level FROM users WHERE username = %s AND password = %s', (providedUsername, logonDBHandler.hashData(str(providedPassword))))
-        data = mycursor.fetchall()
+        data = mycursor.fetchone()
         print(data)
         if data:
             return True

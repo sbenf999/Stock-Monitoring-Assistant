@@ -51,9 +51,9 @@ class Logon(customtkinter.CTk):
         self.buttonExit.grid(row=2, column=2, sticky="w", padx=(0, 12), pady=12)
 
         #test with admin user
-        logon_ = logonDBHandler()
-        logon_.initializeDatabase()
-        logon_.createUserCreds("admin", 12345, 1)
+        #logon_ = logonDBHandler()
+        #logon_.initializeDatabase()
+        #logon_.createUserCreds("admin", 12345, 1)
 
     def logonProcess(self):
         logon_ = logonDBHandler()
