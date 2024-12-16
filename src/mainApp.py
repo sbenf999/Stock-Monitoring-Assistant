@@ -6,16 +6,15 @@ from login_process import *
 from popUpWindow import *
 from windowSuperClass import superWindow
 
-customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
-customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
-
 class App(superWindow):
 
     WIDTH = 1100
     HEIGHT = 580
 
-    def __init__(self):
+    def __init__(self, userAccessLevel):
         super().__init__()
+
+        self.userAccessLevel = userAccessLevel
 
         # configure window
         self.title("OneStop Stock Assistant System")
@@ -31,14 +30,6 @@ class App(superWindow):
         self.sidebar_frame.grid_rowconfigure(4, weight=1)
         self.logo_label = customtkinter.CTkLabel(self.sidebar_frame, text="OSSMA", font=customtkinter.CTkFont(size=20, weight="bold"))
         self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
-
-        #tabview in which all UI will take place to do with functions of the application - the sidebar on the side simply allows for easier switching of the tabs
-        #height=(self.onResize()[0]), width=(self.onResize()[1])
-        self.tabview = customtkinter.CTkTabview(master=self)
-        self.tabview.grid(column=1, row=0)
-        tabs = ["Home", "Record a delivery", "Stock counting", "Data view", "Add product", "Add supplier", "Weekly report", "Profit margins", "Settings "]
-        for tab in tabs:
-            self.tabview.add(tab)
 
         #create a section of buttons for stock taking tools
         self.label1 = customtkinter.CTkLabel(self.sidebar_frame, text="Stock taking tools:", font=customtkinter.CTkFont(size=12))
@@ -72,9 +63,37 @@ class App(superWindow):
         self.sidebar_button_7 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Settings"), text="Settings")
         self.sidebar_button_7.grid(row=13, column=0, padx=20, pady=(10,10))
 
+        self.setButtonStates()
+
+        #tabview in which all UI will take place to do with functions of the application - the sidebar on the side simply allows for easier switching of the tabs
+        #height=(self.onResize()[0]), width=(self.onResize()[1])
+        self.tabview = customtkinter.CTkTabview(master=self)
+        self.tabview.grid(column=1, row=0)
+        for tab in self.allowances[int(self.userAccessLevel)]:
+            self.tabview.add(tab)
+
     #function for buttons in the sidebar - used for navigating the tabview on the right
     def goToTab(self, tabName):
         self.tabview.set(tabName)
+
+    def setButtonStates(self):
+        #get user access level from login program in order to disable some functions
+        self.tabsDefault = ["Home", "Record a delivery", "Stock counting", "Data view", "Add product", "Add supplier", "Weekly report", "Profit margins", "Settings"]
+        self.buttonsDefault = [self.sidebar_button_1, self.sidebar_button_2, self.sidebar_button_3, self.sidebar_button_4, self.sidebar_button_5, self.sidebar_button_6, self.sidebar_button_7]
+        self.tabs = self.tabsDefault
+        self.allowances: dict = {
+                1: list(filter(lambda tab_: tab_ not in ["Profit margins"], self.tabs)),
+                2: list(filter(lambda tab_: tab_ not in ["Profit margins"], self.tabs)),
+                3: list(filter(lambda tab_: tab_ not in ["Profit margins", "Add product", "Add supplier", "Data view", "Weekly report", "Settings"], self.tabs))
+        }
+
+        #disable any buttons that the user doesnt have access to
+        for page in self.tabsDefault:
+            if page not in self.allowances[int(self.userAccessLevel)]:
+                for button in self.buttonsDefault:
+                    name = button.cget("text")
+                    if name == page:
+                        button.configure(state="disabled")
 
 if __name__ == "__main__":
     login = Logon()

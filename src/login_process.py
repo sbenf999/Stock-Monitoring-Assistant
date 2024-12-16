@@ -54,10 +54,10 @@ class Logon(superWindow):
         #logon_.createUserCreds("admin", 12345, 1)
 
     def logonProcess(self):
-        logon_ = logonDBHandler()
-        logon_.initializeDatabase()
+        self.logon_ = logonDBHandler()
+        self.logon_.initializeDatabase()
 
-        login = logon_.validateUser(self.usernameEntry.get(), self.passwordEntry.get())
+        login = self.logon_.validateUser(self.usernameEntry.get(), self.passwordEntry.get())
         if login:
             print("Hoorah")
             self.newWindow()
@@ -73,9 +73,13 @@ class Logon(superWindow):
         changePasswordWin.mainloop()
         
     def newWindow(self):
+        givenLevel = str(self)
         self.onClosing()
         message = popUpWindow("You have successfully logged in")
         message.create()
-        app = App()
+        app = App(givenLevel)
         app.mainloop()
+
+    def __str__(self):
+        return self.logon_.getUserAccessLevel(self.usernameEntry.get())
 

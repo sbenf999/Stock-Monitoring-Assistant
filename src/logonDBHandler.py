@@ -137,6 +137,13 @@ class logonDBHandler:
             return True
         
         return False
+    
+    def getUserAccessLevel(self, username):
+        mycursor = self.connection.cursor()
+        mycursor.execute('SELECT access_level FROM users WHERE username = %s', (username,))
+        result = mycursor.fetchone()[0]
+
+        return result
 
     #<=======================STATIC-METHODS=======================>#
     
