@@ -162,12 +162,14 @@ class App(superWindow):
 
         self.productFrame = scrollableWin(master=self.tabview.tab(tab_), width=300, height=200, corner_radius=0, fg_color="transparent")
         self.productFrame.grid(row=7, column=0, sticky="nsew", columnspan=6)
-        self.itemLabel = customtkinter.CTkLabel(self.productFrame, text="Item")
-        self.itemLabel.grid(row=0, column=0, padx=(20), pady=20, sticky='w')
-        self.itemQuantityLabel = customtkinter.CTkLabel(self.productFrame, text="Quantity")
-        self.itemQuantityLabel.grid(row=0, column=1, padx=(20), pady=20, sticky='w')
+        self.productNumLabel = customtkinter.CTkLabel(self.productFrame, text="Item num", fg_color="transparent")
+        self.productNumLabel.grid(row=0, column=0, padx=(20), pady=20, sticky='w')
+        self.itemLabel = customtkinter.CTkLabel(self.productFrame, text="Item", fg_color="transparent")
+        self.itemLabel.grid(row=0, column=1, padx=(20), pady=20, sticky='w')
+        self.itemQuantityLabel = customtkinter.CTkLabel(self.productFrame, text="Quantity", fg_color="transparent")
+        self.itemQuantityLabel.grid(row=0, column=2, padx=(20), pady=20, sticky='w')
         self.toolLabel = customtkinter.CTkLabel(self.productFrame, text="Tool")
-        self.toolLabel.grid(row=0, column=2, padx=(20), pady=20, sticky='w')
+        self.toolLabel.grid(row=0, column=3, padx=(20), pady=20, sticky='w')
         
         #create a seperator to distuinguish between sections
         seperator3 = customtkinter.CTkFrame(self.tabview.tab(tab_), height=1, fg_color="gray")
@@ -197,43 +199,41 @@ class App(superWindow):
 
     # Function to update the product list
     def update_product_list(self):
-        # Clear the existing list
-        for widget in self.productFrame.winfo_children():
-            widget.destroy()
-
         # Create a label and entry widget for each product in the list
+        self.clearProductList()
 
-        for i, product in enumerate(self.products, start=1):
+        for i, product in enumerate(self.products):
+            self.clearProductList()
+            count_label = customtkinter.CTkLabel(self.productFrame, text=str(i+1))
+            count_label.grid(row=i+1, column=0, padx=20, sticky="w", pady=10)
 
             # Name label with fixed width
             name_label = customtkinter.CTkLabel(self.productFrame, text=product['name'])
-            name_label.grid(row=i+1, column=0, padx=20, sticky="w", pady=10)
+            name_label.grid(row=i+1, column=1, padx=20, sticky="w", pady=10)
 
             # Quantity entry with fixed width
             quantity_entry_widget = customtkinter.CTkEntry(self.productFrame)
-            quantity_entry_widget.grid(row=i+1, column=1, padx=20, sticky="w", pady=10)
+            quantity_entry_widget.grid(row=i+1, column=2, padx=20, sticky="w", pady=10)
             quantity_entry_widget.insert(0, str(product['quantity']))  # Insert the current quantity
 
             # Delete button to remove the product
-            delete_button = customtkinter.CTkButton(self.productFrame, text="Delete", command=lambda i=i: self.delete_product(i-1))
-            delete_button.grid(row=i+1, column=2, padx=20, sticky="w", pady=10)
-
-    # Function to save the modified quantity
-    def save_quantity(self, index, entry_widget):
-        # Get the new quantity from the entry widget
-        new_quantity = entry_widget.get()
-        
-        if new_quantity.isdigit():
-            self.products[index]["quantity"] = int(new_quantity)
-            self.update_product_list()
-        else:
-            messagebox.showwarning("Input Error", "Please enter a valid quantity")
+            print(self.products, i)
+            print(self.products[i])
+            delete_button = customtkinter.CTkButton(self.productFrame, text="Delete", command=lambda i=i: self.delete_product(i))
+            delete_button.grid(row=i+1, column=3, padx=20, sticky="w", pady=10)
 
     # Function to delete a product
     def delete_product(self, index):
         # Remove product from the list
         del self.products[index]
         self.update_product_list()
+
+    def clearProductList(self):
+        # Clear the existing list
+        for widget in self.productFrame.winfo_children():
+            if widget.cget('fg_color') != 'transparent':
+                widget.destroy()
+
 
 if __name__ == "__main__":
     #login = Logon()
