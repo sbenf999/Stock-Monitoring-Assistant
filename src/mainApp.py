@@ -107,6 +107,8 @@ class App(superWindow):
 
     def recordDeliveryUI(self, tab_='Record a delivery'): #you might want to make this a scrollable fram
         #you need to create a supplier database and then select all suppliers in order to be able to give values for the value list below
+        self.tab_ = tab_
+        
         self.chooseSupplierLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Choose supplier:", anchor="w")
         self.chooseSupplierLabel.grid(row=0, column=0, padx=(20, 20), pady=20, sticky='w')
         self.chooseSupplier = customtkinter.CTkOptionMenu(self.tabview.tab(tab_), dynamic_resizing=False, values=["Value 1", "Value 2", "Value Long Long Long"], width=200) #values list should be taken from a database call once the supplier database is created
@@ -143,7 +145,7 @@ class App(superWindow):
         #create the autocomplete search for a product
         self.findProductLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Search product:")
         self.findProductLabel.grid(row=4, column=0, padx=(20), pady=20, sticky='w')
-        self.autocomplete_entry = AutocompleteEntry(self.tabview.tab(tab_), width=500)
+        self.autocomplete_entry = AutocompleteEntry(self.tabview.tab(tab_), width=500, placeholder_text='Search product...')
         self.autocomplete_entry.set_suggestions(["Banana", "Bagels"])
         self.autocomplete_entry.grid(row=4, column=1, padx=20, pady=20, columnspan=3, sticky='w')
         self.quantityLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Quantity: ")
@@ -175,7 +177,7 @@ class App(superWindow):
         seperator3 = customtkinter.CTkFrame(self.tabview.tab(tab_), height=1, fg_color="gray")
         seperator3.grid(row=8, column=0, columnspan=10, padx=20, pady=20, sticky='nsew')
 
-        self.confirmDelivery = customtkinter.CTkButton(self.tabview.tab(tab_), text="Confirm delivery")
+        self.confirmDelivery = customtkinter.CTkButton(self.tabview.tab(tab_), text="Confirm delivery", command=self.confirmDelivery)
         self.confirmDelivery.grid(row=9, column=0, padx=20, pady=10)
     
     # Function to add product
@@ -231,8 +233,23 @@ class App(superWindow):
     def clearProductList(self):
         # Clear the existing list
         for widget in self.productFrame.winfo_children():
-            if widget.cget('fg_color') != 'transparent':
+            if widget not in [self.productNumLabel, self.itemLabel, self.itemQuantityLabel, self.toolLabel]:
                 widget.destroy()
+
+    def confirmDelivery(self):
+        messagebox.askquestion(title='Confirm delivery', message="Do you wish to confirm the delivery?")
+        for widget in self.tabview.tab(self.tab_).winfo_children():
+            try:
+                if widget.cget('placeholder_text'):
+                    widget.delete(0, customtkinter.END)
+                    widget._activate_placeholder()
+                    widget.focus()
+            
+            except ValueError:
+                continue
+
+        self.clearProductList()
+
 
 
 if __name__ == "__main__":
