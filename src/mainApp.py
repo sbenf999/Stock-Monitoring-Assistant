@@ -205,24 +205,25 @@ class App(superWindow):
         self.clearProductList()
 
         for i, product in enumerate(self.products):
-            self.clearProductList()
+            if i==0:
+                self.clearProductList()
             count_label = customtkinter.CTkLabel(self.productFrame, text=str(i+1))
-            count_label.grid(row=i+1, column=0, padx=20, sticky="w", pady=10)
+            count_label.grid(row=i+2, column=0, padx=20, sticky="w", pady=10)
 
             # Name label with fixed width
             name_label = customtkinter.CTkLabel(self.productFrame, text=product['name'])
-            name_label.grid(row=i+1, column=1, padx=20, sticky="w", pady=10)
+            name_label.grid(row=i+2, column=1, padx=20, sticky="w", pady=10)
 
             # Quantity entry with fixed width
             quantity_entry_widget = customtkinter.CTkEntry(self.productFrame)
-            quantity_entry_widget.grid(row=i+1, column=2, padx=20, sticky="w", pady=10)
+            quantity_entry_widget.grid(row=i+2, column=2, padx=20, sticky="w", pady=10)
             quantity_entry_widget.insert(0, str(product['quantity']))  # Insert the current quantity
 
             # Delete button to remove the product
             print(self.products, i)
             print(self.products[i])
             delete_button = customtkinter.CTkButton(self.productFrame, text="Delete", command=lambda i=i: self.delete_product(i))
-            delete_button.grid(row=i+1, column=3, padx=20, sticky="w", pady=10)
+            delete_button.grid(row=i+2, column=3, padx=20, sticky="w", pady=10)
 
     # Function to delete a product
     def delete_product(self, index):
