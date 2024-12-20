@@ -36,11 +36,12 @@ class logonDBHandler:
         try:
             mycursor.execute('''
                 CREATE TABLE IF NOT EXISTS users (
-                    user_id VARCHAR(50) PRIMARY KEY,
+                    user_id INT auto_increment PRIMARY KEY,
                     username VARCHAR(50) NOT NULL,
                     password VARCHAR(64) NOT NULL,
                     access_level VARCHAR(50) NOT NULL,
-                    recovery_code VARCHAR(100) NOT NULL         
+                    recovery_code VARCHAR(100) NOT NULL,
+                    email_address VARCHAR(100) NOT NULL   
                 )
             ''')
 
@@ -49,8 +50,7 @@ class logonDBHandler:
         except Exception as error:
             return False
 
-    def createUserCreds(self, username, password, accessLevel):
-        user_id = str(uuid.uuid4())
+    def createUserCreds(self, username, password, accessLevel, emailAddress):
         mycursor = self.connection.cursor()
 
         if self.validateUser(username, password):
@@ -64,7 +64,7 @@ class logonDBHandler:
             message = popUpWindow(f"Recovery code: {recoveryCode}")
             message.create()
             try:
-                mycursor.execute("""INSERT INTO users (user_id, username, password, access_level, recovery_code) VALUES ('%s', '%s', '%s', '%s', '%s')""" % (user_id,username, logonDBHandler.hashData(str(password)), accessLevel, logonDBHandler.hashData(str(recoveryCode))))
+                mycursor.execute("""INSERT INTO users (user_id, username, password, access_level, recovery_code, email_address) VALUES ('%s', '%s', '%s', '%s', '%s', '%s')""" % (user_id,username, logonDBHandler.hashData(str(password)), accessLevel, logonDBHandler.hashData(str(recoveryCode))), emailAddress)
             except Exception as e:
                 print(e)
         self.connection.commit()
