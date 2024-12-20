@@ -1,40 +1,15 @@
 import mysql.connector
 from mysql.connector import errorcode
 import hashlib
-import uuid
 import string
 import secrets
 from popUpWindow import *
+from DBHandler import *
 
-class logonDBHandler:
-    __username = "root"
-    __password = "BeltMadness3"
-    __host = "192.168.0.142"
-    __database = "nea"
-    connection = ""
-    cursor = ""
-
-    def __init__(self):
-        try:
-            self.connection = mysql.connector.connect(user=self.__username,password=self.__password, host=self.__host, database=self.__database, auth_plugin='mysql_native_password') 
-            self.cursor = self.connection.cursor(prepared=True)   
-
-        except mysql.connector.Error as err:
-            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-                print(err)
-                print("Something is wrong with your user name or password")
-            elif err.errno == errorcode.ER_BAD_DB_ERROR:
-                print("Database does not exist")
-            else:
-                print(err)   
-
-    def close(self):
-        self.connection.close()
-
+class logonDBHandler(DBHandler):
     def initializeDatabase(self):
-        mycursor = self.connection.cursor()
         try:
-            mycursor.execute('''
+            self.cursor.execute('''
                 CREATE TABLE IF NOT EXISTS users (
                     user_id INT auto_increment PRIMARY KEY,
                     username VARCHAR(50) NOT NULL,
@@ -48,11 +23,9 @@ class logonDBHandler:
             self.connection.commit()
         
         except Exception as error:
-            return False
+            return False, error
 
     def createUserCreds(self, username, password, accessLevel, emailAddress):
-        mycursor = self.connection.cursor()
-
         if self.validateUser(username, password):
             message = popUpWindow("User already exists")
             message.create()
@@ -64,23 +37,22 @@ class logonDBHandler:
             message = popUpWindow(f"Recovery code: {recoveryCode}")
             message.create()
             try:
-                mycursor.execute("""INSERT INTO users (user_id, username, password, access_level, recovery_code, email_address) VALUES ('%s', '%s', '%s', '%s', '%s', '%s')""" % (user_id,username, logonDBHandler.hashData(str(password)), accessLevel, logonDBHandler.hashData(str(recoveryCode))), emailAddress)
+                self.cursor.execute("""INSERT INTO users (username, password, access_level, recovery_code, email_address) VALUES ('%s', '%s', '%s', '%s', '%s')""" % (username, logonDBHandler.hashData(str(password)), accessLevel, logonDBHandler.hashData(str(recoveryCode))), emailAddress)
             except Exception as e:
                 print(e)
+
         self.connection.commit()
 
     def readUserCreds(self):
-        mycursor = self.connection.cursor()
-        mycursor.execute('SELECT user_id, username, password, access_level FROM users')
-        rows = mycursor.fetchall()
+        self.cursor.execute('SELECT user_id, username, password, access_level FROM users')
+        rows = self.cursor.fetchall()
         self.connection.close()
         
         return rows
     
     def validateUser(self, providedUsername, providedPassword):
-        mycursor = self.connection.cursor()
-        mycursor.execute('SELECT user_id, access_level FROM users WHERE username = %s AND password = %s', (providedUsername, logonDBHandler.hashData(str(providedPassword))))
-        data = mycursor.fetchone()
+        self.cursor.execute('SELECT user_id, access_level FROM users WHERE username = %s AND password = %s', (providedUsername, logonDBHandler.hashData(str(providedPassword))))
+        data = self.cursor.fetchone()
         print(data)
         if data:
             return True
@@ -88,15 +60,14 @@ class logonDBHandler:
             return False
         
     def changePasswordProcess(self, username, old_password, new_password):
-        mycursor = self.connection.cursor()
-        mycursor.execute("SELECT password FROM users WHERE username = %s", (username,))
-        current_password = mycursor.fetchall()
+        self.cursor.execute("SELECT password FROM users WHERE username = %s", (username,))
+        current_password = self.cursor.fetchall()
 
         if current_password is None:
             return False
 
         elif current_password[0][0] == logonDBHandler.hashData(str(old_password)):
-            mycursor.execute('UPDATE users SET password = %s WHERE username = %s', (logonDBHandler.hashData(str(new_password)), username))
+            self.cursor.execute('UPDATE users SET password = %s WHERE username = %s', (logonDBHandler.hashData(str(new_password)), username))
             self.connection.commit()
             
             return True
@@ -112,8 +83,7 @@ class logonDBHandler:
         return tempPass
     
     def changePasswordOutright(self, accountName, newPassword):
-        mycursor = self.connection.cursor()
-        mycursor.execute('UPDATE users SET password = %s WHERE username = %s', (logonDBHandler.hashData(str(newPassword)), accountName))
+        self.cursor.execute('UPDATE users SET password = %s WHERE username = %s', (logonDBHandler.hashData(str(newPassword)), accountName))
         self.connection.commit()
 
     def createAccRecoveryCode(self):
@@ -128,9 +98,8 @@ class logonDBHandler:
         return recoveryCode
 
     def validateRecoveryCode(self, username, leftH, rightH):
-        mycursor = self.connection.cursor()
-        mycursor.execute('SELECT recovery_code FROM users WHERE username = %s', (username,))
-        result = mycursor.fetchone()[0]
+        self.cursor.execute('SELECT recovery_code FROM users WHERE username = %s', (username,))
+        result = self.cursor.fetchone()[0]
 
         recoveryCode = f"{leftH}-{rightH}"
         if logonDBHandler.hashData(str(recoveryCode)) == result:
@@ -139,9 +108,8 @@ class logonDBHandler:
         return False
     
     def getUserAccessLevel(self, username):
-        mycursor = self.connection.cursor()
-        mycursor.execute('SELECT access_level FROM users WHERE username = %s', (username,))
-        result = mycursor.fetchone()[0]
+        self.cursor.execute('SELECT access_level FROM users WHERE username = %s', (username,))
+        result = self.cursor.fetchone()[0]
 
         return result
 

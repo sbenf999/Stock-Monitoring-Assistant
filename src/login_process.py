@@ -51,7 +51,7 @@ class Logon(superWindow):
         #test with admin user
         logon_ = logonDBHandler()
         logon_.initializeDatabase()
-        logon_.createUserCreds("admin", 12345, 1)
+        logon_.createUserCreds("admin", 12345, 1, "admin@example.com")
 
     def logonProcess(self):
         self.logon_ = logonDBHandler()
