@@ -25,24 +25,6 @@ class logonDBHandler(DBHandler):
         except Exception as error:
             return False, error
 
-#     def createUserCreds(self, username, password, accessLevel, emailAddress):
-#         if self.validateUser(username, password):
-#             message = popUpWindow("User already exists")
-#             message.create()
-#             return False
-#         
-#         else:
-#             recoveryCode = self.createAccRecoveryCode()
-#             print(f"Recovery code: {recoveryCode}")
-#             message = popUpWindow(f"Recovery code: {recoveryCode}")
-#             message.create()
-#             try:
-#                 self.cursor.execute("""INSERT INTO users (username, password, access_level, recovery_code, email_address) VALUES ('%s', '%s', '%s', '%s', '%s')""" % (username, logonDBHandler.hashData(str(password)), accessLevel, logonDBHandler.hashData(str(recoveryCode))), emailAddress)
-#             except Exception as e:
-#                 print(e)
-# 
-#         self.connection.commit()
-
     def createUserCreds(self, username, password, accessLevel, emailAddress):
         if self.validateUser(username, password):
             message = popUpWindow("User already exists")
