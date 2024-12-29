@@ -251,10 +251,11 @@ class App(superWindow):
 
         self.clearProductList()
 
-
-
 if __name__ == "__main__":
-    #login = Logon()
-    #login.mainloop()
-    app = App(1)
-    app.mainloop()
+    initialiser = logonDBHandler()
+    initialiser.initializeDatabase()
+    initialiser.createUserCreds("admin", 12345, 1, "admin@example.com")
+    login = Logon()
+    login.mainloop()
+    #app = App(1)
+    #app.mainloop()

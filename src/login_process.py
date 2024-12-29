@@ -49,9 +49,7 @@ class Logon(superWindow):
         self.buttonExit.grid(row=2, column=2, sticky="w", padx=(0, 12), pady=12)
 
         #test with admin user
-        logon_ = logonDBHandler()
-        logon_.initializeDatabase()
-        logon_.createUserCreds("admin", 12345, 1, "admin@example.com")
+        
 
     def logonProcess(self):
         self.logon_ = logonDBHandler()
@@ -83,3 +81,7 @@ class Logon(superWindow):
     def __str__(self):
         return self.logon_.getUserAccessLevel(self.usernameEntry.get())
 
+#logon_ = logonDBHandler()
+#logon_.initializeDatabase()
+#logon_.mainloop()
+#logon_.createUserCreds("admin", 12345, 1, "admin@example.com")

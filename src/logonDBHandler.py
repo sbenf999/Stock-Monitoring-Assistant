@@ -25,6 +25,24 @@ class logonDBHandler(DBHandler):
         except Exception as error:
             return False, error
 
+#     def createUserCreds(self, username, password, accessLevel, emailAddress):
+#         if self.validateUser(username, password):
+#             message = popUpWindow("User already exists")
+#             message.create()
+#             return False
+#         
+#         else:
+#             recoveryCode = self.createAccRecoveryCode()
+#             print(f"Recovery code: {recoveryCode}")
+#             message = popUpWindow(f"Recovery code: {recoveryCode}")
+#             message.create()
+#             try:
+#                 self.cursor.execute("""INSERT INTO users (username, password, access_level, recovery_code, email_address) VALUES ('%s', '%s', '%s', '%s', '%s')""" % (username, logonDBHandler.hashData(str(password)), accessLevel, logonDBHandler.hashData(str(recoveryCode))), emailAddress)
+#             except Exception as e:
+#                 print(e)
+# 
+#         self.connection.commit()
+
     def createUserCreds(self, username, password, accessLevel, emailAddress):
         if self.validateUser(username, password):
             message = popUpWindow("User already exists")
@@ -37,11 +55,14 @@ class logonDBHandler(DBHandler):
             message = popUpWindow(f"Recovery code: {recoveryCode}")
             message.create()
             try:
-                self.cursor.execute("""INSERT INTO users (username, password, access_level, recovery_code, email_address) VALUES ('%s', '%s', '%s', '%s', '%s')""" % (username, logonDBHandler.hashData(str(password)), accessLevel, logonDBHandler.hashData(str(recoveryCode))), emailAddress)
+                # Use parameterized query for safety
+                self.cursor.execute("""INSERT INTO users (username, password, access_level, recovery_code, email_address) VALUES (%s, %s, %s, %s, %s)""",(username,logonDBHandler.hashData(str(password)),accessLevel,logonDBHandler.hashData(str(recoveryCode)),emailAddress,))
+                
             except Exception as e:
                 print(e)
 
         self.connection.commit()
+
 
     def readUserCreds(self):
         self.cursor.execute('SELECT user_id, username, password, access_level FROM users')
@@ -49,14 +70,17 @@ class logonDBHandler(DBHandler):
         self.connection.close()
         
         return rows
-    
+
     def validateUser(self, providedUsername, providedPassword):
-        self.cursor.execute('SELECT user_id, access_level FROM users WHERE username = %s AND password = %s', (providedUsername, logonDBHandler.hashData(str(providedPassword))))
-        data = self.cursor.fetchone()
-        print(data)
-        if data:
-            return True
-        else:
+        try:
+            hashedPassword = logonDBHandler.hashData(str(providedPassword))
+            self.cursor.execute('SELECT user_id, access_level FROM users WHERE username = %s AND password = %s',(providedUsername, hashedPassword))
+            data = self.cursor.fetchone()
+            print(f"Query Result: {data}")  # Debugging output
+            return bool(data)  # Return True if data is found, else False
+        
+        except Exception as e:
+            print(f"Error during user validation: {e}")
             return False
         
     def changePasswordProcess(self, username, old_password, new_password):
