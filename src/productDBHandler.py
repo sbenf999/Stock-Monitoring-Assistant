@@ -18,3 +18,14 @@ class productDBHandler(DBHandler):
 
         except Exception as error:
             return False, error
+        
+
+    def createProduct(self, supplier_id, product_name, product_description, product_pack_size, product_weight, product_barcode):
+        try:
+            self.cursor.execute('''INSERT INTO products (supplier_id, product_name, product_description, product_pack_size, product_weight, product_barcode) VALUES (%s, %s, %s, %s, %s, %s)''', (supplier_id, product_name, product_description, product_pack_size, product_weight, product_barcode))
+            self.connection.commit()
+            return True
+        
+        except Exception as error:
+            self.connection.rollback()
+            return False, error

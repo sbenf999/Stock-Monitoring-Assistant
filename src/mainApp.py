@@ -11,6 +11,10 @@ from time import gmtime, strftime
 from scrollingWindow import scrollableWin
 from tkinter import messagebox
 
+from productDBHandler import *
+from supplierDBHandler import *
+from wasteDBHandler import *
+
 class App(superWindow):
 
     WIDTH = 1100
@@ -73,14 +77,27 @@ class App(superWindow):
         #tabview in which all UI will take place to do with functions of the application - the sidebar on the side simply allows for easier switching of the tabs
         self.setButtonStates() #set the button states (disabled or enabled) based on the user access
         
+        #create the tabview according to allowances
         self.tabview = customtkinter.CTkTabview(master=self)
         self.tabview.grid(column=1, row=0)
         for tab in self.allowances[int(self.userAccessLevel)]:
             self.tabview.add(tab)
 
+        #<========================INITIALIZE-DATABASES========================>
+        supplierDB = supplierDBHandler()
+        productDB = productDBHandler()
+        wasteDB = wasteDBHandler()
+
+        databases = [supplierDB, productDB, wasteDB]
+
+        for database in databases:
+            print(database.initializeDatabase())
+
         #<========================UI-SETTERS========================>
         #STOCK TAKING TOOLS
         self.recordDeliveryUI()
+        self.addProductUI()
+        self.addSupplierUI()
 
     #function for buttons in the sidebar - used for navigating the tabview on the right
     def goToTab(self, tabName):
@@ -93,7 +110,7 @@ class App(superWindow):
         self.tabs = self.tabsDefault
         self.allowances: dict = {
                 1: self.tabsDefault,
-                2: list(filter(lambda tab_: tab_ not in ["Profit margins"], self.tabs)),
+                2: list(filter(lambda tab_: tab_ not in ["Profit margins", "Data view", "Weekly report", "Settings"], self.tabs)),
                 3: list(filter(lambda tab_: tab_ not in ["Profit margins", "Add product", "Add supplier", "Data view", "Weekly report", "Settings"], self.tabs))
         }
 
@@ -111,8 +128,14 @@ class App(superWindow):
         
         self.chooseSupplierLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Choose supplier:", anchor="w")
         self.chooseSupplierLabel.grid(row=0, column=0, padx=(20, 20), pady=20, sticky='w')
-        self.chooseSupplier = customtkinter.CTkOptionMenu(self.tabview.tab(tab_), dynamic_resizing=False, values=["Value 1", "Value 2", "Value Long Long Long"], width=200) #values list should be taken from a database call once the supplier database is created
-        self.chooseSupplier.grid(row=0, column=1, padx=20, pady=20)
+
+        #if no data in table, CTKOptionMenu throws an error, so try except block creates failure lable if this issue is encountered
+        try:
+            self.chooseSupplier = customtkinter.CTkOptionMenu(self.tabview.tab(tab_), dynamic_resizing=False, values=supplierDBHandler.getSupplierNames, width=200) #values list should be taken from a database call once the supplier database is created
+            self.chooseSupplier.grid(row=0, column=1, padx=20, pady=20)
+        except:
+            self.noSupplierLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="No suppliers found", anchor="w")
+            self.noSupplierLabel.grid(row=0, column=1, padx=(20, 20), pady=20, sticky='w')
 
         #delivery date shoud create an ovveride feature if user doesnt want t   o use current system date
         self.enterDeliveryDateLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Delivery date:", anchor='w')
@@ -146,8 +169,10 @@ class App(superWindow):
         self.findProductLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Search product:")
         self.findProductLabel.grid(row=4, column=0, padx=(20), pady=20, sticky='w')
         self.autocomplete_entry = AutocompleteEntry(self.tabview.tab(tab_), width=500, placeholder_text='Search product...')
-        self.autocomplete_entry.set_suggestions(["Banana", "Bagels"])
+        
+        self.autocomplete_entry.set_suggestions(["Banana", "Bagels"]) #set suggestions needs to be based on a call to the product table in the database
         self.autocomplete_entry.grid(row=4, column=1, padx=20, pady=20, columnspan=3, sticky='w')
+        
         self.quantityLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Quantity: ")
         self.quantityLabel.grid(row=5, column=0, padx=(20, 20), pady=10, sticky='w')
         self.quantityEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="x")
@@ -231,12 +256,14 @@ class App(superWindow):
         del self.products[index]
         self.update_product_list()
 
+    #Function to clear product list
     def clearProductList(self):
         # Clear the existing list
         for widget in self.productFrame.winfo_children():
             if widget not in [self.productNumLabel, self.itemLabel, self.itemQuantityLabel, self.toolLabel]:
                 widget.destroy()
 
+    #Function to confirm the delivery
     def confirmDelivery(self):
         messagebox.askquestion(title='Confirm delivery', message="Do you wish to confirm the delivery?")
         for widget in self.tabview.tab(self.tab_).winfo_children():
@@ -249,13 +276,105 @@ class App(superWindow):
             except ValueError:
                 continue
 
+        #update stock levels and any other data here
+
         self.clearProductList()
+
+    def addProductUI(self, tab_='Add product'): 
+        #you need to create a product database and then select all products in order to be able to give values for the value list below
+        self.tab_ = tab_
+
+        self.chooseSupplierLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Choose supplier:", anchor="w")
+        self.chooseSupplierLabel.grid(row=0, column=0, padx=(20, 20), pady=20, sticky='w')
+        
+        #if no data in table, CTKOptionMenu throws an error, so try except block creates failure lable if this issue is encountered
+        try:
+            self.chooseSupplier = customtkinter.CTkOptionMenu(self.tabview.tab(tab_), dynamic_resizing=False, values=supplierDBHandler.getSupplierNames, width=200) #values list should be taken from a database call once the supplier database is created
+            self.chooseSupplier.grid(row=0, column=1, padx=20, pady=20)
+        except:
+            self.noSupplierLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="No suppliers found", anchor="w")
+            self.noSupplierLabel.grid(row=0, column=1, padx=(20, 20), pady=20, sticky='w')
+
+        self.productNameLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Product name: ")
+        self.productNameLabel.grid(row=0, column=2, padx=(20, 20), pady=20, sticky='w')
+        self.productNameEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="product name...")
+        self.productNameEntry.grid(row=0, column=3, padx=(20, 20), pady=20, sticky='w')
+
+        self.productPSLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Product pack size: ")
+        self.productPSLabel.grid(row=1, column=0, padx=(20, 20), pady=20, sticky='w')
+        self.productPSEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="pack size...")
+        self.productPSEntry.grid(row=1, column=1, padx=(20, 20), pady=20, sticky='w')
+
+        self.productWeightLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Product weight: ")
+        self.productWeightLabel.grid(row=1, column=2, padx=(20, 20), pady=20, sticky='w')
+        self.productWeightEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="weight...")
+        self.productWeightEntry.grid(row=1, column=3, padx=(20, 20), pady=20, sticky='w')
+
+        #this entry needs to be limited to 200 characters in order to work with the database
+        self.limiter = customtkinter.StringVar()
+        self.limiter.trace_add("write", self.limit_entry)
+
+        self.productDescriptionLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Product description: ")
+        self.productDescriptionLabel.grid(row=2, column=0, padx=(20, 20), pady=20, sticky='w')
+        self.productDescriptionEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), width=500, placeholder_text="Product description...", textvariable=self.limiter)
+        self.productDescriptionEntry.grid(row=2, column=1, padx=(20, 20), pady=20, sticky='w', columnspan=5)
+
+        self.confirmAddProduct = customtkinter.CTkButton(self.tabview.tab(tab_), text="Confirm add product", command=self.confirmAddproductProcess)
+        self.confirmAddProduct.grid(row=3, column=0, padx=20, pady=20)
+
+    #Creates the new product and clears all entry widgets
+    def confirmAddproductProcess(self):
+        messagebox.askquestion(title='Confirm add product', message="Do you wish to confirm this new product?")
+        for widget in self.tabview.tab(self.tab_).winfo_children():
+            try:
+                if widget.cget('placeholder_text'):
+                    widget.delete(0, customtkinter.END)
+                    widget._activate_placeholder()
+                    widget.focus()
+            
+            except ValueError:
+                continue
+
+        #add product to product table here
+
+    #Limits entry widget to 200 characters by default
+    def limit_entry(self, limit=200, *args):
+        current_text = self.limiter.get()
+        
+        if len(current_text) > limit:
+            self.limiter.set(current_text[:limit])
+
+    def addSupplierUI(self, tab_='Add supplier'): 
+        self.tab_ = tab_
+
+        self.chooseSupplierLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Supplier name:", anchor="w")
+        self.chooseSupplierLabel.grid(row=0, column=0, padx=(20, 20), pady=20, sticky='w')#
+
+        #set limiter of 100 characters for supplier name
+        self.limiter = customtkinter.StringVar()
+        self.limiter.trace_add("write", self.limit_entry(100))
+
+        self.suppliertNameEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="supplier name...")
+        self.suppliertNameEntry.grid(row=0, column=1, padx=(20, 20), pady=20, sticky='w')
+
+        #this entry needs to be limited to 200 characters in order to work with the database
+        self.limiter2 = customtkinter.StringVar()
+        self.limiter2.trace_add("write", self.limit_entry(255))
+
+        self.supplierDescriptionLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Supplier description: ")
+        self.supplierDescriptionLabel.grid(row=2, column=0, padx=(20, 20), pady=20, sticky='w')
+        self.supplierDescriptionEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), width=500, placeholder_text="Supplier description...", textvariable=self.limiter2)
+        self.supplierDescriptionEntry.grid(row=2, column=1, padx=(20, 20), pady=20, sticky='w', columnspan=5)
+
+        self.confirmAddSupplier = customtkinter.CTkButton(self.tabview.tab(tab_), text="Confirm add supplier", command=None)
+        self.confirmAddSupplier.grid(row=3, column=0, padx=20, pady=20)
+
 
 if __name__ == "__main__":
     initialiser = logonDBHandler()
     initialiser.initializeDatabase()
     initialiser.createUserCreds("admin", 12345, 1, "admin@example.com")
-    login = Logon()
-    login.mainloop()
-    #app = App(1)
-    #app.mainloop()
+    #login = Logon()
+    #login.mainloop()
+    app = App(1)
+    app.mainloop()
