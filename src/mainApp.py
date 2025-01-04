@@ -134,9 +134,9 @@ class App(superWindow):
 
         #if no data in table, CTKOptionMenu throws an error, so try except block creates failure lable if this issue is encountered
         try:
-            self.chooseSupplier = customtkinter.CTkOptionMenu(self.tabview.tab(tab_), dynamic_resizing=False, values=supplierDBHandler.getSupplierNames, width=200) #values list should be taken from a database call once the supplier database is created
-            self.chooseSupplier.grid(row=0, column=1, padx=20, pady=20)
-        except:
+            self.chooseSupplier1 = customtkinter.CTkOptionMenu(self.tabview.tab(tab_), dynamic_resizing=False, values=self.supplierDB.getSupplierNames(), width=200) #values list should be taken from a database call once the supplier database is created
+            self.chooseSupplier1.grid(row=0, column=1, padx=20, pady=20)
+        except Exception as error:
             self.noSupplierLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="No suppliers found", anchor="w")
             self.noSupplierLabel.grid(row=0, column=1, padx=(20, 20), pady=20, sticky='w')
 
@@ -180,7 +180,7 @@ class App(superWindow):
         self.quantityLabel.grid(row=5, column=0, padx=(20, 20), pady=10, sticky='w')
         self.quantityEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="x")
         self.quantityEntry.grid(row=5, column=1, padx=(20, 20), pady=10, sticky='w')
-        self.addProduct = customtkinter.CTkButton(self.tabview.tab(tab_), text="Add product", command=self.add_product)
+        self.addProduct = customtkinter.CTkButton(self.tabview.tab(tab_), text="Add product", command=self.addProductToDelivery)
         self.addProduct.grid(row=5, column=2, padx=20, pady=10)
 
         #create a seperator to distuinguish between sections
@@ -209,7 +209,7 @@ class App(superWindow):
         self.confirmDelivery.grid(row=9, column=0, padx=20, pady=10)
     
     # Function to add product
-    def add_product(self):
+    def addProductToDelivery(self):
         product_name = self.autocomplete_entry.get()
         product_quantity = self.quantityEntry.get()
         
@@ -219,7 +219,7 @@ class App(superWindow):
             self.products.append({"name": product_name, "quantity": quantity})
             
             # Update the display
-            self.update_product_list()
+            self.updateProductList()
             
             # Clear entry fields after adding
             self.autocomplete_entry.delete(0, customtkinter.END)
@@ -228,13 +228,14 @@ class App(superWindow):
             messagebox.showwarning("Input Error", "Please enter a valid product name and quantity")
 
     # Function to update the product list
-    def update_product_list(self):
+    def updateProductList(self):
         # Create a label and entry widget for each product in the list
         self.clearProductList()
 
         for i, product in enumerate(self.products):
             if i==0:
                 self.clearProductList()
+
             count_label = customtkinter.CTkLabel(self.productFrame, text=str(i+1))
             count_label.grid(row=i+2, column=0, padx=20, sticky="w", pady=10)
 
@@ -250,14 +251,14 @@ class App(superWindow):
             # Delete button to remove the product
             print(self.products, i)
             print(self.products[i])
-            delete_button = customtkinter.CTkButton(self.productFrame, text="Delete", command=lambda i=i: self.delete_product(i))
+            delete_button = customtkinter.CTkButton(self.productFrame, text="Delete", command=lambda i=i: self.deleteProductInDelivery(i))
             delete_button.grid(row=i+2, column=3, padx=20, sticky="w", pady=10)
 
     # Function to delete a product
-    def delete_product(self, index):
+    def deleteProductInDelivery(self, index):
         # Remove product from the list
         del self.products[index]
-        self.update_product_list()
+        self.updateProductList()
 
     #Function to clear product list
     def clearProductList(self):
@@ -292,8 +293,8 @@ class App(superWindow):
         
         #if no data in table, CTKOptionMenu throws an error, so try except block creates failure lable if this issue is encountered
         try:
-            self.chooseSupplier = customtkinter.CTkOptionMenu(self.tabview.tab(tab_), dynamic_resizing=False, values=supplierDBHandler.getSupplierNames, width=200) #values list should be taken from a database call once the supplier database is created
-            self.chooseSupplier.grid(row=0, column=1, padx=20, pady=20)
+            self.chooseSupplier2 = customtkinter.CTkOptionMenu(self.tabview.tab(tab_), dynamic_resizing=False, values=self.supplierDB.getSupplierNames(), width=200) #values list should be taken from a database call once the supplier database is created
+            self.chooseSupplier2.grid(row=0, column=1, padx=20, pady=20)
         except:
             self.noSupplierLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="No suppliers found", anchor="w")
             self.noSupplierLabel.grid(row=0, column=1, padx=(20, 20), pady=20, sticky='w')
@@ -421,9 +422,15 @@ class App(superWindow):
                     except ValueError:
                         continue
                 
+                #update supplier option menus
+                self.chooseSupplier1.configure(values=self.supplierDB.getSupplierNames())
+                self.chooseSupplier2.configure(values=self.supplierDB.getSupplierNames())
+
                 #delete supplier delivery date fields upon successful supplier creation
                 self.supplierDates = []
                 self.updateSupplierDeliveryDateList()
+
+                
 
             #resume with app if "no" option is selected
             else:

@@ -23,6 +23,6 @@ class DBHandler:
                 print("Database does not exist")
             else:
                 print(err)   
-
+                
     def close(self):
         self.connection.close()
