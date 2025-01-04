@@ -7,6 +7,15 @@
 
 A stock monitoring application written in Python for a local business
 
+## Features
+
+- Secure login system, with forgot password and recovery key functionality
+- User access level based app functionality
+- Database integration
+- User management with admin level
+- Weekly reports
+- Data representation
+- Profit margin calculation
 
 ## Contributing
 
