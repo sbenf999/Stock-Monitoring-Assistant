@@ -366,6 +366,8 @@ class App(superWindow):
         self.supplierDescriptionEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), width=500, placeholder_text="Supplier description...", textvariable=self.limiter2)
         self.supplierDescriptionEntry.grid(row=2, column=1, padx=(20, 20), pady=20, sticky='w', columnspan=5)
 
+        #you need supplier dates here, consider storing this as a list in a JSON format
+
         self.confirmAddSupplier = customtkinter.CTkButton(self.tabview.tab(tab_), text="Confirm add supplier", command=None)
         self.confirmAddSupplier.grid(row=3, column=0, padx=20, pady=20)
 
