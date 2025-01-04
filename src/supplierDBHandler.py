@@ -8,7 +8,7 @@ class supplierDBHandler(DBHandler):
                     supplier_id INT auto_increment PRIMARY KEY,
                     supplier_name VARCHAR(100) NOT NULL,
                     supplier_description CHAR(255) NOT NULL,
-                    supplier_delivery_date VARCHAR(50) NOT NULL
+                    supplier_delivery_date JSON
                 )
             ''')
 

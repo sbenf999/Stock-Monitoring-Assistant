@@ -10,10 +10,9 @@ from autoCompleteSearch import AutocompleteEntry
 from time import gmtime, strftime
 from scrollingWindow import scrollableWin
 from tkinter import messagebox
+import json
 
-from productDBHandler import *
-from supplierDBHandler import *
-from wasteDBHandler import *
+from mainDBInstatiator import *
 
 class App(superWindow):
 
@@ -84,17 +83,21 @@ class App(superWindow):
             self.tabview.add(tab)
 
         #<========================INITIALIZE-DATABASES========================>
-        supplierDB = supplierDBHandler()
-        productDB = productDBHandler()
-        wasteDB = wasteDBHandler()
+        self.supplierDB = supplierDBHandler()
+        self.productDB = productDBHandler()
+        self.wasteDB = wasteDBHandler()
 
-        databases = [supplierDB, productDB, wasteDB]
+        databases = [self.supplierDB, self.productDB, self.wasteDB]
 
         for database in databases:
-            print(database.initializeDatabase())
+            try:
+                database.initializeDatabase()
+                print(f"Database {database} initialised successfully")
+
+            except Exception as error:
+                print(error)
 
         #<========================UI-SETTERS========================>
-        #STOCK TAKING TOOLS
         self.recordDeliveryUI()
         self.addProductUI()
         self.addSupplierUI()
@@ -379,7 +382,7 @@ class App(superWindow):
         seperator = customtkinter.CTkFrame(self.tabview.tab(tab_), height=1, fg_color="gray")
         seperator.grid(row=4, column=0, columnspan=10, padx=20, pady=20, sticky='nsew')
 
-        #scrollable frame for added products
+        #scrollable frame for added supplier dates
         self.supplierDates = []
 
         self.supplierDateFrame = scrollableWin(master=self.tabview.tab(tab_), width=300, height=200, corner_radius=0, fg_color="transparent")
@@ -401,24 +404,39 @@ class App(superWindow):
     #Creates the new product and clears all entry widgets
     def confirmAddSupplierProcess(self):
         #add supplier to supplier table here===========================
-
-        #==============================================================
-
-        messagebox.askquestion(title='Confirm add supplier', message="Do you wish to confirm this new supplier?")
-        for widget in self.tabview.tab(self.tab_).winfo_children():
-            try:
-                if widget.cget('placeholder_text'):
-                    widget.delete(0, customtkinter.END)
-                    widget._activate_placeholder()
-                    widget.focus()
+        try:
             
-            except ValueError:
-                continue
+            if messagebox.askquestion(title='Confirm add supplier', message="Do you wish to confirm this new supplier?"):
+                #create the new supplier
+                self.supplierDB.createSupplier(self.suppliertNameEntry.get(), self.supplierDescriptionEntry.get(), json.dumps(self.supplierDates))
+                
+                #reset widgets
+                for widget in self.tabview.tab(self.tab_).winfo_children():
+                    try:
+                        if widget.cget('placeholder_text'):
+                            widget.delete(0, customtkinter.END)
+                            widget._activate_placeholder()
+                            widget.focus()
+                    
+                    except ValueError:
+                        continue
+                
+                #delete supplier delivery date fields upon successful supplier creation
+                self.supplierDates = []
+                self.updateSupplierDeliveryDateList()
+
+            #resume with app if "no" option is selected
+            else:
+                pass
+
+        except Exception as error:
+            print(error)
+            messagebox.showerror("Error", f"An error occurred! Please try again. If this issue persits, please contact the maintainer. Error {error}")
 
     def addSupplierDeliveryDate(self):
         deliveryDate = self.supplierDatesEntry.get()
         
-        # Check if product name and quantity are not empty
+        # Check supplier date are not empty
         if deliveryDate:
             self.supplierDates.append(deliveryDate)
             
@@ -431,7 +449,7 @@ class App(superWindow):
             messagebox.showwarning("Input Error", "Please enter a valid delivery date")
 
     def updateSupplierDeliveryDateList(self):
-        # Create a label and entry widget for each product in the list
+        # Create widgets for each supplier date
         self.clearSupplierDeliveryDateList()
 
         for i, supplierDate in enumerate(self.supplierDates):
@@ -444,7 +462,7 @@ class App(superWindow):
             name_label = customtkinter.CTkLabel(self.supplierDateFrame, text=supplierDate)
             name_label.grid(row=i+2, column=1, padx=20, sticky="w", pady=10)
 
-            # Delete button to remove the product
+            # Delete button to remove the supplier date
             print(self.supplierDates, i)
             print(self.supplierDates[i])
             delete_button = customtkinter.CTkButton(self.supplierDateFrame, text="Delete", command=lambda i=i: self.deleteSupplierDate(i))
@@ -457,7 +475,7 @@ class App(superWindow):
                 widget.destroy()
 
     def deleteSupplierDate(self, index):
-        # Remove product from the list
+        # Remove supplier date from the list
         del self.supplierDates[index]
         self.updateSupplierDeliveryDateList()
 

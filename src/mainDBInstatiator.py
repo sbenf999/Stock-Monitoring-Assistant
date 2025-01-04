@@ -4,11 +4,17 @@ from productDBHandler import *
 from supplierDBHandler import *
 from wasteDBHandler import *
 
-supplierDB = supplierDBHandler()
-productDB = productDBHandler()
-wasteDB = wasteDBHandler()
+def runMainDBInstatiator():
+    supplierDB = supplierDBHandler()
+    productDB = productDBHandler()
+    wasteDB = wasteDBHandler()
 
-databases = [supplierDB, productDB, wasteDB]
+    databases = [supplierDB, productDB, wasteDB]
 
-for database in databases:
-    print(database.initializeDatabase())
+    for database in databases:
+        try:
+            database.initializeDatabase()
+            print(f"Database {database} initialised successfully")
+
+        except Exception as error:
+            print(error)
