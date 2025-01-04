@@ -368,9 +368,98 @@ class App(superWindow):
 
         #you need supplier dates here, consider storing this as a list in a JSON format
 
-        self.confirmAddSupplier = customtkinter.CTkButton(self.tabview.tab(tab_), text="Confirm add supplier", command=None)
-        self.confirmAddSupplier.grid(row=3, column=0, padx=20, pady=20)
+        self.supplierDates = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Supplier date: ")
+        self.supplierDates.grid(row=3, column=0, padx=(20, 20), pady=10, sticky='w')
+        self.supplierDatesEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="xx/xx/xx")
+        self.supplierDatesEntry.grid(row=3, column=1, padx=(20, 20), pady=10, sticky='w')
+        self.addSupplierDate = customtkinter.CTkButton(self.tabview.tab(tab_), text="Add supplier delivery date", command=self.addSupplierDeliveryDate)
+        self.addSupplierDate.grid(row=3, column=2, padx=20, pady=10)
 
+        #create a seperator to distuinguish between sections
+        seperator = customtkinter.CTkFrame(self.tabview.tab(tab_), height=1, fg_color="gray")
+        seperator.grid(row=4, column=0, columnspan=10, padx=20, pady=20, sticky='nsew')
+
+        #scrollable frame for added products
+        self.supplierDates = []
+
+        self.supplierDateFrame = scrollableWin(master=self.tabview.tab(tab_), width=300, height=200, corner_radius=0, fg_color="transparent")
+        self.supplierDateFrame.grid(row=5, column=0, sticky="nsew", columnspan=6)
+        self.supplierDateNumLabel = customtkinter.CTkLabel(self.supplierDateFrame, text="Date num", fg_color="transparent")
+        self.supplierDateNumLabel.grid(row=0, column=0, padx=(20), pady=20, sticky='w')
+        self.dateLabel = customtkinter.CTkLabel(self.supplierDateFrame, text="Item", fg_color="transparent")
+        self.dateLabel.grid(row=0, column=1, padx=(20), pady=20, sticky='w')
+        self.toolLabel = customtkinter.CTkLabel(self.supplierDateFrame, text="Tool")
+        self.toolLabel.grid(row=0, column=3, padx=(20), pady=20, sticky='w')
+        
+        #create a seperator to distuinguish between sections
+        seperator2 = customtkinter.CTkFrame(self.tabview.tab(tab_), height=1, fg_color="gray")
+        seperator2.grid(row=6, column=0, columnspan=10, padx=20, pady=20, sticky='nsew')
+
+        self.confirmAddSupplier = customtkinter.CTkButton(self.tabview.tab(tab_), text="Confirm add supplier", command=self.confirmAddSupplierProcess)
+        self.confirmAddSupplier.grid(row=7, column=0, padx=20, pady=20)
+
+    #Creates the new product and clears all entry widgets
+    def confirmAddSupplierProcess(self):
+        #add supplier to supplier table here===========================
+
+        #==============================================================
+
+        messagebox.askquestion(title='Confirm add supplier', message="Do you wish to confirm this new supplier?")
+        for widget in self.tabview.tab(self.tab_).winfo_children():
+            try:
+                if widget.cget('placeholder_text'):
+                    widget.delete(0, customtkinter.END)
+                    widget._activate_placeholder()
+                    widget.focus()
+            
+            except ValueError:
+                continue
+
+    def addSupplierDeliveryDate(self):
+        deliveryDate = self.supplierDatesEntry.get()
+        
+        # Check if product name and quantity are not empty
+        if deliveryDate:
+            self.supplierDates.append(deliveryDate)
+            
+            # Update the display
+            self.updateSupplierDeliveryDateList()
+            
+            # Clear entry fields after adding
+            self.supplierDatesEntry.delete(0, customtkinter.END)
+        else:
+            messagebox.showwarning("Input Error", "Please enter a valid delivery date")
+
+    def updateSupplierDeliveryDateList(self):
+        # Create a label and entry widget for each product in the list
+        self.clearSupplierDeliveryDateList()
+
+        for i, supplierDate in enumerate(self.supplierDates):
+            if i==0:
+                self.clearSupplierDeliveryDateList()
+            count_label = customtkinter.CTkLabel(self.supplierDateFrame, text=str(i+1))
+            count_label.grid(row=i+2, column=0, padx=20, sticky="w", pady=10)
+
+            # Name label with fixed width
+            name_label = customtkinter.CTkLabel(self.supplierDateFrame, text=supplierDate)
+            name_label.grid(row=i+2, column=1, padx=20, sticky="w", pady=10)
+
+            # Delete button to remove the product
+            print(self.supplierDates, i)
+            print(self.supplierDates[i])
+            delete_button = customtkinter.CTkButton(self.supplierDateFrame, text="Delete", command=lambda i=i: self.deleteSupplierDate(i))
+            delete_button.grid(row=i+2, column=3, padx=20, sticky="w", pady=10)
+
+    def clearSupplierDeliveryDateList(self):
+        # Clear the existing list
+        for widget in self.supplierDateFrame.winfo_children():
+            if widget not in [self.supplierDateNumLabel, self.dateLabel, self.toolLabel]:
+                widget.destroy()
+
+    def deleteSupplierDate(self, index):
+        # Remove product from the list
+        del self.supplierDates[index]
+        self.updateSupplierDeliveryDateList()
 
 if __name__ == "__main__":
     initialiser = logonDBHandler()
