@@ -18,8 +18,6 @@ As this project is the source for a Non-Examination Assessment (NEA), unless oth
 
 ## Used By
 
-This project is used by the following companies:
-
 - Onestop Ltd
 
 
