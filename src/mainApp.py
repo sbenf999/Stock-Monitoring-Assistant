@@ -1,3 +1,4 @@
+#general lib imports
 import customtkinter
 from tkinter import ttk
 import tkinter as tk
@@ -12,7 +13,11 @@ from scrollingWindow import scrollableWin
 from tkinter import messagebox
 import json
 
-from mainDBInstatiator import *
+#import database handlers
+from productDBHandler import *
+from supplierDBHandler import *
+from wasteDBHandler import *
+from stockLevelDBHandler import *
 
 class App(superWindow):
 
@@ -86,8 +91,9 @@ class App(superWindow):
         self.supplierDB = supplierDBHandler()
         self.productDB = productDBHandler()
         self.wasteDB = wasteDBHandler()
+        self.stockLevel = stockLevelDBHandler()
 
-        databases = [self.supplierDB, self.productDB, self.wasteDB]
+        databases = [self.supplierDB, self.productDB, self.wasteDB, self.stockLevel]
 
         for database in databases:
             try:

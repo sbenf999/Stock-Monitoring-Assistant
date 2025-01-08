@@ -12,6 +12,7 @@ class productDBHandler(DBHandler):
                     product_pack_size INT NOT NULL,
                     product_weight INT NOT NULL,
                     product_barcode VARCHAR(50) NOT NULL,
+                    product_price DECIMAL(10,2) NOT NULL,
                     FOREIGN KEY (supplier_id) REFERENCES suppliers(supplier_ID)
                 )
             ''')
