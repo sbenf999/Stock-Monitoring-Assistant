@@ -14,7 +14,7 @@ A stock monitoring application written in Python for a local business
   - Please adhere to this project's `code of conduct`.
 
 > [!WARNING]
-Until this work has been graded by examiners, no pull requests or contributions will be accepted.
+As this project is the source for a Non-Examination Assessment (NEA), unless otherwise stated, no pull requests or contributions will be accepted.
 
 ## Used By
 
