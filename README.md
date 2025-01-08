@@ -9,12 +9,12 @@ A stock monitoring application written in Python for a local business
 
 ## Contributing
 
-Contributions are always welcome!
+- Contributions are always welcome! 
+- See `contributing.md` for ways to get started.
+  - Please adhere to this project's `code of conduct`.
 
-See `contributing.md` for ways to get started.
-
-Please adhere to this project's `code of conduct`.
-
+> [!WARNING]
+Until this work has been graded by examiners, no pull requests or contributions will be accepted.
 
 ## Used By
 
