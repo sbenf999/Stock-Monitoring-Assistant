@@ -10,11 +10,11 @@ A stock monitoring application written in Python for a local business
 ## Contributing
 
 - Contributions are always welcome! 
-- See `contributing.md` for ways to get started.
-  - Please adhere to this project's `code of conduct`.
+- See `contributing.md` for ways to get started
+  - Please adhere to this project's `code of conduct`
 
 > [!WARNING]
-As this project is the source for a Non-Examination Assessment (NEA), unless otherwise stated, no pull requests or contributions will be accepted.
+As this project is the source for a Non-Examination Assessment (NEA), unless otherwise stated, no pull requests or contributions will be accepted. For everything else, please follow the GPL v3 license accordingly 
 
 ## Used By
 
