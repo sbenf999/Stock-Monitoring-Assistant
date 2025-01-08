@@ -30,3 +30,14 @@ class productDBHandler(DBHandler):
         except Exception as error:
             self.connection.rollback()
             return False, error
+        
+
+    #need to program
+    def deleteProduct(self):
+        pass
+
+    def updateProductStockCount(self):
+        pass
+
+    def updateProductValue(self, value):
+        pass

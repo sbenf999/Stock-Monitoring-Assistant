@@ -36,3 +36,11 @@ class supplierDBHandler(DBHandler):
             self.connection.rollback()
             return False, error
         
+
+    #needs to be programmed
+    def deleteSupplier(self):
+        pass
+
+    def getSupplierDeliveryDates(self):
+        pass
+        
