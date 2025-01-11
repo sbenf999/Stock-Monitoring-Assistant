@@ -2,8 +2,8 @@ import customtkinter
 import os
 import tkinter
 from dbHandling.logonDBHandler import *
-from changePassword import *
-from windowSuperClass import superWindow
+from processes.changePassword import *
+from processes.windowSuperClass import superWindow
 from mainApp import *
 from time import sleep
 

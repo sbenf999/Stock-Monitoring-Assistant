@@ -3,13 +3,13 @@ import customtkinter
 from tkinter import ttk
 import tkinter as tk
 from dbHandling.logonDBHandler import *
-from changePassword import *
-from login_process import *
-from popUpWindow import *
-from windowSuperClass import superWindow
-from autoCompleteSearch import AutocompleteEntry
+from processes.changePassword import *
+from processes.login_process import *
+from processes.popUpWindow import *
+from processes.windowSuperClass import superWindow
+from processes.autoCompleteSearch import AutocompleteEntry
 from time import gmtime, strftime
-from scrollingWindow import scrollableWin
+from processes.scrollingWindow import scrollableWin
 from tkinter import messagebox
 import json
 

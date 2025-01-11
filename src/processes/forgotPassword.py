@@ -1,7 +1,7 @@
 import customtkinter
 from dbHandling.logonDBHandler import *
-from changePassword import *
-from windowSuperClass import superWindow
+from processes.changePassword import *
+from processes.windowSuperClass import superWindow
 
 customtkinter.set_default_color_theme("dark-blue")
 

@@ -3,7 +3,7 @@ from mysql.connector import errorcode
 import hashlib
 import string
 import secrets
-from popUpWindow import *
+from processes.popUpWindow import *
 from dbHandling.DBHandler import *
 
 class logonDBHandler(DBHandler):
