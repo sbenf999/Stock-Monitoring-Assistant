@@ -1,24 +1,26 @@
 #general lib imports
 import customtkinter
-from tkinter import ttk
+from tkinter import ttk, messagebox
 import tkinter as tk
-from dbHandling.logonDBHandler import *
+from time import gmtime, strftime
+import json
+
+#import processes
 from processes.changePassword import *
-from processes.login_process import *
+from processes.loginProcess import *
 from processes.popUpWindow import *
 from processes.windowSuperClass import superWindow
 from processes.autoCompleteSearch import AutocompleteEntry
-from time import gmtime, strftime
 from processes.scrollingWindow import scrollableWin
-from tkinter import messagebox
-import json
 
 #import database handlers
+from dbHandling.logonDBHandler import *
 from dbHandling.productDBHandler import *
 from dbHandling.supplierDBHandler import *
 from dbHandling.wasteDBHandler import *
 from dbHandling.stockLevelDBHandler import *
 
+#main app class
 class App(superWindow):
 
     WIDTH = 1100
