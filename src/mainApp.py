@@ -307,47 +307,62 @@ class App(superWindow):
             self.noSupplierLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="No suppliers found", anchor="w")
             self.noSupplierLabel.grid(row=0, column=1, padx=(20, 20), pady=20, sticky='w')
 
+        #create entry widgets and their respective labels for data input
         self.productNameLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Product name: ")
-        self.productNameLabel.grid(row=0, column=2, padx=(20, 20), pady=20, sticky='w')
+        self.productNameLabel.grid(row=1, column=0, padx=(20, 20), pady=20, sticky='w')
         self.productNameEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="product name...")
-        self.productNameEntry.grid(row=0, column=3, padx=(20, 20), pady=20, sticky='w')
+        self.productNameEntry.grid(row=1, column=1, padx=(20, 20), pady=20, sticky='w')
+
+        self.productPriceEntryLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Product price: ")
+        self.productPriceEntryLabel.grid(row=1, column=2, padx=(20, 20), pady=20, sticky='w')
+        self.productPriceEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="price...")
+        self.productPriceEntry.grid(row=1, column=3, padx=(20, 20), pady=20, sticky='w')
 
         self.productPSLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Product pack size: ")
-        self.productPSLabel.grid(row=1, column=0, padx=(20, 20), pady=20, sticky='w')
+        self.productPSLabel.grid(row=2, column=0, padx=(20, 20), pady=20, sticky='w')
         self.productPSEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="pack size...")
-        self.productPSEntry.grid(row=1, column=1, padx=(20, 20), pady=20, sticky='w')
+        self.productPSEntry.grid(row=2, column=1, padx=(20, 20), pady=20, sticky='w')
 
         self.productWeightLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Product weight: ")
-        self.productWeightLabel.grid(row=1, column=2, padx=(20, 20), pady=20, sticky='w')
+        self.productWeightLabel.grid(row=2, column=2, padx=(20, 20), pady=20, sticky='w')
         self.productWeightEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="weight...")
-        self.productWeightEntry.grid(row=1, column=3, padx=(20, 20), pady=20, sticky='w')
+        self.productWeightEntry.grid(row=2, column=3, padx=(20, 20), pady=20, sticky='w')
 
         #this entry needs to be limited to 200 characters in order to work with the database
         self.limiter = customtkinter.StringVar()
         self.limiter.trace_add("write", self.limit_entry)
 
         self.productDescriptionLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Product description: ")
-        self.productDescriptionLabel.grid(row=2, column=0, padx=(20, 20), pady=20, sticky='w')
-        self.productDescriptionEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), width=500, placeholder_text="Product description...", textvariable=self.limiter)
-        self.productDescriptionEntry.grid(row=2, column=1, padx=(20, 20), pady=20, sticky='w', columnspan=5)
+        self.productDescriptionLabel.grid(row=3, column=0, padx=(20, 20), pady=20, sticky='w')
+        self.productDescriptionEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), width=518, placeholder_text="Product description...", textvariable=self.limiter)
+        self.productDescriptionEntry.grid(row=3, column=1, padx=(20, 20), pady=20, sticky='w', columnspan=5)
 
         self.confirmAddProduct = customtkinter.CTkButton(self.tabview.tab(tab_), text="Confirm add product", command=self.confirmAddproductProcess)
-        self.confirmAddProduct.grid(row=3, column=0, padx=20, pady=20)
+        self.confirmAddProduct.grid(row=4, column=0, padx=20, pady=20)
 
     #Creates the new product and clears all entry widgets
     def confirmAddproductProcess(self):
-        messagebox.askquestion(title='Confirm add product', message="Do you wish to confirm this new product?")
-        for widget in self.tabview.tab(self.tab_).winfo_children():
-            try:
-                if widget.cget('placeholder_text'):
-                    widget.delete(0, customtkinter.END)
-                    widget._activate_placeholder()
-                    widget.focus()
-            
-            except ValueError:
-                continue
+        if messagebox.askquestion(title='Confirm add product', message="Do you wish to confirm this new product?"):
+            #create the new product - supplier_id needs to be found first
+            supplierID = self.supplierDB.getSupplierID(self.chooseSupplier2.get())
+             
+            self.productDB.createProduct(supplierID, self.productNameEntry.get(), self.productDescriptionEntry.get(), self.productPSEntry.get(), self.productWeightEntry.get(), self.productPriceEntry.get())
 
-        #add product to product table here
+            for widget in self.tabview.tab(self.tab_).winfo_children():
+                try:
+                    if widget.cget('placeholder_text'):
+                        widget.delete(0, customtkinter.END)
+                        widget._activate_placeholder()
+                        widget.focus()
+                
+                #this handles the event that an entry widget doesnt register the placeholder text, such as an auto_complete entry
+                except ValueError:
+                    continue
+
+        #resume with app if "no" option is selected
+        else:
+            pass
+
 
     #Limits entry widget to 200 characters by default
     def limit_entry(self, limit=200, *args):
@@ -410,11 +425,10 @@ class App(superWindow):
         self.confirmAddSupplier = customtkinter.CTkButton(self.tabview.tab(tab_), text="Confirm add supplier", command=self.confirmAddSupplierProcess)
         self.confirmAddSupplier.grid(row=7, column=0, padx=20, pady=20)
 
-    #Creates the new product and clears all entry widgets
+    #Creates the new supplier and clears all entry widgets
     def confirmAddSupplierProcess(self):
-        #add supplier to supplier table here===========================
+        #adds supplier to supplier table here
         try:
-            
             if messagebox.askquestion(title='Confirm add supplier', message="Do you wish to confirm this new supplier?"):
                 #create the new supplier
                 self.supplierDB.createSupplier(self.suppliertNameEntry.get(), self.supplierDescriptionEntry.get(), json.dumps(self.supplierDates))
@@ -427,6 +441,7 @@ class App(superWindow):
                             widget._activate_placeholder()
                             widget.focus()
                     
+                    #this handles the event that an entry widget doesnt register the placeholder text, such as an auto_complete entry
                     except ValueError:
                         continue
                 
@@ -437,8 +452,6 @@ class App(superWindow):
                 #delete supplier delivery date fields upon successful supplier creation
                 self.supplierDates = []
                 self.updateSupplierDeliveryDateList()
-
-                
 
             #resume with app if "no" option is selected
             else:
@@ -497,7 +510,7 @@ class App(superWindow):
 if __name__ == "__main__":
     initialiser = logonDBHandler()
     initialiser.initializeDatabase()
-    initialiser.createUserCreds("admin", 12345, 1, "admin@example.com")
+    #initialiser.createUserCreds("admin", 12345, 1, "admin@example.com")
     #login = Logon()
     #login.mainloop()
     app = App(1)

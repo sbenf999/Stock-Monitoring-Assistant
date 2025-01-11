@@ -21,9 +21,9 @@ class productDBHandler(DBHandler):
             return False, error
         
 
-    def createProduct(self, supplier_id, product_name, product_description, product_pack_size, product_weight, product_barcode):
+    def createProduct(self, supplier_id, product_name, product_description, product_pack_size, product_weight, product_price, product_barcode=000000000):
         try:
-            self.cursor.execute('''INSERT INTO products (supplier_id, product_name, product_description, product_pack_size, product_weight, product_barcode) VALUES (%s, %s, %s, %s, %s, %s)''', (supplier_id, product_name, product_description, product_pack_size, product_weight, product_barcode))
+            self.cursor.execute('''INSERT INTO products (supplier_id, product_name, product_description, product_pack_size, product_weight, product_barcode, product_price) VALUES (%s, %s, %s, %s, %s, %s, %s)''', (supplier_id, product_name, product_description, product_pack_size, product_weight, product_barcode, product_price))
             self.connection.commit()
             return True
         

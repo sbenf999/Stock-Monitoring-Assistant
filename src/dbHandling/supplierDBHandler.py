@@ -36,6 +36,18 @@ class supplierDBHandler(DBHandler):
             self.connection.rollback()
             return False, error
         
+    
+    def getSupplierID(self, supplier_name):
+        try:
+            self.cursor.execute('''SELECT supplier_id FROM suppliers WHERE supplier_name = %s''', (supplier_name))
+            self.connection.commit()
+            result = self.cursor.fetchone()
+            return result
+        
+        except Exception as error:
+            self.connection.rollback()
+            return False, error
+        
 
     #needs to be programmed
     def deleteSupplier(self):
