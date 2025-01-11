@@ -1,5 +1,5 @@
 import customtkinter
-from logonDBHandler import *
+from dbHandling.logonDBHandler import *
 from forgotPassword import *
 from popUpWindow import *
 from windowSuperClass import superWindow

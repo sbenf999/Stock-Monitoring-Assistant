@@ -2,7 +2,7 @@
 import customtkinter
 from tkinter import ttk
 import tkinter as tk
-from logonDBHandler import *
+from dbHandling.logonDBHandler import *
 from changePassword import *
 from login_process import *
 from popUpWindow import *
@@ -14,10 +14,10 @@ from tkinter import messagebox
 import json
 
 #import database handlers
-from productDBHandler import *
-from supplierDBHandler import *
-from wasteDBHandler import *
-from stockLevelDBHandler import *
+from dbHandling.productDBHandler import *
+from dbHandling.supplierDBHandler import *
+from dbHandling.wasteDBHandler import *
+from dbHandling.stockLevelDBHandler import *
 
 class App(superWindow):
 

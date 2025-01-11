@@ -1,4 +1,4 @@
-from DBHandler import *
+from dbHandling.DBHandler import *
 
 class productDBHandler(DBHandler):
     def initializeDatabase(self):

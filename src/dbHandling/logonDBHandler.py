@@ -4,7 +4,7 @@ import hashlib
 import string
 import secrets
 from popUpWindow import *
-from DBHandler import *
+from dbHandling.DBHandler import *
 
 class logonDBHandler(DBHandler):
     def initializeDatabase(self):

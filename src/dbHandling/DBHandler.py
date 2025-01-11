@@ -1,18 +1,27 @@
 import mysql.connector
 from mysql.connector import errorcode
 
+from dotenv import load_dotenv
+import os
+
 #overarching parent class for handling database connections. All child classes will serve a specific function
 class DBHandler:
-    __username = "root"
-    __password = "BeltMadness3"
-    __host = "192.168.0.142"
-    __database = "nea"
+
+    # Load environment variables from the .env file
+    envVarPath="src/config/.env"
+    load_dotenv(dotenv_path=envVarPath)
+
+    __username = os.getenv("DB_USERNAME")
+    __password = os.getenv("DB_PASSWORD")
+    __host = os.getenv("DB_HOST")
+    __schema = os.getenv("DB_SCHEMA")
     connection = ""
     cursor = ""
 
     def __init__(self):
+        print(os.getenv("DB_USERNAME"))
         try:
-            self.connection = mysql.connector.connect(user=self.__username,password=self.__password, host=self.__host, database=self.__database, auth_plugin='mysql_native_password') 
+            self.connection = mysql.connector.connect(user=self.__username, password=self.__password, host=self.__host, database=self.__schema, auth_plugin='mysql_native_password') 
             self.cursor = self.connection.cursor(prepared=True)   
 
         except mysql.connector.Error as err:

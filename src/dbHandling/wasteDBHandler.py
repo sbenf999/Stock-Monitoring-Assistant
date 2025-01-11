@@ -1,4 +1,4 @@
-from DBHandler import *
+from dbHandling.DBHandler import *
 
 class wasteDBHandler(DBHandler):
     def initializeDatabase(self):

@@ -1,7 +1,7 @@
 import customtkinter
 import os
 import tkinter
-from logonDBHandler import *
+from dbHandling.logonDBHandler import *
 from changePassword import *
 from windowSuperClass import superWindow
 from mainApp import *
@@ -81,7 +81,3 @@ class Logon(superWindow):
     def __str__(self):
         return self.logon_.getUserAccessLevel(self.usernameEntry.get())
 
-#logon_ = logonDBHandler()
-#logon_.initializeDatabase()
-#logon_.mainloop()
-#logon_.createUserCreds("admin", 12345, 1, "admin@example.com")
