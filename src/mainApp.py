@@ -181,7 +181,7 @@ class App(superWindow):
         self.findProductLabel.grid(row=4, column=0, padx=(20), pady=20, sticky='w')
         self.autocomplete_entry = AutocompleteEntry(self.tabview.tab(tab_), width=500, placeholder_text='Search product...')
         
-        self.autocomplete_entry.set_suggestions(["Banana", "Bagels"]) #set suggestions needs to be based on a call to the product table in the database
+        self.autocomplete_entry.set_suggestions(self.productDB.getProductNames()) #set suggestions needs to be based on a call to the product table in the database
         self.autocomplete_entry.grid(row=4, column=1, padx=20, pady=20, columnspan=3, sticky='w')
         
         self.quantityLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Quantity: ")
@@ -328,13 +328,9 @@ class App(superWindow):
         self.productWeightEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="weight...")
         self.productWeightEntry.grid(row=2, column=3, padx=(20, 20), pady=20, sticky='w')
 
-        #this entry needs to be limited to 200 characters in order to work with the database
-        self.limiter = customtkinter.StringVar()
-        self.limiter.trace_add("write", self.limit_entry)
-
         self.productDescriptionLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Product description: ")
         self.productDescriptionLabel.grid(row=3, column=0, padx=(20, 20), pady=20, sticky='w')
-        self.productDescriptionEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), width=518, placeholder_text="Product description...", textvariable=self.limiter)
+        self.productDescriptionEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), width=518, placeholder_text="Product description...")
         self.productDescriptionEntry.grid(row=3, column=1, padx=(20, 20), pady=20, sticky='w', columnspan=5)
 
         self.confirmAddProduct = customtkinter.CTkButton(self.tabview.tab(tab_), text="Confirm add product", command=self.confirmAddproductProcess)
@@ -342,27 +338,33 @@ class App(superWindow):
 
     #Creates the new product and clears all entry widgets
     def confirmAddproductProcess(self):
-        if messagebox.askquestion(title='Confirm add product', message="Do you wish to confirm this new product?"):
-            #create the new product - supplier_id needs to be found first
-            supplierID = self.supplierDB.getSupplierID(self.chooseSupplier2.get())
-             
-            self.productDB.createProduct(supplierID, self.productNameEntry.get(), self.productDescriptionEntry.get(), self.productPSEntry.get(), self.productWeightEntry.get(), self.productPriceEntry.get())
-
-            for widget in self.tabview.tab(self.tab_).winfo_children():
-                try:
-                    if widget.cget('placeholder_text'):
-                        widget.delete(0, customtkinter.END)
-                        widget._activate_placeholder()
-                        widget.focus()
+        try:
+            if messagebox.askquestion(title='Confirm add product', message="Do you wish to confirm this new product?"):
+                #create the new product - supplier_id needs to be found first
+                supplierID = self.supplierDB.getSupplierID(self.chooseSupplier2.get())
+                self.productDB.createProduct(supplierID[0], self.productNameEntry.get(), self.productDescriptionEntry.get(), self.productPSEntry.get(), self.productWeightEntry.get(), self.productPriceEntry.get())
                 
-                #this handles the event that an entry widget doesnt register the placeholder text, such as an auto_complete entry
-                except ValueError:
-                    continue
+                for widget in self.tabview.tab(self.tab_).winfo_children():
+                    print(isinstance(widget, customtkinter.CTkEntry))
+                    try:
+                        if widget.cget("placeholder_text"):
+                            widget.delete(0, customtkinter.END)
+                            widget._activate_placeholder()
+                            widget.focus()
+                    
+                    #this handles the event that an entry widget doesnt register the placeholder text, such as an auto_complete entry
+                    except Exception as error:
+                        print(error)
+                        continue
 
-        #resume with app if "no" option is selected
-        else:
-            pass
 
+            #resume with app if "no" option is selected
+            else:
+                pass
+        
+        except Exception as error:
+            print(error)
+            messagebox.showerror("Error", f"An error occurred! Please try again. If this issue persits, please contact the maintainer. Error {error}")
 
     #Limits entry widget to 200 characters by default
     def limit_entry(self, limit=200, *args):

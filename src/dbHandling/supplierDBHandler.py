@@ -20,8 +20,8 @@ class supplierDBHandler(DBHandler):
         try:
             self.cursor.execute("SELECT supplier_name FROM suppliers")
             results = self.cursor.fetchall()
-            supplier_names = [row[0] for row in results]
-            return supplier_names
+            supplierNames = [row[0] for row in results]
+            return supplierNames
         
         except Exception as error:
             return False, error
@@ -39,8 +39,7 @@ class supplierDBHandler(DBHandler):
     
     def getSupplierID(self, supplier_name):
         try:
-            self.cursor.execute('''SELECT supplier_id FROM suppliers WHERE supplier_name = %s''', (supplier_name))
-            self.connection.commit()
+            self.cursor.execute('''SELECT supplier_id FROM suppliers WHERE supplier_name = %s''', (supplier_name,))
             result = self.cursor.fetchone()
             return result
         

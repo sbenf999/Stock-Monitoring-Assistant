@@ -29,8 +29,18 @@ class productDBHandler(DBHandler):
         
         except Exception as error:
             self.connection.rollback()
+            print(error)
             return False, error
+    
+    def getProductNames(self):
+        try:
+            self.cursor.execute("SELECT product_name FROM products")
+            results = self.cursor.fetchall()
+            productNames = [row[0] for row in results]
+            return productNames
         
+        except Exception as error:
+            return False, error
 
     #need to program
     def deleteProduct(self):
