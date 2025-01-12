@@ -26,10 +26,11 @@ class App(superWindow):
     WIDTH = 1100
     HEIGHT = 775
 
-    def __init__(self, userAccessLevel):
+    def __init__(self, userAccessLevel, userName="user"):
         super().__init__()
 
         self.userAccessLevel = userAccessLevel
+        self.userName = userName
 
         # configure window
         self.title("OneStop Stock Assistant System")
@@ -106,6 +107,7 @@ class App(superWindow):
                 print(error)
 
         #<========================UI-SETTERS========================>
+        self.homeUI()
         self.recordDeliveryUI()
         self.addProductUI()
         self.addSupplierUI()
@@ -133,6 +135,17 @@ class App(superWindow):
                     if name == page:
                         button.configure(state="disabled")
 
+    def homeUI(self, tab_='Home'):
+        self.tab_ = tab_
+
+        #set the welcome label in the center
+        self.welcomeLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text=f"Hi {self.userName}!", font=customtkinter.CTkFont(size=20, weight="bold"), padx=0, pady=0)
+        self.welcomeLabel.grid(row=0, column=0)
+
+        # Configure the grid to center for the centered welcome text
+        self.tabview.tab(tab_).grid_rowconfigure(0, weight=1)
+        self.tabview.tab(tab_).grid_columnconfigure(0, weight=1)
+
     def recordDeliveryUI(self, tab_='Record a delivery'): #you might want to make this a scrollable fram
         #you need to create a supplier database and then select all suppliers in order to be able to give values for the value list below
         self.tab_ = tab_
@@ -155,11 +168,6 @@ class App(superWindow):
         self.enterDeliveryDateLabelAbs = customtkinter.CTkLabel(self.tabview.tab(tab_), text=self.deliveryDate)
         self.enterDeliveryDateLabelAbs.grid(row=1, column=1, padx=(20, 20), pady=20, sticky='w')
 
-        self.enterDeliveryDateLabelOverride = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Override: ")
-        self.enterDeliveryDateLabelOverride.grid(row=2, column=0, padx=(20, 20), pady=20, sticky='w')
-        self.enterDeliveryDateEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="xx/xx/xx...")
-        self.enterDeliveryDateEntry.grid(row=2, column=1, padx=(20, 20), pady=20, sticky='w')
-
         #delivery time shoud create an ovveride feature if user doesnt want to use current system time
         self.enterDeliveryTimeLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Delivery time:")
         self.enterDeliveryTimeLabel.grid(row=1, column=2, padx=(20, 20), pady=20, sticky='w')
@@ -167,39 +175,30 @@ class App(superWindow):
         self.enterDeliveryTimeLabelAbs = customtkinter.CTkLabel(self.tabview.tab(tab_), text=self.deliveryTime)
         self.enterDeliveryTimeLabelAbs.grid(row=1, column=3, padx=(20, 20), pady=20, sticky='w')
 
-        self.enterDeliveryTimeLabelOverride = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Override: ")
-        self.enterDeliveryTimeLabelOverride.grid(row=2, column=2, padx=(20, 20), pady=20, sticky='w')
-        self.enterDeliveryTimeEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="xx:xx:xx...")
-        self.enterDeliveryTimeEntry.grid(row=2, column=3, padx=(20, 20), pady=20, sticky='w')
-
-        #create a seperator to distuinguish between sections
-        seperator = customtkinter.CTkFrame(self.tabview.tab(tab_), height=1, fg_color="gray")
-        seperator.grid(row=3, column=0, columnspan=10, padx=20, pady=20, sticky='nsew')
-
         #create the autocomplete search for a product
         self.findProductLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Search product:")
-        self.findProductLabel.grid(row=4, column=0, padx=(20), pady=20, sticky='w')
+        self.findProductLabel.grid(row=3, column=0, padx=(20), pady=20, sticky='w')
         self.autocomplete_entry = AutocompleteEntry(self.tabview.tab(tab_), width=500, placeholder_text='Search product...')
         
         self.autocomplete_entry.set_suggestions(self.productDB.getProductNames()) #set suggestions needs to be based on a call to the product table in the database
-        self.autocomplete_entry.grid(row=4, column=1, padx=20, pady=20, columnspan=3, sticky='w')
+        self.autocomplete_entry.grid(row=3, column=1, padx=20, pady=20, columnspan=3, sticky='w')
         
         self.quantityLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Quantity: ")
-        self.quantityLabel.grid(row=5, column=0, padx=(20, 20), pady=10, sticky='w')
+        self.quantityLabel.grid(row=4, column=0, padx=(20, 20), pady=10, sticky='w')
         self.quantityEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="x")
-        self.quantityEntry.grid(row=5, column=1, padx=(20, 20), pady=10, sticky='w')
+        self.quantityEntry.grid(row=4, column=1, padx=(20, 20), pady=10, sticky='w')
         self.addProduct = customtkinter.CTkButton(self.tabview.tab(tab_), text="Add product", command=self.addProductToDelivery)
-        self.addProduct.grid(row=5, column=2, padx=20, pady=10)
+        self.addProduct.grid(row=4, column=2, padx=20, pady=10)
 
         #create a seperator to distuinguish between sections
         seperator2 = customtkinter.CTkFrame(self.tabview.tab(tab_), height=1, fg_color="gray")
-        seperator2.grid(row=6, column=0, columnspan=10, padx=20, pady=20, sticky='nsew')
+        seperator2.grid(row=5, column=0, columnspan=10, padx=20, pady=20, sticky='nsew')
 
         #scrollable frame for added products
         self.products = []
 
         self.productFrame = scrollableWin(master=self.tabview.tab(tab_), width=300, height=200, corner_radius=0, fg_color="transparent")
-        self.productFrame.grid(row=7, column=0, sticky="nsew", columnspan=6)
+        self.productFrame.grid(row=6, column=0, sticky="nsew", columnspan=6)
         self.productNumLabel = customtkinter.CTkLabel(self.productFrame, text="Item num", fg_color="transparent")
         self.productNumLabel.grid(row=0, column=0, padx=(20), pady=20, sticky='w')
         self.itemLabel = customtkinter.CTkLabel(self.productFrame, text="Item", fg_color="transparent")
@@ -211,10 +210,10 @@ class App(superWindow):
         
         #create a seperator to distuinguish between sections
         seperator3 = customtkinter.CTkFrame(self.tabview.tab(tab_), height=1, fg_color="gray")
-        seperator3.grid(row=8, column=0, columnspan=10, padx=20, pady=20, sticky='nsew')
+        seperator3.grid(row=7, column=0, columnspan=10, padx=20, pady=20, sticky='nsew')
 
         self.confirmDelivery = customtkinter.CTkButton(self.tabview.tab(tab_), text="Confirm delivery", command=self.confirmDelivery)
-        self.confirmDelivery.grid(row=9, column=0, padx=20, pady=10)
+        self.confirmDelivery.grid(row=8, column=0, padx=20, pady=10)
     
     # Function to add product
     def addProductToDelivery(self):
@@ -330,7 +329,7 @@ class App(superWindow):
 
         self.productDescriptionLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Product description: ")
         self.productDescriptionLabel.grid(row=3, column=0, padx=(20, 20), pady=20, sticky='w')
-        self.productDescriptionEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), width=518, placeholder_text="Product description...")
+        self.productDescriptionEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), width=518, placeholder_text="product description...")
         self.productDescriptionEntry.grid(row=3, column=1, padx=(20, 20), pady=20, sticky='w', columnspan=5)
 
         self.confirmAddProduct = customtkinter.CTkButton(self.tabview.tab(tab_), text="Confirm add product", command=self.confirmAddproductProcess)

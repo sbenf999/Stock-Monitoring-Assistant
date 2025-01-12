@@ -72,10 +72,11 @@ class Logon(superWindow):
         
     def newWindow(self):
         givenLevel = str(self)
+        givenUsername = self.usernameEntry.get()
         self.onClosing()
         message = popUpWindow("You have successfully logged in")
         message.create()
-        app = App(givenLevel)
+        app = App(givenLevel, givenUsername)
         app.mainloop()
 
     def __str__(self):
