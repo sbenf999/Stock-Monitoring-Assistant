@@ -91,6 +91,7 @@ class App(superWindow):
             self.tabview.add(tab)
 
         #<========================INITIALIZE-DATABASES========================>
+        self.DBHandler = DBHandler() 
         self.supplierDB = supplierDBHandler()
         self.productDB = productDBHandler()
         self.wasteDB = wasteDBHandler()
@@ -143,20 +144,18 @@ class App(superWindow):
         self.tabview.tab(tab_).grid_columnconfigure([0, 1, 2, 3], weight=1)
 
         #set the welcome label in the center
-        self.welcomeLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text=f"Hi {self.userName}!", font=customtkinter.CTkFont(size=20, weight="bold"), padx=0, pady=0)
+        self.welcomeLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text=f"Hi {self.userName}!", font=customtkinter.CTkFont(size=35, weight="bold"), padx=0, pady=0)
         self.welcomeLabel.grid(row=0, column=0, columnspan=4)
 
         #create product count label and label value
-        self.productCountLabelValue = customtkinter.CTkLabel(self.tabview.tab(tab_), text=self.productDB.getCount("products"), font=("Arial", 40, "bold"), text_color="#1f538d")
-        self.productCountLabelValue.grid(row=1, column=1, padx=10, pady=10, sticky="e")
-        self.productCountLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Num of Products:", font=("Arial", 12))
-        self.productCountLabel.grid(row=2, column=1, padx=10, pady=10, sticky="e")  
+        self.productCountLabelValue = customtkinter.CTkLabel(self.tabview.tab(tab_), text=self.productDB.getCount("products"), font=("Arial", 20))
+        self.productCountLabelValue.grid(row=1, column=0, padx=10, pady=10, sticky="e")
 
         #create supplier count label and label value
-        self.supplierCountLabelValue = customtkinter.CTkLabel(self.tabview.tab(tab_), text=self.supplierDB.getCount("suppliers"), font=("Arial", 40, "bold"), text_color="#1f538d")
-        self.supplierCountLabelValue.grid(row=1, column=2, padx=10, pady=10, sticky="e")  
-        self.supplierCountLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Num of Suppliers:", font=("Arial", 12))
-        self.supplierCountLabel.grid(row=2, column=2, padx=10, pady=10, sticky="e")  
+        self.supplierCountLabelValue = customtkinter.CTkLabel(self.tabview.tab(tab_), text=self.supplierDB.getCount("suppliers"), font=("Arial", 20))
+        self.supplierCountLabelValue.grid(row=1, column=1, padx=10, pady=10, sticky="e", columnspan=2)  
+
+        #self.DBHandler.createBarGraphVisualisation(self.tabview.tab(tab_))
 
     def recordDeliveryUI(self, tab_='Record a delivery'): #you might want to make this a scrollable fram
         #you need to create a supplier database and then select all suppliers in order to be able to give values for the value list below

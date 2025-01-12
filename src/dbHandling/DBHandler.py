@@ -1,6 +1,13 @@
+#database imports
 import mysql.connector
 from mysql.connector import errorcode
 
+#graphing imports
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+#general imports
+import customtkinter
 from dotenv import load_dotenv
 import os
 
@@ -32,8 +39,32 @@ class DBHandler:
             else:
                 print(err)   
     
-    def getCount(self, tableName):
-        _allowed_tables = {"users", "suppliers", "products", "waste", "stockLevel"}  
+    def createBarGraphVisualisation(self, root):
+        categories = self.getTables()
+        values = []
+        for category in categories:
+            values.append(self.getCount(category, False))
+
+        fig, ax = plt.subplots(figsize=(5, 3))
+        ax.bar(categories, values, color="#1f538d")
+
+        fig.patch.set_alpha(0.0)
+        ax.set_facecolor('none') 
+
+        ax.set_xlabel("Categories")
+        ax.set_ylabel("Count")
+        ax.set_title("Database overview")
+
+        self.graph_frame = customtkinter.CTkFrame(root)
+        self.graph_frame.grid(row=0, column=0, padx=40, pady=40)
+
+        canvas = FigureCanvasTkAgg(fig, master=self.graph_frame)
+        canvas.draw()
+
+        canvas.get_tk_widget().grid(row=0, column=0)
+
+    def getCount(self, tableName, displayType=True):
+        _allowed_tables = self.getTables()
 
         if tableName not in _allowed_tables:
             raise ValueError(f"Invalid table name: {tableName}")
@@ -42,12 +73,25 @@ class DBHandler:
             query = f"SELECT COUNT(*) FROM {tableName}"
             self.cursor.execute(query)
             rowCount = self.cursor.fetchone()[0]
-            return rowCount
+
+            if displayType:
+                spacing = 3-len(str(rowCount))
+                zeros = spacing*"0"
+                prettified = f"{zeros}{rowCount} {tableName}"
+                return prettified
+            
+            else:
+                return rowCount
 
         except Exception as error:
             print(f"Error encountered: {error}")
             return None
 
+    def getTables(self):
+        self.cursor.execute("SHOW TABLES")
+        tables = self.cursor.fetchall()
+        tableNames = [table[0] for table in tables]
+        return tableNames
 
     def close(self):
         self.connection.close()
