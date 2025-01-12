@@ -45,23 +45,7 @@ class DBHandler:
         for category in categories:
             values.append(self.getCount(category, False))
 
-        fig, ax = plt.subplots(figsize=(5, 3))
-        ax.bar(categories, values, color="#1f538d")
-
-        fig.patch.set_alpha(0.0)
-        ax.set_facecolor('none') 
-
-        ax.set_xlabel("Categories")
-        ax.set_ylabel("Count")
-        ax.set_title("Database overview")
-
-        self.graph_frame = customtkinter.CTkFrame(root)
-        self.graph_frame.grid(row=0, column=0, padx=40, pady=40)
-
-        canvas = FigureCanvasTkAgg(fig, master=self.graph_frame)
-        canvas.draw()
-
-        canvas.get_tk_widget().grid(row=0, column=0)
+        
 
     def getCount(self, tableName, displayType=True):
         _allowed_tables = self.getTables()

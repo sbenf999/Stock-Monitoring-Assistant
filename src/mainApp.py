@@ -58,7 +58,7 @@ class App(superWindow):
         
 
         #create a section of buttons for database tools, such as adding a product or supplier
-        seperator1 = customtkinter.CTkFrame(self.sidebar_frame, height=0, width=100,fg_color="gray")
+        #seperator1 = customtkinter.CTkFrame(self.sidebar_frame, height=0, width=100,fg_color="gray")
         #seperator1.grid(row=4, column=0, padx=20, pady=10)
         self.label2 = customtkinter.CTkLabel(self.sidebar_frame, text="Database tools:", font=customtkinter.CTkFont(size=12))
         self.label2.grid(row=5, column=0, padx=20)
