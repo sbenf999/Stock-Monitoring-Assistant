@@ -123,3 +123,4 @@ class logonDBHandler(DBHandler):
     
     def hashData(data):
         return hashlib.sha256(str.encode(data)).hexdigest()
+    

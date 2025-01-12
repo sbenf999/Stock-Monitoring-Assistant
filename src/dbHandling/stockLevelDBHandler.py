@@ -1,6 +1,8 @@
 from dbHandling.DBHandler import *
 
 class stockLevelDBHandler(DBHandler):
+    tableName="stockLevel"
+
     def initializeDatabase(self):
         try:
             self.cursor.execute('''

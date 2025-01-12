@@ -146,6 +146,18 @@ class App(superWindow):
         self.tabview.tab(tab_).grid_rowconfigure(0, weight=1)
         self.tabview.tab(tab_).grid_columnconfigure(0, weight=1)
 
+        #create product count label and label value
+        self.productCountLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Num of Products:", font=("Arial", 12))
+        self.productCountLabel.grid(row=1, column=0, padx=10, pady=10, sticky="e")  
+        self.productCountLabelValue = customtkinter.CTkLabel(self.tabview.tab(tab_), text=self.productDB.getCount("products"), font=("Arial", 14, "bold"), text_color="#1f538d")
+        self.productCountLabelValue.grid(row=1, column=1, padx=10, pady=10, sticky="w")
+
+        #create supplier count label and label value
+        self.supplierCountLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Num of Suppliers:", font=("Arial", 12))
+        self.supplierCountLabel.grid(row=1, column=3, padx=10, pady=10, sticky="e")  
+        self.supplierCountLabelValue = customtkinter.CTkLabel(self.tabview.tab(tab_), text=self.supplierDB.getCount("suppliers"), font=("Arial", 14, "bold"), text_color="#1f538d")
+        self.supplierCountLabelValue.grid(row=1, column=14, padx=10, pady=10, sticky="w")  
+
     def recordDeliveryUI(self, tab_='Record a delivery'): #you might want to make this a scrollable fram
         #you need to create a supplier database and then select all suppliers in order to be able to give values for the value list below
         self.tab_ = tab_

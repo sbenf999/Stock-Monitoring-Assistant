@@ -19,7 +19,6 @@ class DBHandler:
     cursor = ""
 
     def __init__(self):
-        print(os.getenv("DB_USERNAME"))
         try:
             self.connection = mysql.connector.connect(user=self.__username, password=self.__password, host=self.__host, database=self.__schema, auth_plugin='mysql_native_password') 
             self.cursor = self.connection.cursor(prepared=True)   
@@ -32,6 +31,23 @@ class DBHandler:
                 print("Database does not exist")
             else:
                 print(err)   
-                
+    
+    def getCount(self, tableName):
+        _allowed_tables = {"users", "suppliers", "products", "waste", "stockLevel"}  
+
+        if tableName not in _allowed_tables:
+            raise ValueError(f"Invalid table name: {tableName}")
+        
+        try:
+            query = f"SELECT COUNT(*) FROM {tableName}"
+            self.cursor.execute(query)
+            rowCount = self.cursor.fetchone()[0]
+            return rowCount
+
+        except Exception as error:
+            print(f"Error encountered: {error}")
+            return None
+
+
     def close(self):
         self.connection.close()
