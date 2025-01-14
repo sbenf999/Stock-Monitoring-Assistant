@@ -39,14 +39,6 @@ class DBHandler:
             else:
                 print(err)   
     
-    def createBarGraphVisualisation(self, root):
-        categories = self.getTables()
-        values = []
-        for category in categories:
-            values.append(self.getCount(category, False))
-
-        
-
     def getCount(self, tableName, displayType=True):
         _allowed_tables = self.getTables()
 

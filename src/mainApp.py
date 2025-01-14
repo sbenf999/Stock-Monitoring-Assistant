@@ -76,10 +76,8 @@ class App(superWindow):
         self.label3.grid(row=10, column=0, padx=20)
         self.sidebar_button_6 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Weekly report"), text="Weekly report")
         self.sidebar_button_6.grid(row=11, column=0, padx=20, pady=10)
-        self.sidebar_button_7 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Profit margins"), text="Profit margins")
-        self.sidebar_button_7.grid(row=12, column=0, padx=20, pady=10)
-        self.sidebar_button_8 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Settings"), text="Settings")
-        self.sidebar_button_8.grid(row=13, column=0, padx=20, pady=(10,20))
+        self.sidebar_button_7 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Settings"), text="Settings")
+        self.sidebar_button_7.grid(row=13, column=0, padx=20, pady=(10,20))
 
         #tabview in which all UI will take place to do with functions of the application - the sidebar on the side simply allows for easier switching of the tabs
         self.setButtonStates() #set the button states (disabled or enabled) based on the user access
@@ -94,10 +92,9 @@ class App(superWindow):
         self.DBHandler = DBHandler() 
         self.supplierDB = supplierDBHandler()
         self.productDB = productDBHandler()
-        self.wasteDB = wasteDBHandler()
-        self.stockLevel = stockLevelDBHandler()
+        self.wasteDB = wasteDBHandler()  
 
-        databases = [self.supplierDB, self.productDB, self.wasteDB, self.stockLevel]
+        databases = [self.supplierDB, self.productDB, self.wasteDB]
 
         for database in databases:
             try:
@@ -119,13 +116,13 @@ class App(superWindow):
 
     def setButtonStates(self):
         #get user access level from login program in order to disable some functions
-        self.tabsDefault = ["Home", "Record a delivery", "Stock counting", "Data view", "Add product", "Add supplier", "Weekly report", "Profit margins", "Settings"]
-        self.buttonsDefault = [self.sidebar_button_1, self.sidebar_button_2, self.sidebar_button_3, self.sidebar_button_4, self.sidebar_button_5, self.sidebar_button_6, self.sidebar_button_7, self.sidebar_button_8]
+        self.tabsDefault = ["Home", "Record a delivery", "Stock counting", "Data view", "Add product", "Add supplier", "Weekly report", "Settings"]
+        self.buttonsDefault = [self.sidebar_button_1, self.sidebar_button_2, self.sidebar_button_3, self.sidebar_button_4, self.sidebar_button_5, self.sidebar_button_6, self.sidebar_button_7]
         self.tabs = self.tabsDefault
         self.allowances: dict = {
                 1: self.tabsDefault,
-                2: list(filter(lambda tab_: tab_ not in ["Profit margins", "Data view", "Weekly report", "Settings"], self.tabs)),
-                3: list(filter(lambda tab_: tab_ not in ["Profit margins", "Add product", "Add supplier", "Data view", "Weekly report", "Settings"], self.tabs))
+                2: list(filter(lambda tab_: tab_ not in ["Data view", "Weekly report", "Settings"], self.tabs)),
+                3: list(filter(lambda tab_: tab_ not in ["Add product", "Add supplier", "Data view", "Weekly report", "Settings"], self.tabs))
         }
 
         #disable any buttons that the user doesnt have access to
