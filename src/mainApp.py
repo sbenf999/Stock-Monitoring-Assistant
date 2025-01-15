@@ -93,8 +93,9 @@ class App(superWindow):
         self.supplierDB = supplierDBHandler()
         self.productDB = productDBHandler()
         self.wasteDB = wasteDBHandler()  
+        self.stockLevelDB = stockLevelDBHandler()
 
-        databases = [self.supplierDB, self.productDB, self.wasteDB]
+        databases = [self.supplierDB, self.productDB, self.wasteDB, self.stockLevelDB]
 
         for database in databases:
             try:
@@ -335,13 +336,23 @@ class App(superWindow):
         self.productWeightEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="weight...")
         self.productWeightEntry.grid(row=2, column=3, padx=(20, 20), pady=20, sticky='w')
 
+        self.minimumStockLevelLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Min stock level: ")
+        self.minimumStockLevelLabel.grid(row=3, column=0, padx=(20, 20), pady=20, sticky='w')
+        self.minimumStockLevelEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="min stock level...")
+        self.minimumStockLevelEntry.grid(row=3, column=1, padx=(20, 20), pady=20, sticky='w')
+
+        self.reorderStockLevelLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Re-order level: ")
+        self.reorderStockLevelLabel.grid(row=3, column=2, padx=(20, 20), pady=20, sticky='w')
+        self.reorderStockLevelEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="re-order level...")
+        self.reorderStockLevelEntry.grid(row=3, column=3, padx=(20, 20), pady=20, sticky='w')
+
         self.productDescriptionLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Product description: ")
-        self.productDescriptionLabel.grid(row=3, column=0, padx=(20, 20), pady=20, sticky='w')
+        self.productDescriptionLabel.grid(row=4, column=0, padx=(20, 20), pady=20, sticky='w')
         self.productDescriptionEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), width=518, placeholder_text="product description...")
-        self.productDescriptionEntry.grid(row=3, column=1, padx=(20, 20), pady=20, sticky='w', columnspan=5)
+        self.productDescriptionEntry.grid(row=4, column=1, padx=(20, 20), pady=20, sticky='w', columnspan=5)
 
         self.confirmAddProduct = customtkinter.CTkButton(self.tabview.tab(tab_), text="Confirm add product", command=self.confirmAddproductProcess)
-        self.confirmAddProduct.grid(row=4, column=0, padx=20, pady=20)
+        self.confirmAddProduct.grid(row=5, column=0, padx=20, pady=20)
 
     #Creates the new product and clears all entry widgets
     def confirmAddproductProcess(self):
@@ -350,6 +361,8 @@ class App(superWindow):
                 #create the new product - supplier_id needs to be found first
                 supplierID = self.supplierDB.getSupplierID(self.chooseSupplier2.get())
                 self.productDB.createProduct(supplierID[0], self.productNameEntry.get(), self.productDescriptionEntry.get(), self.productPSEntry.get(), self.productWeightEntry.get(), self.productPriceEntry.get())
+                stockLevelProductID = self.productDB.getProductID(self.productNameEntry.get())
+                self.stockLevelDB.addStockLevelData(stockLevelProductID, self.minimumStockLevelEntry.get(), self.reorderStockLevelEntry())
                 
                 for widget in self.tabview.tab(self.tab_).winfo_children():
                     print(isinstance(widget, customtkinter.CTkEntry))

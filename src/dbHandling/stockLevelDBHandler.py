@@ -1,8 +1,6 @@
 from dbHandling.DBHandler import *
 
 class stockLevelDBHandler(DBHandler):
-    tableName="stockLevel"
-
     def initializeDatabase(self):
         try:
             self.cursor.execute('''
@@ -18,4 +16,15 @@ class stockLevelDBHandler(DBHandler):
             ''')
 
         except Exception as error:
+            return False, error
+
+    def addStockLevelData(self, productID, minStockLevel, reOrderLevel, *, stockCount=None, lastDelivery=None):
+        try:
+            self.cursor.execute('''INSERT INTO stocklevel (product_id, minimum_stock_level, reOrder_level) VALUES (%s, %s, %s)''', (productID, minStockLevel, reOrderLevel))
+            self.connection.commit()
+            return True
+        
+        except Exception as error:
+            self.connection.rollback()
+            print(f"sldb: {error}")
             return False, error
