@@ -532,6 +532,11 @@ class App(superWindow):
         #you need to add functionality for:
             #creating, editing and deleting users 
                 #only an admin account can do this
+                
+        self.addUserButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="Create new user", command=self.addNewUser)
+        self.addUserButton.grid(row=0, column=0, padx=20, pady=20)
+        
+
 
 
 if __name__ == "__main__":

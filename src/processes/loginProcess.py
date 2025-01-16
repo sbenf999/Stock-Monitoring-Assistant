@@ -1,6 +1,4 @@
 import customtkinter
-import os
-import tkinter
 from dbHandling.logonDBHandler import *
 from processes.changePassword import *
 from processes.windowSuperClass import superWindow
@@ -29,13 +27,11 @@ class Logon(superWindow):
         #create logon buttons and entries
         self.usernameLabel = customtkinter.CTkLabel(self.loginFrame, text="Enter Username:", anchor="w")
         self.usernameLabel.grid(row=0, column=0)
-        
         self.usernameEntry = customtkinter.CTkEntry(self.loginFrame, placeholder_text="Username...")
         self.usernameEntry.grid(row=0, column=1, columnspan=2, sticky="nsew", padx=(12), pady=12)
         
         self.passwordLabel = customtkinter.CTkLabel(self.loginFrame, text="Enter Password:", anchor="w")
         self.passwordLabel.grid(row=1, column=0)
-        
         self.passwordEntry = customtkinter.CTkEntry(self.loginFrame, show="*", placeholder_text="Password...")
         self.passwordEntry.grid(row=1, column=1, columnspan=2, sticky="nsew", padx=(12), pady=12)
         
@@ -47,9 +43,6 @@ class Logon(superWindow):
         
         self.buttonExit = customtkinter.CTkButton(self.loginFrame, text="Exit", command=self.onClosing)
         self.buttonExit.grid(row=2, column=2, sticky="w", padx=(0, 12), pady=12)
-
-        #test with admin user
-        
 
     def logonProcess(self):
         self.logon_ = logonDBHandler()
