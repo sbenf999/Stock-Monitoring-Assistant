@@ -107,6 +107,7 @@ class App(superWindow):
         self.recordDeliveryUI()
         self.addProductUI()
         self.addSupplierUI()
+        self.settingsUI()
 
     #function for buttons in the sidebar - used for navigating the tabview on the right
     def goToTab(self, tabName):
@@ -504,11 +505,11 @@ class App(superWindow):
             count_label = customtkinter.CTkLabel(self.supplierDateFrame, text=str(i+1))
             count_label.grid(row=i+2, column=0, padx=20, sticky="w", pady=10)
 
-            # Name label with fixed width
+            #Name label with fixed width
             name_label = customtkinter.CTkLabel(self.supplierDateFrame, text=supplierDate)
             name_label.grid(row=i+2, column=1, padx=20, sticky="w", pady=10)
 
-            # Delete button to remove the supplier date
+            #Delete button to remove the supplier date
             print(self.supplierDates, i)
             print(self.supplierDates[i])
             delete_button = customtkinter.CTkButton(self.supplierDateFrame, text="Delete", command=lambda i=i: self.deleteSupplierDate(i))
@@ -524,6 +525,14 @@ class App(superWindow):
         # Remove supplier date from the list
         del self.supplierDates[index]
         self.updateSupplierDeliveryDateList()
+
+    def settingsUI(self, tab_='Settings'):
+        self.tab_ = tab_
+
+        #you need to add functionality for:
+            #creating, editing and deleting users 
+                #only an admin account can do this
+
 
 if __name__ == "__main__":
     initialiser = logonDBHandler()
