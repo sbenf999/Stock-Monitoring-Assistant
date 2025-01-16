@@ -2,12 +2,7 @@
 import mysql.connector
 from mysql.connector import errorcode
 
-#graphing imports
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-
 #general imports
-import customtkinter
 from dotenv import load_dotenv
 import os
 
@@ -64,10 +59,14 @@ class DBHandler:
             return None
 
     def getTables(self):
-        self.cursor.execute("SHOW TABLES")
-        tables = self.cursor.fetchall()
-        tableNames = [table[0] for table in tables]
-        return tableNames
+        try:
+            self.cursor.execute("SHOW TABLES")
+            tables = self.cursor.fetchall()
+            tableNames = [table[0] for table in tables]
+            return tableNames
+
+        except Exception as error:
+            print(f"error encountered: {error}")
 
     def close(self):
         self.connection.close()

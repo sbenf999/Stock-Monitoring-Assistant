@@ -1,7 +1,6 @@
 #general lib imports
 import customtkinter
-from tkinter import ttk, messagebox
-import tkinter as tk
+from tkinter import messagebox
 from time import gmtime, strftime
 import json
 
@@ -58,8 +57,6 @@ class App(superWindow):
         
 
         #create a section of buttons for database tools, such as adding a product or supplier
-        #seperator1 = customtkinter.CTkFrame(self.sidebar_frame, height=0, width=100,fg_color="gray")
-        #seperator1.grid(row=4, column=0, padx=20, pady=10)
         self.label2 = customtkinter.CTkLabel(self.sidebar_frame, text="Database tools:", font=customtkinter.CTkFont(size=12))
         self.label2.grid(row=5, column=0, padx=20)
         self.sidebar_button_3 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Data view"), text="Data view")
@@ -270,15 +267,15 @@ class App(superWindow):
             delete_button = customtkinter.CTkButton(self.productFrame, text="Delete", command=lambda i=i: self.deleteProductInDelivery(i))
             delete_button.grid(row=i+2, column=3, padx=20, sticky="w", pady=10)
 
-    # Function to delete a product
+    #Function to delete a product
     def deleteProductInDelivery(self, index):
-        # Remove product from the list
+        #Remove product from the list
         del self.products[index]
         self.updateProductList()
 
     #Function to clear product list
     def clearProductList(self):
-        # Clear the existing list
+        #Clear the existing list
         for widget in self.productFrame.winfo_children():
             if widget not in [self.productNumLabel, self.itemLabel, self.itemQuantityLabel, self.toolLabel]:
                 widget.destroy()
