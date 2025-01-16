@@ -23,8 +23,3 @@ class newUser(superWindow):
         #create new user frame
         self.newUserFrame = customtkinter.CTkFrame(self, corner_radius=10)
         self.newUserFrame.place(relx=0.5, rely=0.5, anchor=customtkinter.CENTER)
-
-
-
-if __name__ == "__main__":
-    user = newUser()

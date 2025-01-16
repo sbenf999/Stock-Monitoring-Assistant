@@ -11,6 +11,7 @@ from processes.popUpWindow import *
 from processes.windowSuperClass import superWindow
 from processes.autoCompleteSearch import AutocompleteEntry
 from processes.scrollingWindow import scrollableWin
+from processes.newUser import *
 
 #import database handlers
 from dbHandling.logonDBHandler import *
@@ -356,29 +357,27 @@ class App(superWindow):
     def confirmAddproductProcess(self):
         try:
             if messagebox.askquestion(title='Confirm add product', message="Do you wish to confirm this new product?"):
-                #create the new product - supplier_id needs to be found first
+                #create the new product - supplier_id needs to be found first#
                 supplierID = self.supplierDB.getSupplierID(self.chooseSupplier2.get())
                 self.productDB.createProduct(supplierID[0], self.productNameEntry.get(), self.productDescriptionEntry.get(), self.productPSEntry.get(), self.productWeightEntry.get(), self.productPriceEntry.get())
                 stockLevelProductID = self.productDB.getProductID(self.productNameEntry.get())
-                self.stockLevelDB.addStockLevelData(stockLevelProductID, self.minimumStockLevelEntry.get(), self.reorderStockLevelEntry())
+                self.stockLevelDB.addStockLevelData(stockLevelProductID, self.minimumStockLevelEntry.get(), self.reorderStockLevelEntry.get())
                 
-                for widget in self.tabview.tab(self.tab_).winfo_children():
-                    print(isinstance(widget, customtkinter.CTkEntry))
+                for widget in [self.productNameEntry, self.productPriceEntry, self.productPSEntry, self.productWeightEntry, self.minimumStockLevelEntry, self.reorderStockLevelEntry, self.productDescriptionEntry]:
                     try:
-                        if widget.cget("placeholder_text"):
-                            widget.delete(0, customtkinter.END)
-                            widget._activate_placeholder()
-                            widget.focus()
+                        widget.delete(0, customtkinter.END)
+                        widget._activate_placeholder()
+                        widget.focus()
                     
                     #this handles the event that an entry widget doesnt register the placeholder text, such as an auto_complete entry
                     except Exception as error:
-                        print(error)
+                        print(f"e: {error}")
                         continue
 
-            #resume with app if "no" option is selected
-            else:
-                pass
-        
+                #resume with app if "no" option is selected
+                else:
+                    pass
+    
         except Exception as error:
             print(error)
             messagebox.showerror("Error", f"An error occurred! Please try again. If this issue persits, please contact the maintainer. Error {error}")
@@ -532,13 +531,15 @@ class App(superWindow):
         #you need to add functionality for:
             #creating, editing and deleting users 
                 #only an admin account can do this
-                
+        
         self.addUserButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="Create new user", command=self.addNewUser)
         self.addUserButton.grid(row=0, column=0, padx=20, pady=20)
+
+    def addNewUser(self):
+        user = newUser()
+        user.mainloop()
+
         
-
-
-
 if __name__ == "__main__":
     initialiser = logonDBHandler()
     initialiser.initializeDatabase()

@@ -1,4 +1,5 @@
 from dbHandling.DBHandler import *
+import json
 
 class stockLevelDBHandler(DBHandler):
     def initializeDatabase(self):
@@ -18,12 +19,17 @@ class stockLevelDBHandler(DBHandler):
         except Exception as error:
             return False, error
 
-    def addStockLevelData(self, productID, minStockLevel, reOrderLevel, *, stockCount=None, lastDelivery=None):
+    def addStockLevelData(self, productID, minStockLevel, reOrderLevel, *, stockCount=0, lastDelivery="[]"):
         try:
-            self.cursor.execute('''INSERT INTO stocklevel (product_id, minimum_stock_level, reOrder_level) VALUES (%s, %s, %s)''', (productID, minStockLevel, reOrderLevel))
+            if isinstance(lastDelivery, dict):
+                lastDelivery = json.dumps(lastDelivery)
+
+            params = (productID, minStockLevel, reOrderLevel, stockCount, lastDelivery)
+
+            self.cursor.execute('''INSERT INTO stocklevel (product_id, minimum_stock_level, reOrder_level, stock_count, lastDelivery) VALUES (%s, %s, %s, %s, %s)''', params)
             self.connection.commit()
             return True
-        
+
         except Exception as error:
             self.connection.rollback()
             print(f"sldb: {error}")

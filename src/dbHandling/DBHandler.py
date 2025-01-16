@@ -13,10 +13,10 @@ class DBHandler:
     envVarPath="src/config/.env"
     load_dotenv(dotenv_path=envVarPath)
 
-    __username = os.getenv("DB_USERNAME")
-    __password = os.getenv("DB_PASSWORD")
-    __host = os.getenv("DB_HOST")
-    __schema = os.getenv("DB_SCHEMA")
+    __username = "root"
+    __password = "BeltMadness3"
+    __host = "192.168.0.142"
+    __schema = "ossma"
     connection = ""
     cursor = ""
 
@@ -35,11 +35,6 @@ class DBHandler:
                 print(err)   
     
     def getCount(self, tableName, displayType=True):
-        _allowed_tables = self.getTables()
-
-        if tableName not in _allowed_tables:
-            raise ValueError(f"Invalid table name: {tableName}")
-        
         try:
             query = f"SELECT COUNT(*) FROM {tableName}"
             self.cursor.execute(query)

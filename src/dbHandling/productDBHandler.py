@@ -29,7 +29,7 @@ class productDBHandler(DBHandler):
         
         except Exception as error:
             self.connection.rollback()
-            print(error)
+            print(f"Error in create product: {error}")
             return False, error
     
     def getProductNames(self):
@@ -44,7 +44,7 @@ class productDBHandler(DBHandler):
 
     def getProductID(self, productName):
         try:
-            self.cursor.execute("SELECT product_id FROM products WHERE product_name = %s", (productName))
+            self.cursor.execute("SELECT product_id FROM products WHERE product_name = %s", (productName,))
             results = self.cursor.fetchone()
             return results[0]
         
