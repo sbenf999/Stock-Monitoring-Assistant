@@ -39,12 +39,12 @@ class logonDBHandler(DBHandler):
             try:
                 # Use parameterized query for safety
                 self.cursor.execute("""INSERT INTO users (username, password, access_level, recovery_code, email_address) VALUES (%s, %s, %s, %s, %s)""",(username,logonDBHandler.hashData(str(password)),accessLevel,logonDBHandler.hashData(str(recoveryCode)),emailAddress,))
-                
+                message = popUpWindow("User created successfully")
+
             except Exception as e:
                 print(e)
 
         self.connection.commit()
-
 
     def readUserCreds(self):
         self.cursor.execute('SELECT user_id, username, password, access_level FROM users')
