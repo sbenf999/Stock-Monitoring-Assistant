@@ -2,5 +2,5 @@ DB_USERNAME=your_username
 DB_PASSWORD=your_password
 DB_HOST=your_host
 DB_SCHEMA=your_database
-DEF_EMAIL_ADDR=
-DEF_EMAIL_ADDR_PASS=
+DEF_EMAIL_ADDR=your_sender_email_addr
+DEF_EMAIL_ADDR_PASS=your_sender_email_pass
