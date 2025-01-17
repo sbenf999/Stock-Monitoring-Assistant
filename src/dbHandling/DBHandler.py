@@ -9,14 +9,14 @@ import os
 #overarching parent class for handling database connections. All child classes will serve a specific function
 class DBHandler:
 
-    # Load environment variables from the .env file
+    #Load environment variables from the .env file
     envVarPath="src/config/.env"
     load_dotenv(dotenv_path=envVarPath)
 
-    __username = "soma"
-    __password = "benfell"
-    __host = "192.168.1.77"
-    __schema = "soma"
+    __username = os.getenv('DB_USERNAME')
+    __password = os.getenv('DB_PASSWORD')
+    __host = os.getenv('DB_HOST')
+    __schema = os.getenv('DB_SCHEMA')
     connection = ""
     cursor = ""
 

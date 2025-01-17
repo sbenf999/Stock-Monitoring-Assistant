@@ -1,12 +1,22 @@
+#email imports
 import smtplib
 import email
 from email.mime.text import MIMEText
 import smtplib,email,email.encoders,email.mime.text,email.mime.base
 from email.mime.multipart import MIMEMultipart
 
+#general imports
+from dotenv import load_dotenv
+import os
+
 class email:
-    __defaultSenderAddr = "stockmonitoringassistant@gmail.com"
-    __defaultSenderAddrPass = "ytav hxke tgqf ofel"
+
+    # Load environment variables from the .env file
+    envVarPath="src/config/.env"
+    load_dotenv(dotenv_path=envVarPath)
+
+    __defaultSenderAddr = os.getenv('DEF_EMAIL_ADDR')
+    __defaultSenderAddrPass = os.getenv('DEF_EMAIL_ADDR_PASS')
  
     def __init__(self):
         self.mailserver = smtplib.SMTP('smtp.gmail.com',587)
