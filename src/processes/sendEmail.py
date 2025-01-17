@@ -9,7 +9,7 @@ from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
 import os
 
-class email:
+class appEmail:
 
     # Load environment variables from the .env file
     envVarPath="src/config/.env"
@@ -25,11 +25,16 @@ class email:
         self.mailserver.login(self.__defaultSenderAddr, self.__defaultSenderAddrPass)
 
     def sendEmai(self, destinationAddr, subject, content):
-        self.message = MIMEMultipart()
-        self.message['From'] = self.__defaultSenderAddr
-        self.message['To'] = destinationAddr
-        self.message['Subject'] = subject
-        message = content
-        self.message.attach(MIMEText(message))
+        try:
+            self.message = MIMEMultipart()
+            self.message['From'] = self.__defaultSenderAddr
+            self.message['To'] = destinationAddr
+            self.message['Subject'] = subject
+            message = content
+            self.message.attach(MIMEText(message))
 
-        self.mailserver.sendmail('from','to',self.message.as_string())
+            self.mailserver.sendmail('from','to',self.message.as_string())
+
+        except Exception as error:
+            print(f"Error encountered when sending email: {error}")
+            return False

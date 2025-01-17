@@ -1,9 +1,15 @@
+#database imports
 import mysql.connector
 from mysql.connector import errorcode
+
+#general imports
 import hashlib
 import string
 import secrets
+
+#import proccesses and any db handlers
 from processes.popUpWindow import *
+from processes.sendEmail import *
 from dbHandling.DBHandler import *
 
 class logonDBHandler(DBHandler):
@@ -36,6 +42,8 @@ class logonDBHandler(DBHandler):
             print(f"Recovery code: {recoveryCode}")
             message = popUpWindow(f"Recovery code: {recoveryCode}")
             message.create()
+            newEmail = appEmail()
+            newEmail.sendEmai(emailAddress, "Recovery code for Onestop Stock Monitoring Assistant", f"Recovery code: {recoveryCode}") 
             try:
                 # Use parameterized query for safety
                 self.cursor.execute("""INSERT INTO users (username, password, access_level, recovery_code, email_address) VALUES (%s, %s, %s, %s, %s)""",(username,logonDBHandler.hashData(str(password)),accessLevel,logonDBHandler.hashData(str(recoveryCode)),emailAddress,))
