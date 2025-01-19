@@ -538,7 +538,6 @@ class App(superWindow):
     def addNewUser(self):
         user = newUser()
         user.mainloop()
-
         
 if __name__ == "__main__":
     initialiser = logonDBHandler()

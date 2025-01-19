@@ -38,3 +38,9 @@ class appEmail:
         except Exception as error:
             print(f"Error encountered when sending email: {error}")
             return False
+        
+
+
+if __name__ == '__main__':
+    em = appEmail()
+    em.sendEmai("somabenfell@gmail.com", "test", "yo")
