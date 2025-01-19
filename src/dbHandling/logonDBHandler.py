@@ -38,14 +38,15 @@ class logonDBHandler(DBHandler):
             return False
         
         else:
+            #create the account recovery code in case a user forgets their password and they need to reset it
             recoveryCode = self.createAccRecoveryCode()
-            print(f"Recovery code: {recoveryCode}")
+            #create a pop-up window with the users recovery code as well as sending them an email containing it
             message = popUpWindow(f"Recovery code: {recoveryCode}")
             message.create()
             newEmail = appEmail()
             newEmail.sendEmai(emailAddress, "Recovery code for Onestop Stock Monitoring Assistant", f"Recovery code: {recoveryCode}") 
             try:
-                # Use parameterized query for safety
+                #Use parameterized query for safety
                 self.cursor.execute("""INSERT INTO users (username, password, access_level, recovery_code, email_address) VALUES (%s, %s, %s, %s, %s)""",(username,logonDBHandler.hashData(str(password)),accessLevel,logonDBHandler.hashData(str(recoveryCode)),emailAddress,))
                 message = popUpWindow("User created successfully")
 

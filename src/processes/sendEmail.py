@@ -1,9 +1,6 @@
 #email imports
+from email.message import EmailMessage
 import smtplib
-import email
-from email.mime.text import MIMEText
-import smtplib,email,email.encoders,email.mime.text,email.mime.base
-from email.mime.multipart import MIMEMultipart
 
 #general imports
 from dotenv import load_dotenv
@@ -11,10 +8,11 @@ import os
 
 class appEmail:
 
-    # Load environment variables from the .env file
+    #Load environment variables from the .env file
     envVarPath="src/config/.env"
     load_dotenv(dotenv_path=envVarPath)
 
+    #configure private environment variables for the sender account and sender password
     __defaultSenderAddr = os.getenv('DEF_EMAIL_ADDR')
     __defaultSenderAddrPass = os.getenv('DEF_EMAIL_ADDR_PASS')
  
@@ -26,21 +24,21 @@ class appEmail:
 
     def sendEmai(self, destinationAddr, subject, content):
         try:
-            self.message = MIMEMultipart()
-            self.message['From'] = self.__defaultSenderAddr
-            self.message['To'] = destinationAddr
-            self.message['Subject'] = subject
-            message = content
-            self.message.attach(MIMEText(message))
+            self.message = EmailMessage()
+            self.message.set_content(content)
+            self.message['subject'] = subject
+            self.message['to'] = destinationAddr
+            self.message['from'] = self.__defaultSenderAddr
 
-            self.mailserver.sendmail('from','to',self.message.as_string())
+            server = smtplib.SMTP("smtp.gmail.com", 587)
+            server.starttls()
+            server.login(self.__defaultSenderAddr, self.__defaultSenderAddrPass)
+            server.send_message(self.message)
+
+            server.quit()
 
         except Exception as error:
             print(f"Error encountered when sending email: {error}")
             return False
         
 
-
-if __name__ == '__main__':
-    em = appEmail()
-    em.sendEmai("somabenfell@gmail.com", "test", "yo")

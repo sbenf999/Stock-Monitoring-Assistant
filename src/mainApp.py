@@ -77,6 +77,7 @@ class App(superWindow):
         self.sidebar_button_7 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Settings"), text="Settings")
         self.sidebar_button_7.grid(row=13, column=0, padx=20, pady=(10,20))
 
+        #========================BUTTON-STATES======================>
         #tabview in which all UI will take place to do with functions of the application - the sidebar on the side simply allows for easier switching of the tabs
         self.setButtonStates() #set the button states (disabled or enabled) based on the user access
         
@@ -121,8 +122,8 @@ class App(superWindow):
         self.tabs = self.tabsDefault
         self.allowances: dict = {
                 1: self.tabsDefault,
-                2: list(filter(lambda tab_: tab_ not in ["Data view", "Weekly report", "Settings"], self.tabs)),
-                3: list(filter(lambda tab_: tab_ not in ["Add product", "Add supplier", "Data view", "Weekly report", "Settings"], self.tabs))
+                2: list(filter(lambda tab_: tab_ not in ["Data view", "Weekly report"], self.tabs)),
+                3: list(filter(lambda tab_: tab_ not in ["Add product", "Add supplier", "Data view", "Weekly report"], self.tabs))
         }
 
         #disable any buttons that the user doesnt have access to
@@ -132,6 +133,7 @@ class App(superWindow):
                     name = button.cget("text")
                     if name == page:
                         button.configure(state="disabled")
+
 
     def homeUI(self, tab_='Home'):
         self.tab_ = tab_
@@ -393,7 +395,7 @@ class App(superWindow):
         self.tab_ = tab_
 
         self.chooseSupplierLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Supplier name:", anchor="w")
-        self.chooseSupplierLabel.grid(row=0, column=0, padx=(20, 20), pady=20, sticky='w')#
+        self.chooseSupplierLabel.grid(row=0, column=0, padx=(20, 20), pady=20, sticky='w')
 
         #set limiter of 100 characters for supplier name
         self.limiter = customtkinter.StringVar()
@@ -445,7 +447,7 @@ class App(superWindow):
 
     #Creates the new supplier and clears all entry widgets
     def confirmAddSupplierProcess(self):
-        #adds supplier to supplier table here
+
         try:
             if messagebox.askquestion(title='Confirm add supplier', message="Do you wish to confirm this new supplier?"):
                 #create the new supplier
@@ -485,12 +487,9 @@ class App(superWindow):
         # Check supplier date are not empty
         if deliveryDate:
             self.supplierDates.append(deliveryDate)
-            
-            # Update the display
             self.updateSupplierDeliveryDateList()
-            
-            # Clear entry fields after adding
             self.supplierDatesEntry.delete(0, customtkinter.END)
+        
         else:
             messagebox.showwarning("Input Error", "Please enter a valid delivery date")
 
@@ -501,6 +500,7 @@ class App(superWindow):
         for i, supplierDate in enumerate(self.supplierDates):
             if i==0:
                 self.clearSupplierDeliveryDateList()
+
             count_label = customtkinter.CTkLabel(self.supplierDateFrame, text=str(i+1))
             count_label.grid(row=i+2, column=0, padx=20, sticky="w", pady=10)
 
@@ -532,8 +532,27 @@ class App(superWindow):
             #creating, editing and deleting users 
                 #only an admin account can do this
         
+        #====================USER-TOOLS============================================================================================================
+        self.userToolsLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="User tools:")
+        self.userToolsLabel.grid(row=0, column=0, padx=(20, 20), pady=20, sticky='w')
         self.addUserButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="Create new user", command=self.addNewUser)
-        self.addUserButton.grid(row=0, column=0, padx=20, pady=20)
+        self.addUserButton.grid(row=1, column=0, padx=20, pady=20)
+        self.editUserButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="Edit user")
+        self.editUserButton.grid(row=1, column=1, padx=20, pady=20)
+        self.deleteUserButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="Delete user")
+        self.deleteUserButton.grid(row=1, column=2, padx=20, pady=20)
+
+        #=======================CONFIGURE-SETTINGS-BUTTON-STATES====================================================================================
+        self.defaultSettingsAllowances = [self.addUserButton, self.editUserButton, self.deleteUserButton]
+        self.settingsAllowances: dict = {
+                1: self.defaultSettingsAllowances,
+                2: list(filter(lambda button_: button_ not in [self.addUserButton], self.defaultSettingsAllowances)),
+                3: list(filter(lambda button_: button_ not in [], self.defaultSettingsAllowances))
+        }
+
+        for settingsButton in self.defaultSettingsAllowances:
+            if settingsButton not in self.settingsAllowances[int(self.userAccessLevel)]:
+                settingsButton.configure(state="disabled")
 
     def addNewUser(self):
         user = newUser()
