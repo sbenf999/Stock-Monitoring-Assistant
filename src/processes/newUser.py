@@ -2,15 +2,14 @@ import customtkinter
 from dbHandling.logonDBHandler import *
 from processes.changePassword import *
 from processes.windowSuperClass import superWindow
-from mainApp import *
 
 customtkinter.set_default_color_theme("dark-blue")
 
-class newUser(superWindow):
+class newUser(customtkinter.CTkToplevel):
     
-    APP_NAME = "New User Window"
-    WIDTH = 750
-    HEIGHT = 400
+    APP_NAME = "New User window"
+    WIDTH = 650
+    HEIGHT = 325
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -39,7 +38,7 @@ class newUser(superWindow):
         self.confirmpasswordEntry = customtkinter.CTkEntry(self.newUserFrame, show="*", placeholder_text="confirm password...")
         self.confirmpasswordEntry.grid(row=1, column=4, columnspan=2, sticky="nsew", padx=(12), pady=12)
 
-        self.accessLevelLabel = customtkinter.CTkLabel(self.newUserFrame, text="access level:", anchor="w")
+        self.accessLevelLabel = customtkinter.CTkLabel(self.newUserFrame, text="Access level:", anchor="w")
         self.accessLevelLabel.grid(row=2, column=0)
         self.accessLevelEntry = customtkinter.CTkEntry(self.newUserFrame, placeholder_text="access level...")
         self.accessLevelEntry.grid(row=2, column=1, columnspan=2, sticky="nsew", padx=(12), pady=12)
@@ -49,14 +48,26 @@ class newUser(superWindow):
         self.emailAddrEntry = customtkinter.CTkEntry(self.newUserFrame, placeholder_text="email address...")
         self.emailAddrEntry.grid(row=2, column=4, columnspan=2, sticky="nsew", padx=(12), pady=12)
 
+        #create a seperator to distuinguish between sections
+        seperator = customtkinter.CTkFrame(self.newUserFrame, height=1, fg_color="gray")
+        seperator.grid(row=3, column=0, columnspan=10, padx=20, pady=20, sticky='nsew')
+
+        self.createNewUserButton = customtkinter.CTkButton(self.newUserFrame, text="Create new user", command=lambda:self.logonDB.createUserCreds(self.usernameEntry.get(), self.confirmpasswordEntry.get(), self.accessLevelEntry.get(), self.emailAddrEntry.get()))
+        self.createNewUserButton.grid(row=4, column=0, sticky="w", padx=(12, 0), pady=12)
+
+        self.buttonExit = customtkinter.CTkButton(self.newUserFrame, text="Exit", command=self.onClosing)
+        self.buttonExit.grid(row=4, column=2, sticky="w", padx=(10, 12), pady=12)
+
         #initialise the logondbhandler for making a new user
         self.logonDB = logonDBHandler()
         self.logonDB.initializeDatabase()
 
         if (self.confirmpasswordEntry.get() == self.passwordEntry.get()):
-            self.createNewUserButton = customtkinter.CTkButton(self.newUserFrame, text="Create new user", command=lambda:self.logonDB.createUserCreds(self.usernameEntry.get(), self.confirmpasswordEntry.get(), self.accessLevelEntry.get(), self.emailAddrEntry.get()))
-            self.createNewUserButton.grid(row=3, column=0, sticky="w", padx=(12, 0), pady=12)
+            self.createNewUserButton.configure(command=lambda:self.logonDB.createUserCreds(self.usernameEntry.get(), self.confirmpasswordEntry.get(), self.accessLevelEntry.get(), self.emailAddrEntry.get()))
 
         else:
             self.passwordEntry.configure(text_color="red")
             self.confirmpasswordEntry.configure(text_color="red")
+
+    def onClosing(self, event=0):
+        self.destroy()

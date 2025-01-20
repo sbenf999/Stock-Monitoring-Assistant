@@ -21,6 +21,7 @@ class supplierDBHandler(DBHandler):
             self.cursor.execute("SELECT supplier_name FROM suppliers")
             results = self.cursor.fetchall()
             supplierNames = [row[0] for row in results]
+            
             return supplierNames
         
         except Exception as error:

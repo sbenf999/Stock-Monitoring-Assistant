@@ -45,6 +45,7 @@ class logonDBHandler(DBHandler):
             message.create()
             newEmail = appEmail()
             newEmail.sendEmai(emailAddress, "Recovery code for Onestop Stock Monitoring Assistant", f"Recovery code: {recoveryCode}") 
+            
             try:
                 #Use parameterized query for safety
                 self.cursor.execute("""INSERT INTO users (username, password, access_level, recovery_code, email_address) VALUES (%s, %s, %s, %s, %s)""",(username,logonDBHandler.hashData(str(password)),accessLevel,logonDBHandler.hashData(str(recoveryCode)),emailAddress,))
@@ -61,6 +62,28 @@ class logonDBHandler(DBHandler):
         self.connection.close()
         
         return rows
+    
+    def getUserNames(self, current=False):
+        try:
+            self.cursor.execute("SELECT username FROM users")
+            results = self.cursor.fetchall()
+
+            userNames = [row[0] for row in results]
+
+            if current == False: #this is to test whether you want the currently logged in user to be a part of the returned list or not
+                return userNames
+            
+            else:
+                print(userNames)
+                print(current)
+                for username in userNames:
+                    if username == current:
+                        userNames.pop(current)
+                
+                return userNames
+        
+        except Exception as error:
+            return False, error
 
     def validateUser(self, providedUsername, providedPassword):
         try:

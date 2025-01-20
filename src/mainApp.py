@@ -286,20 +286,29 @@ class App(superWindow):
 
     #Function to confirm the delivery
     def confirmDelivery(self):
-        messagebox.askquestion(title='Confirm delivery', message="Do you wish to confirm the delivery?")
-        for widget in self.tabview.tab(self.tab_).winfo_children():
+        if messagebox.askquestion(title='Confirm delivery', message="Do you wish to confirm the delivery?"):
             try:
-                if widget.cget('placeholder_text'):
-                    widget.delete(0, customtkinter.END)
-                    widget._activate_placeholder()
-                    widget.focus()
-            
-            except ValueError:
-                continue
+                #update stock levels and any other data here
 
-        #update stock levels and any other data here
+                #clear widgets once the delivery has been confirmed
+                for widget in self.tabview.tab(self.tab_).winfo_children():
+                    try:
+                        if widget.cget('placeholder_text'):
+                            widget.delete(0, customtkinter.END)
+                            widget._activate_placeholder()
+                            widget.focus()
+                    
+                    except ValueError:
+                        continue
 
-        self.clearProductList()
+                self.clearProductList()
+
+            except Exception as error:
+                print(f"error encountered on delivery confirmation: {error}")
+                return False
+
+        else:
+            pass
 
     def addProductUI(self, tab_='Add product'): 
         #you need to create a product database and then select all products in order to be able to give values for the value list below
@@ -312,7 +321,9 @@ class App(superWindow):
         try:
             self.chooseSupplier2 = customtkinter.CTkOptionMenu(self.tabview.tab(tab_), dynamic_resizing=False, values=self.supplierDB.getSupplierNames(), width=200) #values list should be taken from a database call once the supplier database is created
             self.chooseSupplier2.grid(row=0, column=1, padx=20, pady=20)
-        except:
+            
+        except Exception as error:
+            print(error)
             self.noSupplierLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="No suppliers found", anchor="w")
             self.noSupplierLabel.grid(row=0, column=1, padx=(20, 20), pady=20, sticky='w')
 
@@ -528,10 +539,6 @@ class App(superWindow):
     def settingsUI(self, tab_='Settings'):
         self.tab_ = tab_
 
-        #you need to add functionality for:
-            #creating, editing and deleting users 
-                #only an admin account can do this
-        
         #====================USER-TOOLS============================================================================================================
         self.userToolsLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="User tools:")
         self.userToolsLabel.grid(row=0, column=0, padx=(20, 20), pady=20, sticky='w')
@@ -539,30 +546,20 @@ class App(superWindow):
         self.addUserButton.grid(row=1, column=0, padx=20, pady=20)
         self.editUserButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="Edit user")
         self.editUserButton.grid(row=1, column=1, padx=20, pady=20)
-        self.deleteUserButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="Delete user")
-        self.deleteUserButton.grid(row=1, column=2, padx=20, pady=20)
 
         #=======================CONFIGURE-SETTINGS-BUTTON-STATES====================================================================================
-        self.defaultSettingsAllowances = [self.addUserButton, self.editUserButton, self.deleteUserButton]
-        self.settingsAllowances: dict = {
-                1: self.defaultSettingsAllowances,
-                2: list(filter(lambda button_: button_ not in [self.addUserButton], self.defaultSettingsAllowances)),
-                3: list(filter(lambda button_: button_ not in [], self.defaultSettingsAllowances))
-        }
-
-        for settingsButton in self.defaultSettingsAllowances:
-            if settingsButton not in self.settingsAllowances[int(self.userAccessLevel)]:
+        if int(self.userAccessLevel) != 1:
+            for settingsButton in [self.addUserButton, self.editUserButton]:
                 settingsButton.configure(state="disabled")
 
     def addNewUser(self):
         user = newUser()
         user.mainloop()
-        
+
 if __name__ == "__main__":
     initialiser = logonDBHandler()
     initialiser.initializeDatabase()
-    #initialiser.createUserCreds("admin", 12345, 1, "admin@example.com")
-    #login = Logon()
-    #login.mainloop()
-    app = App(1)
-    app.mainloop()
+    login = Logon()
+    login.mainloop()
+    #app = App(1)
+    #app.mainloop()
