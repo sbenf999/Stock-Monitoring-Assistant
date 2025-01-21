@@ -67,20 +67,10 @@ class logonDBHandler(DBHandler):
         try:
             self.cursor.execute("SELECT username FROM users")
             results = self.cursor.fetchall()
-
+            print(results)
             userNames = [row[0] for row in results]
 
-            if current == False: #this is to test whether you want the currently logged in user to be a part of the returned list or not
-                return userNames
-            
-            else:
-                print(userNames)
-                print(current)
-                for username in userNames:
-                    if username == current:
-                        userNames.pop(current)
-                
-                return userNames
+            return userNames
         
         except Exception as error:
             return False, error

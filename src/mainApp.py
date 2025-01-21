@@ -168,6 +168,7 @@ class App(superWindow):
         try:
             self.chooseSupplier1 = customtkinter.CTkOptionMenu(self.tabview.tab(tab_), dynamic_resizing=False, values=self.supplierDB.getSupplierNames(), width=200) #values list should be taken from a database call once the supplier database is created
             self.chooseSupplier1.grid(row=0, column=1, padx=20, pady=20)
+            
         except Exception as error:
             self.noSupplierLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="No suppliers found", anchor="w")
             self.noSupplierLabel.grid(row=0, column=1, padx=(20, 20), pady=20, sticky='w')
@@ -551,25 +552,19 @@ class App(superWindow):
     def settingsUI(self, tab_='Settings'):
         self.tab_ = tab_
 
-        #=======================================================================================================USER-TOOLS============================================================================================================
+        #user tools
         self.userToolsLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="User tools:")
         self.userToolsLabel.grid(row=0, column=0, padx=(20, 20), pady=20, sticky='w')
         self.addUserButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="Create new user", command=self.addNewUser)
         self.addUserButton.grid(row=1, column=0, padx=20, pady=20)
-        self.editUserButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="Edit user", command=self.editUser)
-        self.editUserButton.grid(row=1, column=1, padx=20, pady=20)
 
-        #============================================================================================CONFIGURE-SETTINGS-BUTTON-STATES====================================================================================
+        #configure settings button states
         if int(self.userAccessLevel) != 1:
             for settingsButton in [self.addUserButton, self.editUserButton]:
                 settingsButton.configure(state="disabled")
 
     def addNewUser(self):
         user = newUser()
-        user.mainloop()
-
-    def editUser(self):
-        user = editUser()
         user.mainloop()
 
 if __name__ == "__main__":
