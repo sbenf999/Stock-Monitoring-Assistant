@@ -12,6 +12,7 @@ from processes.windowSuperClass import superWindow
 from processes.autoCompleteSearch import AutocompleteEntry
 from processes.scrollingWindow import scrollableWin
 from processes.newUser import *
+from processes.editUser import*
 
 #import database handlers
 from dbHandling.logonDBHandler import *
@@ -133,7 +134,7 @@ class App(superWindow):
                     if name == page:
                         button.configure(state="disabled")
 
-
+    #=================================================================================================HOME-UI-AND-FUNCTIONALITY=================================================================================================    
     def homeUI(self, tab_='Home'):
         self.tab_ = tab_
 
@@ -155,6 +156,7 @@ class App(superWindow):
 
         #self.DBHandler.createBarGraphVisualisation(self.tabview.tab(tab_))
 
+    #=========================================================================================RECORD-DELIVERY-UI-AND-FUNCTIONALITY=================================================================================================    
     def recordDeliveryUI(self, tab_='Record a delivery'): #you might want to make this a scrollable fram
         #you need to create a supplier database and then select all suppliers in order to be able to give values for the value list below
         self.tab_ = tab_
@@ -317,6 +319,7 @@ class App(superWindow):
         else:
             pass
 
+    #=================================================================================================ADD-PRODUCT-UI-AND-FUNCTIONALITY=================================================================================================    
     def addProductUI(self, tab_='Add product'): 
         #you need to create a product database and then select all products in order to be able to give values for the value list below
         self.tab_ = tab_
@@ -410,6 +413,7 @@ class App(superWindow):
         if len(current_text) > limit:
             self.limiter.set(current_text[:limit])
 
+    #=================================================================================================ADD-SUPPLIER-UI-AND-FUNCTIONALITY=================================================================================================    
     def addSupplierUI(self, tab_='Add supplier'): 
         self.tab_ = tab_
 
@@ -543,24 +547,29 @@ class App(superWindow):
         del self.supplierDates[index]
         self.updateSupplierDeliveryDateList()
 
+    #=================================================================================================SETTINGS-UI-AND-FUNCTIONALITY=================================================================================================    
     def settingsUI(self, tab_='Settings'):
         self.tab_ = tab_
 
-        #====================USER-TOOLS============================================================================================================
+        #=======================================================================================================USER-TOOLS============================================================================================================
         self.userToolsLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="User tools:")
         self.userToolsLabel.grid(row=0, column=0, padx=(20, 20), pady=20, sticky='w')
         self.addUserButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="Create new user", command=self.addNewUser)
         self.addUserButton.grid(row=1, column=0, padx=20, pady=20)
-        self.editUserButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="Edit user")
+        self.editUserButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="Edit user", command=self.editUser)
         self.editUserButton.grid(row=1, column=1, padx=20, pady=20)
 
-        #=======================CONFIGURE-SETTINGS-BUTTON-STATES====================================================================================
+        #============================================================================================CONFIGURE-SETTINGS-BUTTON-STATES====================================================================================
         if int(self.userAccessLevel) != 1:
             for settingsButton in [self.addUserButton, self.editUserButton]:
                 settingsButton.configure(state="disabled")
 
     def addNewUser(self):
         user = newUser()
+        user.mainloop()
+
+    def editUser(self):
+        user = editUser()
         user.mainloop()
 
 if __name__ == "__main__":
