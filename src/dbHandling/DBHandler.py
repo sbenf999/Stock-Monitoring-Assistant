@@ -63,5 +63,18 @@ class DBHandler:
         except Exception as error:
             print(f"error encountered: {error}")
 
+    def dbCallInsert(self, sql_, values_):
+        try:
+            self.cursor.execute(sql_, values_)
+            self.connection.commit()
+
+        except Exception as error:
+            self.connection.rollback()
+            print(f"{str(self)}: {error}")
+            return False, error
+
     def close(self):
         self.connection.close()
+
+    def __str__(self):
+        return self.__name__

@@ -10,7 +10,6 @@ class superWindow(customtkinter.CTk):
         self.protocol("WM_DELETE_WINDOW", self.onClosing)
         self.bind("<Shift-q>", self.onClosing)
         self.bind("<Command-w>", self.onClosing)
-        self.createcommand('tk::mac::Quit', self.onClosing)
 
     def onClosing(self, event=0):
         self.destroy()

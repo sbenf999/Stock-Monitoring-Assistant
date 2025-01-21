@@ -58,5 +58,5 @@ class productDBHandler(DBHandler):
     def updateProductStockCount(self):
         pass
 
-    def updateProductValue(self, value):
-        pass
+    def updateProductValue(self, dbColumnVal, productID):
+        DBHandler.dbCallInsert(f"UPDATE products SET %s WHERE product_id = %s", (dbColumnVal, productID))

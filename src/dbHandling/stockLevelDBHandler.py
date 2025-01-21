@@ -34,3 +34,6 @@ class stockLevelDBHandler(DBHandler):
             self.connection.rollback()
             print(f"sldb: {error}")
             return False, error
+        
+    def updateStockLevel(self, addedStockCount):
+        DBHandler.dbCallInsert("INSERT INTO stocklevel (stock_count) VALUES (%s)", (addedStockCount,))

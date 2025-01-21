@@ -206,6 +206,7 @@ class App(superWindow):
 
         #scrollable frame for added products
         self.products = []
+        self.productQuanitites = []
 
         self.productFrame = scrollableWin(master=self.tabview.tab(tab_), width=300, height=200, corner_radius=0, fg_color="transparent")
         self.productFrame.grid(row=6, column=0, sticky="nsew", columnspan=6)
@@ -229,6 +230,7 @@ class App(superWindow):
     def addProductToDelivery(self):
         product_name = self.autocomplete_entry.get()
         product_quantity = self.quantityEntry.get()
+        self.productQuantities.append(int(self.quantityEntry.get()))
         
         # Check if product name and quantity are not empty
         if product_name and product_quantity.isdigit():
@@ -289,6 +291,8 @@ class App(superWindow):
         if messagebox.askquestion(title='Confirm delivery', message="Do you wish to confirm the delivery?"):
             try:
                 #update stock levels and any other data here
+                for product in self.products:
+                    self.productDB.
 
                 #clear widgets once the delivery has been confirmed
                 for widget in self.tabview.tab(self.tab_).winfo_children():
@@ -559,7 +563,7 @@ class App(superWindow):
 if __name__ == "__main__":
     initialiser = logonDBHandler()
     initialiser.initializeDatabase()
-    login = Logon()
-    login.mainloop()
-    #app = App(1)
-    #app.mainloop()
+    #login = Logon()
+    #login.mainloop()
+    app = App(1)
+    app.mainloop()
