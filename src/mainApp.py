@@ -205,7 +205,7 @@ class App(superWindow):
 
         #scrollable frame for added products
         self.products = []
-        self.productQuanitites = []
+        #self.productQuanitites = []
 
         self.productFrame = scrollableWin(master=self.tabview.tab(tab_), width=300, height=200, corner_radius=0, fg_color="transparent")
         self.productFrame.grid(row=6, column=0, sticky="nsew", columnspan=6)
@@ -229,7 +229,7 @@ class App(superWindow):
     def addProductToDelivery(self):
         product_name = self.autocomplete_entry.get()
         product_quantity = self.quantityEntry.get()
-        self.productQuanitites.append(int(self.quantityEntry.get()))
+        #self.productQuanitites.append(int(self.quantityEntry.get()))
         
         #Check if product name and quantity are not empty
         if product_name and product_quantity.isdigit():
