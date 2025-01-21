@@ -35,5 +35,5 @@ class stockLevelDBHandler(DBHandler):
             print(f"sldb: {error}")
             return False, error
         
-    def updateStockLevel(self, addedStockCount):
-        DBHandler.dbCallInsert("INSERT INTO stocklevel (stock_count) VALUES (%s)", (addedStockCount,))
+    def updateStockLevel(self, addedStockCount, productID):
+        DBHandler.dbCallInsert("INSERT INTO stocklevel (stock_count) VALUES (%s) WHERE product_id = %s", (addedStockCount,productID))

@@ -56,7 +56,6 @@ class App(superWindow):
         self.sidebar_button_2 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Stock counting"), text="Stock counting")
         self.sidebar_button_2.grid(row=3, column=0, padx=20, pady=10)
         
-
         #create a section of buttons for database tools, such as adding a product or supplier
         self.label2 = customtkinter.CTkLabel(self.sidebar_frame, text="Database tools:", font=customtkinter.CTkFont(size=12))
         self.label2.grid(row=5, column=0, padx=20)
@@ -235,7 +234,7 @@ class App(superWindow):
         # Check if product name and quantity are not empty
         if product_name and product_quantity.isdigit():
             quantity = int(product_quantity)
-            self.products.append({"name": product_name, "quantity": quantity})
+            self.products.append([product_name, quantity])
             
             # Update the display
             self.updateProductList()
@@ -292,7 +291,8 @@ class App(superWindow):
             try:
                 #update stock levels and any other data here
                 for product in self.products:
-                    self.productDB.
+                    productID = self.productDB.getProductID(product[0])
+                    self.stockLevelDB.updateStockLevel(product[1], productID)
 
                 #clear widgets once the delivery has been confirmed
                 for widget in self.tabview.tab(self.tab_).winfo_children():
