@@ -137,7 +137,7 @@ class App(superWindow):
     def homeUI(self, tab_='Home'):
         self.tab_ = tab_
 
-        # Configure the grid to center for the centered welcome text
+        #Configure the grid to center for the centered welcome text
         self.tabview.tab(tab_).grid_rowconfigure([0, 1, 2], weight=1)
         self.tabview.tab(tab_).grid_columnconfigure([0, 1, 2, 3], weight=1)
 
@@ -229,25 +229,25 @@ class App(superWindow):
     def addProductToDelivery(self):
         product_name = self.autocomplete_entry.get()
         product_quantity = self.quantityEntry.get()
-        self.productQuantities.append(int(self.quantityEntry.get()))
+        self.productQuanitites.append(int(self.quantityEntry.get()))
         
-        # Check if product name and quantity are not empty
+        #Check if product name and quantity are not empty
         if product_name and product_quantity.isdigit():
             quantity = int(product_quantity)
             self.products.append([product_name, quantity])
             
-            # Update the display
+            #Update the display
             self.updateProductList()
             
-            # Clear entry fields after adding
+            #Clear entry fields after adding
             self.autocomplete_entry.delete(0, customtkinter.END)
             self.quantityEntry.delete(0, customtkinter.END)
         else:
             messagebox.showwarning("Input Error", "Please enter a valid product name and quantity")
 
-    # Function to update the product list
+    #Function to update the product list
     def updateProductList(self):
-        # Create a label and entry widget for each product in the list
+        #Create a label and entry widget for each product in the list
         self.clearProductList()
 
         for i, product in enumerate(self.products):
@@ -257,16 +257,16 @@ class App(superWindow):
             count_label = customtkinter.CTkLabel(self.productFrame, text=str(i+1))
             count_label.grid(row=i+2, column=0, padx=20, sticky="w", pady=10)
 
-            # Name label with fixed width
+            #Name label with fixed width
             name_label = customtkinter.CTkLabel(self.productFrame, text=product['name'])
             name_label.grid(row=i+2, column=1, padx=20, sticky="w", pady=10)
 
-            # Quantity entry with fixed width
+            #Quantity entry with fixed width
             quantity_entry_widget = customtkinter.CTkEntry(self.productFrame)
             quantity_entry_widget.grid(row=i+2, column=2, padx=20, sticky="w", pady=10)
             quantity_entry_widget.insert(0, str(product['quantity']))  # Insert the current quantity
 
-            # Delete button to remove the product
+            #Delete button to remove the product
             print(self.products, i)
             print(self.products[i])
             delete_button = customtkinter.CTkButton(self.productFrame, text="Delete", command=lambda i=i: self.deleteProductInDelivery(i))
@@ -462,7 +462,6 @@ class App(superWindow):
 
     #Creates the new supplier and clears all entry widgets
     def confirmAddSupplierProcess(self):
-
         try:
             if messagebox.askquestion(title='Confirm add supplier', message="Do you wish to confirm this new supplier?"):
                 #create the new supplier
