@@ -59,4 +59,5 @@ class productDBHandler(DBHandler):
         pass
 
     def updateProductValue(self, dbColumnVal, productID):
-        DBHandler.dbCall(f"UPDATE products SET %s WHERE product_id = %s", (dbColumnVal, productID))
+        self.cursor.execute("UPDATE products SET %s WHERE product_id = %s", (dbColumnVal, productID))
+        self.connection.commit()

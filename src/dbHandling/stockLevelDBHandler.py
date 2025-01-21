@@ -36,7 +36,39 @@ class stockLevelDBHandler(DBHandler):
             return False, error
         
     def updateStockLevel(self, addedStockCount, productID):
-        DBHandler.dbCall("INSERT INTO stocklevel (stock_count) VALUES (%s) WHERE product_id = %s", (addedStockCount,productID))
+        try:
+            self.cursor.execute("SELECT COUNT(*) FROM stockLevel")
+            rowCount = self.cursor.fetchone()[0]
+            print(rowCount)
+
+            if rowCount == 0:
+                self.cursor.execute("INSERT INTO stockLevel (stock_count) VALUES (%s) WHERE product_id = %s", (addedStockCount,productID))
+
+            else:
+                self.cursor.execute("UPDATE stockLevel SET stock_count = stock_count + %s WHERE product_id = %s", (addedStockCount,productID))
+            
+            self.connection.commit()
+            print("success")
+
+        except Exception as error:
+            print(f"error: {error}")
+            return False
 
     def updateLastDelivery(self, lastDelivery, productID):
-        DBHandler.dbCall("UPDATE stocklevel SET lastDelivery = %s WHERE product_id = %s", (lastDelivery,productID))
+        try:
+            self.cursor.execute("SELECT COUNT(*) FROM stockLevel")
+            rowCount = self.cursor.fetchone()[0]
+            print(rowCount)
+
+            if rowCount == 0:
+                self.cursor.execute("INSERT INTO stockLevel (lastDelivery) VALUES (%s) WHERE product_id = %s", (lastDelivery,productID))
+
+            else:
+                self.cursor.execute("UPDATE stockLevel SET lastDelivery = %s WHERE product_id = %s", (lastDelivery,productID))
+
+            self.connection.commit()
+            print("success")
+
+        except Exception as error:
+            print(f"error: {error}")
+            return False

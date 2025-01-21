@@ -187,10 +187,10 @@ class App(superWindow):
         #create the autocomplete search for a product
         self.findProductLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Search product:")
         self.findProductLabel.grid(row=3, column=0, padx=(20), pady=20, sticky='w')
-        self.autocomplete_entry = AutocompleteEntry(self.tabview.tab(tab_), width=500, placeholder_text='Search product...')
+        self.autocompleteEntry = AutocompleteEntry(self.tabview.tab(tab_), width=500, placeholder_text='Search product...')
         
-        self.autocomplete_entry.set_suggestions(self.productDB.getProductNames()) #set suggestions needs to be based on a call to the product table in the database
-        self.autocomplete_entry.grid(row=3, column=1, padx=20, pady=20, columnspan=3, sticky='w')
+        self.autocompleteEntry.setSuggestions(self.productDB.getProductNames()) #set suggestions needs to be based on a call to the product table in the database
+        self.autocompleteEntry.grid(row=3, column=1, padx=20, pady=20, columnspan=3, sticky='w')
         
         self.quantityLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Quantity: ")
         self.quantityLabel.grid(row=4, column=0, padx=(20, 20), pady=10, sticky='w')
@@ -227,20 +227,20 @@ class App(superWindow):
     
     # Function to add product
     def addProductToDelivery(self):
-        product_name = self.autocomplete_entry.get()
-        product_quantity = self.quantityEntry.get()
+        productName = self.autocompleteEntry.get()
+        productQuantity = self.quantityEntry.get()
         #self.productQuanitites.append(int(self.quantityEntry.get()))
         
         #Check if product name and quantity are not empty
-        if product_name and product_quantity.isdigit():
-            quantity = int(product_quantity)
-            self.products.append([product_name, quantity])
+        if productName and productQuantity.isdigit():
+            quantity = int(productQuantity)
+            self.products.append([productName, quantity])
             
             #Update the display
             self.updateProductList()
             
             #Clear entry fields after adding
-            self.autocomplete_entry.delete(0, customtkinter.END)
+            self.autocompleteEntry.delete(0, customtkinter.END)
             self.quantityEntry.delete(0, customtkinter.END)
         else:
             messagebox.showwarning("Input Error", "Please enter a valid product name and quantity")
@@ -254,23 +254,23 @@ class App(superWindow):
             if i==0:
                 self.clearProductList()
 
-            count_label = customtkinter.CTkLabel(self.productFrame, text=str(i+1))
-            count_label.grid(row=i+2, column=0, padx=20, sticky="w", pady=10)
+            countLabel = customtkinter.CTkLabel(self.productFrame, text=str(i+1))
+            countLabel.grid(row=i+2, column=0, padx=20, sticky="w", pady=10)
 
             #Name label with fixed width
-            name_label = customtkinter.CTkLabel(self.productFrame, text=product['name'])
-            name_label.grid(row=i+2, column=1, padx=20, sticky="w", pady=10)
+            nameLabel = customtkinter.CTkLabel(self.productFrame, text=product[0])
+            nameLabel.grid(row=i+2, column=1, padx=20, sticky="w", pady=10)
 
             #Quantity entry with fixed width
-            quantity_entry_widget = customtkinter.CTkEntry(self.productFrame)
-            quantity_entry_widget.grid(row=i+2, column=2, padx=20, sticky="w", pady=10)
-            quantity_entry_widget.insert(0, str(product['quantity']))  # Insert the current quantity
+            quantityEntryWidget = customtkinter.CTkEntry(self.productFrame)
+            quantityEntryWidget.grid(row=i+2, column=2, padx=20, sticky="w", pady=10)
+            quantityEntryWidget.insert(0, str(product[1]))  # Insert the current quantity
 
             #Delete button to remove the product
             print(self.products, i)
             print(self.products[i])
-            delete_button = customtkinter.CTkButton(self.productFrame, text="Delete", command=lambda i=i: self.deleteProductInDelivery(i))
-            delete_button.grid(row=i+2, column=3, padx=20, sticky="w", pady=10)
+            deleteButton = customtkinter.CTkButton(self.productFrame, text="Delete", command=lambda i=i: self.deleteProductInDelivery(i))
+            deleteButton.grid(row=i+2, column=3, padx=20, sticky="w", pady=10)
 
     #Function to delete a product
     def deleteProductInDelivery(self, index):
@@ -295,7 +295,7 @@ class App(superWindow):
                     productID = self.productDB.getProductID(product[0])
                     self.stockLevelDB.updateStockLevel(product[1], productID)
                     #update last delivery date for product
-                    self.stockLevelDB.updateLastDelivery(f"[{self.deliveryDate}]", productID) #check json stuff
+                    self.stockLevelDB.updateLastDelivery(f'["{self.deliveryDate}"]', productID) #check json stuff
 
                 #clear widgets once the delivery has been confirmed
                 for widget in self.tabview.tab(self.tab_).winfo_children():
@@ -382,7 +382,8 @@ class App(superWindow):
                 self.productDB.createProduct(supplierID[0], self.productNameEntry.get(), self.productDescriptionEntry.get(), self.productPSEntry.get(), self.productWeightEntry.get(), self.productPriceEntry.get())
                 stockLevelProductID = self.productDB.getProductID(self.productNameEntry.get())
                 self.stockLevelDB.addStockLevelData(stockLevelProductID, self.minimumStockLevelEntry.get(), self.reorderStockLevelEntry.get())
-                
+                self.autocompleteEntry.setSuggestions(self.productDB.getProductNames())
+
                 for widget in [self.productNameEntry, self.productPriceEntry, self.productPSEntry, self.productWeightEntry, self.minimumStockLevelEntry, self.reorderStockLevelEntry, self.productDescriptionEntry]:
                     try:
                         widget.delete(0, customtkinter.END)

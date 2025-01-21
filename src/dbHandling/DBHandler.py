@@ -36,8 +36,7 @@ class DBHandler:
     
     def getCount(self, tableName, displayType=True):
         try:
-            query = f"SELECT COUNT(*) FROM {tableName}"
-            self.cursor.execute(query)
+            self.cursor.execute(f"SELECT COUNT(*) FROM {tableName}")
             rowCount = self.cursor.fetchone()[0]
 
             if displayType:
@@ -50,7 +49,7 @@ class DBHandler:
                 return rowCount
 
         except Exception as error:
-            print(f"Error encountered: {error}")
+            print(f"Error encountered (getCount): {error}")
             return None
 
     def getTables(self):
@@ -62,19 +61,6 @@ class DBHandler:
 
         except Exception as error:
             print(f"error encountered: {error}")
-
-    def dbCall(self, sql_, values_):
-        try:
-            self.cursor.execute(sql_, values_)
-            self.connection.commit()
-
-        except Exception as error:
-            self.connection.rollback()
-            print(f"{str(self)}: {error}")
-            return False, error
-
+            
     def close(self):
         self.connection.close()
-
-    def __str__(self):
-        return self.__name__

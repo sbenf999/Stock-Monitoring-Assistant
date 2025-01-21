@@ -4,42 +4,42 @@ import tkinter as tk
 class AutocompleteEntry(ctk.CTkEntry):
     def __init__(self, master=None, **kwargs):
         super().__init__(master, **kwargs)
-        self.suggestions_buttons = []  # A list to store the suggestion buttons
+        self.suggestionsButtons = []  # A list to store the suggestion buttons
         self.suggestions = []
-        self.all_suggestions = []
-        self.bind("<KeyRelease>", self.on_keyrelease)
+        self.allSuggestions = []
+        self.bind("<KeyRelease>", self.onKeyrelease)
 
-    def on_keyrelease(self, event):
+    def onKeyrelease(self, event):
         typed = self.get().lower()
         if typed == "":
-            self.hide_suggestions()
+            self.hideSuggestions()
             return
 
-        self.suggestions = [s for s in self.all_suggestions if typed in s.lower()]
+        self.suggestions = [s for s in self.allSuggestions if typed in s.lower()]
         
         if self.suggestions:
-            self.show_suggestions()
+            self.showSuggestions()
 
         else:
-            self.hide_suggestions()
+            self.hideSuggestions()
 
-    def show_suggestions(self):
-        self.hide_suggestions()
+    def showSuggestions(self):
+        self.hideSuggestions()
 
         for i, suggestion in enumerate(self.suggestions):
-            button = ctk.CTkButton(self.master, text=suggestion, command=lambda s=suggestion: self.on_suggestion_click(s))
+            button = ctk.CTkButton(self.master, text=suggestion, command=lambda s=suggestion: self.onSuggestionClick(s))
             button.place(x=self.winfo_x(), y=self.winfo_y() + self.winfo_height() + (i * 30), anchor="w")
-            self.suggestions_buttons.append(button)
+            self.suggestionsButtons.append(button)
 
-    def hide_suggestions(self):
-        for button in self.suggestions_buttons:
+    def hideSuggestions(self):
+        for button in self.suggestionsButtons:
             button.destroy()
-        self.suggestions_buttons.clear()
+        self.suggestionsButtons.clear()
 
-    def on_suggestion_click(self, suggestion):
+    def onSuggestionClick(self, suggestion):
         self.delete(0, tk.END)
         self.insert(0, suggestion)
-        self.hide_suggestions()
+        self.hideSuggestions()
 
-    def set_suggestions(self, suggestions):
-        self.all_suggestions = suggestions
+    def setSuggestions(self, suggestions):
+        self.allSuggestions = suggestions
