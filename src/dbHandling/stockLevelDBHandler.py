@@ -36,4 +36,7 @@ class stockLevelDBHandler(DBHandler):
             return False, error
         
     def updateStockLevel(self, addedStockCount, productID):
-        DBHandler.dbCallInsert("INSERT INTO stocklevel (stock_count) VALUES (%s) WHERE product_id = %s", (addedStockCount,productID))
+        DBHandler.dbCall("INSERT INTO stocklevel (stock_count) VALUES (%s) WHERE product_id = %s", (addedStockCount,productID))
+
+    def updateLastDelivery(self, lastDelivery, productID):
+        DBHandler.dbCall("UPDATE stocklevel SET lastDelivery = %s WHERE product_id = %s", (lastDelivery,productID))

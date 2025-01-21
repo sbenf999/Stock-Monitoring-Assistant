@@ -291,8 +291,11 @@ class App(superWindow):
             try:
                 #update stock levels and any other data here
                 for product in self.products:
+                    #update stock level
                     productID = self.productDB.getProductID(product[0])
                     self.stockLevelDB.updateStockLevel(product[1], productID)
+                    #update last delivery date for product
+                    self.stockLevelDB.updateLastDelivery(f"[{self.deliveryDate}]", productID) #check json stuff
 
                 #clear widgets once the delivery has been confirmed
                 for widget in self.tabview.tab(self.tab_).winfo_children():
