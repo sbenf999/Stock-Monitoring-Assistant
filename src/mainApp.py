@@ -12,7 +12,6 @@ from processes.windowSuperClass import superWindow
 from processes.autoCompleteSearch import AutocompleteEntry
 from processes.scrollingWindow import scrollableWin
 from processes.newUser import *
-from processes.editUser import*
 
 #import database handlers
 from dbHandling.logonDBHandler import *
@@ -107,6 +106,7 @@ class App(superWindow):
         #<========================UI-SETTERS========================>
         self.homeUI()
         self.recordDeliveryUI()
+        self.stockCountingUI()
         self.addProductUI()
         self.addSupplierUI()
         self.settingsUI()
@@ -208,7 +208,6 @@ class App(superWindow):
 
         #scrollable frame for added products
         self.products = []
-        #self.productQuanitites = []
 
         self.productFrame = scrollableWin(master=self.tabview.tab(tab_), width=300, height=200, corner_radius=0, fg_color="transparent")
         self.productFrame.grid(row=6, column=0, sticky="nsew", columnspan=6)
@@ -232,7 +231,6 @@ class App(superWindow):
     def addProductToDelivery(self):
         productName = self.autocompleteEntry.get()
         productQuantity = self.quantityEntry.get()
-        #self.productQuanitites.append(int(self.quantityEntry.get()))
         
         #Check if product name and quantity are not empty
         if productName and productQuantity.isdigit():
@@ -319,6 +317,108 @@ class App(superWindow):
 
         else:
             pass
+
+    #=================================================================================================STOCK-COUNT-UI-AND-FUNCTIONALITY=================================================================================================
+    def stockCountingUI(self, tab_='Stock counting'): 
+        self.tab_ = tab_
+
+        #create the autocomplete search for a product
+        self.findStockCountProductLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Search product:")
+        self.findStockCountProductLabel.grid(row=0, column=0, padx=(20), pady=20, sticky='w')
+        self.stockCountAutocompleteEntry = AutocompleteEntry(self.tabview.tab(tab_), width=500, placeholder_text='Search product...')
+        
+        self.stockCountAutocompleteEntry.setSuggestions(self.productDB.getProductNames()) #set suggestions needs to be based on a call to the product table in the database
+        self.stockCountAutocompleteEntry.grid(row=0, column=1, padx=20, pady=20, columnspan=3, sticky='w')
+        
+        self.stockCountQuantityLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Quantity: ")
+        self.stockCountQuantityLabel.grid(row=1, column=0, padx=(20, 20), pady=10, sticky='w')
+        self.stockCountQuantityEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="x")
+        self.stockCountQuantityEntry.grid(row=1, column=1, padx=(20, 20), pady=10, sticky='w')
+        self.addProduct = customtkinter.CTkButton(self.tabview.tab(tab_), text="Add product", command=self.addStockCountProductToDelivery)
+        self.addProduct.grid(row=1, column=2, padx=20, pady=10)
+
+        #scrollable frame for added products
+        self.stockCountProducts = []
+
+        self.stockCountProductFrame = scrollableWin(master=self.tabview.tab(tab_), width=300, height=200, corner_radius=0, fg_color="transparent")
+        self.stockCountProductFrame.grid(row=2, column=0, sticky="nsew", columnspan=6)
+        self.stockCountProductNumLabel = customtkinter.CTkLabel(self.stockCountProductFrame, text="Item num", fg_color="transparent")
+        self.stockCountProductNumLabel.grid(row=0, column=0, padx=(20), pady=20, sticky='w')
+        self.stockCountitemLabel = customtkinter.CTkLabel(self.stockCountProductFrame, text="Item", fg_color="transparent")
+        self.stockCountitemLabel.grid(row=0, column=1, padx=(20), pady=20, sticky='w')
+        self.stockCountitemQuantityLabel = customtkinter.CTkLabel(self.stockCountProductFrame, text="Quantity", fg_color="transparent")
+        self.stockCountitemQuantityLabel.grid(row=0, column=2, padx=(20), pady=20, sticky='w')
+        self.stockCounttoolLabel = customtkinter.CTkLabel(self.stockCountProductFrame, text="Tool")
+        self.stockCounttoolLabel.grid(row=0, column=3, padx=(20), pady=20, sticky='w')
+        
+        #create a seperator to distuinguish between sections
+        stockCountseperator = customtkinter.CTkFrame(self.tabview.tab(tab_), height=1, fg_color="gray")
+        stockCountseperator.grid(row=7, column=0, columnspan=10, padx=20, pady=20, sticky='nsew')
+
+        self.confirmStockCountButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="Confirm stock count", command=self.confirmStockCount)
+        self.confirmStockCountButton.grid(row=8, column=0, padx=20, pady=10)
+
+    def addStockCountProductToDelivery(self):
+        productName = self.stockCountAutocompleteEntry.get()
+        productQuantity = self.stockCountQuantityEntry.get()
+        
+        #Check if product name and quantity are not empty
+        if productName and productQuantity.isdigit():
+            quantity = int(productQuantity)
+            self.stockCountProducts.append([productName, quantity])
+            
+            #Update the display
+            self.updateStockCountList()
+            
+            #Clear entry fields after adding
+            self.stockCountAutocompleteEntry.delete(0, customtkinter.END)
+            self.stockCountQuantityEntry.delete(0, customtkinter.END)
+        else:
+            messagebox.showwarning("Input Error", "Please enter a valid product name and quantity")
+
+    #Function to update the product list
+    def updateStockCountList(self):
+        #Create a label and entry widget for each product in the list
+        self.clearStockCountList()
+
+        for i, stockCountProduct in enumerate(self.stockCountProducts):
+            if i==0:
+                self.clearStockCountList()
+
+            stockCountLabel = customtkinter.CTkLabel(self.stockCountProductFrame, text=str(i+1))
+            stockCountLabel.grid(row=i+2, column=0, padx=20, sticky="w", pady=10)
+
+            #Name label with fixed width
+            nameLabel = customtkinter.CTkLabel(self.stockCountProductFrame, text=stockCountProduct[0])
+            nameLabel.grid(row=i+2, column=1, padx=20, sticky="w", pady=10)
+
+            #Quantity entry with fixed width
+            quantityEntryWidget = customtkinter.CTkEntry(self.stockCountProductFrame)
+            quantityEntryWidget.grid(row=i+2, column=2, padx=20, sticky="w", pady=10)
+            quantityEntryWidget.insert(0, str(stockCountProduct[1]))  # Insert the current quantity
+
+            #Delete button to remove the product
+            print(self.stockCountProducts, i)
+            print(self.stockCountProducts[i])
+            deleteButton = customtkinter.CTkButton(self.stockCountProductFrame, text="Delete", command=lambda i=i: self.deleteProductInStockCountList(i))
+            deleteButton.grid(row=i+2, column=3, padx=20, sticky="w", pady=10)
+
+    #Function to delete a product
+    def deleteProductInStockCountList(self, index):
+        #Remove product from the list
+        del self.stockCountProducts[index]
+        self.updateStockCountList()
+
+    #Function to clear product list
+    def clearStockCountList(self):
+        #Clear the existing list
+        for widget in self.stockCountProductFrame.winfo_children():
+            if widget not in [self.stockCountProductNumLabel, self.stockCountitemLabel, self.stockCountitemQuantityLabel, self.stockCounttoolLabel]:
+                widget.destroy()
+
+
+    def confirmStockCount(self):
+        pass
 
     #=================================================================================================ADD-PRODUCT-UI-AND-FUNCTIONALITY=================================================================================================    
     def addProductUI(self, tab_='Add product'): 
@@ -421,20 +521,12 @@ class App(superWindow):
         self.chooseSupplierLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Supplier name:", anchor="w")
         self.chooseSupplierLabel.grid(row=0, column=0, padx=(20, 20), pady=20, sticky='w')
 
-        #set limiter of 100 characters for supplier name
-        self.limiter = customtkinter.StringVar()
-        self.limiter.trace_add("write", self.limit_entry(100))
-
         self.suppliertNameEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="supplier name...")
         self.suppliertNameEntry.grid(row=0, column=1, padx=(20, 20), pady=20, sticky='w')
 
-        #this entry needs to be limited to 200 characters in order to work with the database
-        self.limiter2 = customtkinter.StringVar()
-        self.limiter2.trace_add("write", self.limit_entry(255))
-
         self.supplierDescriptionLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Supplier description: ")
         self.supplierDescriptionLabel.grid(row=2, column=0, padx=(20, 20), pady=20, sticky='w')
-        self.supplierDescriptionEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), width=500, placeholder_text="Supplier description...", textvariable=self.limiter2)
+        self.supplierDescriptionEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), width=500, placeholder_text="supplier description...")
         self.supplierDescriptionEntry.grid(row=2, column=1, padx=(20, 20), pady=20, sticky='w', columnspan=5)
 
         #you need supplier dates here, consider storing this as a list in a JSON format
