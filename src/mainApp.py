@@ -299,16 +299,7 @@ class App(superWindow):
                     self.stockLevelDB.updateLastDelivery(f'["{self.deliveryDate}"]', productID) #check json stuff
 
                 #clear widgets once the delivery has been confirmed
-                for widget in self.tabview.tab(self.tab_).winfo_children():
-                    try:
-                        if widget.cget('placeholder_text'):
-                            widget.delete(0, customtkinter.END)
-                            widget._activate_placeholder()
-                            widget.focus()
-                    
-                    except ValueError:
-                        continue
-
+                self.uiWidgetClearer()
                 self.clearProductList()
 
             except Exception as error:
@@ -425,17 +416,8 @@ class App(superWindow):
                     productID = self.productDB.getProductID(stockCountProduct[0])
                     self.stockLevelDB.updateStockLevel(stockCountProduct[1], productID)
 
-                #clear widgets once the delivery has been confirmed
-                for widget in self.tabview.tab(self.tab_).winfo_children():
-                    try:
-                        if widget.cget('placeholder_text'):
-                            widget.delete(0, customtkinter.END)
-                            widget._activate_placeholder()
-                            widget.focus()
-                    
-                    except ValueError:
-                        continue
-
+                #clear widgets once the stockcount has been confirmed
+                self.uiWidgetClearer()
                 self.clearStockCountList()
 
             except Exception as error:
@@ -594,16 +576,7 @@ class App(superWindow):
                 self.supplierDB.createSupplier(self.suppliertNameEntry.get(), self.supplierDescriptionEntry.get(), json.dumps(self.supplierDates))
                 
                 #reset widgets
-                for widget in self.tabview.tab(self.tab_).winfo_children():
-                    try:
-                        if widget.cget('placeholder_text'):
-                            widget.delete(0, customtkinter.END)
-                            widget._activate_placeholder()
-                            widget.focus()
-                    
-                    #this handles the event that an entry widget doesnt register the placeholder text, such as an auto_complete entry
-                    except ValueError:
-                        continue
+                self.uiWidgetClearer()
                 
                 #update supplier option menus
                 self.chooseSupplier1.configure(values=self.supplierDB.getSupplierNames())
@@ -683,6 +656,19 @@ class App(superWindow):
     def addNewUser(self):
         user = newUser()
         user.mainloop()
+
+    #=================================================================================================MISC-FUNCTIONALITY=============================================================================================================
+    def uiWidgetClearer(self):
+        for widget in self.tabview.tab(self.tab_).winfo_children():
+            try:
+                if widget.cget('placeholder_text'):
+                    widget.delete(0, customtkinter.END)
+                    widget._activate_placeholder()
+                    widget.focus()
+            
+            except ValueError:
+                continue
+
 
 if __name__ == "__main__":
     initialiser = logonDBHandler()
