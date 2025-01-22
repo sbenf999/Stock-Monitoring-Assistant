@@ -416,9 +416,34 @@ class App(superWindow):
             if widget not in [self.stockCountProductNumLabel, self.stockCountitemLabel, self.stockCountitemQuantityLabel, self.stockCounttoolLabel]:
                 widget.destroy()
 
-
     def confirmStockCount(self):
-        pass
+        if messagebox.askquestion(title='Confirm stockcount', message="Do you wish to confirm the stockcount?"):
+            try:
+                #update stock levels and any other data here
+                for stockCountProduct in self.stockCountProducts:
+                    #update stock level
+                    productID = self.productDB.getProductID(stockCountProduct[0])
+                    self.stockLevelDB.updateStockLevel(stockCountProduct[1], productID)
+
+                #clear widgets once the delivery has been confirmed
+                for widget in self.tabview.tab(self.tab_).winfo_children():
+                    try:
+                        if widget.cget('placeholder_text'):
+                            widget.delete(0, customtkinter.END)
+                            widget._activate_placeholder()
+                            widget.focus()
+                    
+                    except ValueError:
+                        continue
+
+                self.clearStockCountList()
+
+            except Exception as error:
+                print(f"error encountered on stock count confirmation: {error}")
+                return False
+
+        else:
+            pass
 
     #=================================================================================================ADD-PRODUCT-UI-AND-FUNCTIONALITY=================================================================================================    
     def addProductUI(self, tab_='Add product'): 
