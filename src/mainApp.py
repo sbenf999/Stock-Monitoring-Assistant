@@ -55,6 +55,10 @@ class App(superWindow):
         self.sidebar_button_1.grid(row=2, column=0, padx=20, pady=10)
         self.sidebar_button_2 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Stock counting"), text="Stock counting")
         self.sidebar_button_2.grid(row=3, column=0, padx=20, pady=10)
+
+        #exit button
+        self.sidebarExitButton = customtkinter.CTkButton(self.sidebar_frame, command=self.onClosing, text="Exit")
+        self.sidebarExitButton.grid(row=4, column=0, padx=20, pady=10)
         
         #create a section of buttons for database tools, such as adding a product or supplier
         self.label2 = customtkinter.CTkLabel(self.sidebar_frame, text="Database tools:", font=customtkinter.CTkFont(size=12))
@@ -154,7 +158,7 @@ class App(superWindow):
         self.supplierCountLabelValue = customtkinter.CTkLabel(self.tabview.tab(tab_), text=self.supplierDB.getCount("suppliers"), font=("Arial", 20))
         self.supplierCountLabelValue.grid(row=1, column=1, padx=10, pady=10, sticky="e", columnspan=2)  
 
-        #self.DBHandler.createBarGraphVisualisation(self.tabview.tab(tab_))
+        self.DBHandler.generateOverallViewTable()
 
     #=========================================================================================RECORD-DELIVERY-UI-AND-FUNCTIONALITY=================================================================================================    
     def recordDeliveryUI(self, tab_='Record a delivery'): #you might want to make this a scrollable fram

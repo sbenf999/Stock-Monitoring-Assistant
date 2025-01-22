@@ -61,6 +61,6 @@ class DBHandler:
 
         except Exception as error:
             print(f"error encountered: {error}")
-            
+
     def close(self):
         self.connection.close()
