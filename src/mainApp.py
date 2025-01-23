@@ -642,6 +642,10 @@ class App(superWindow):
         del self.supplierDates[index]
         self.updateSupplierDeliveryDateList()
 
+    #===================================================================================================WASTE-UI-AND-FUNCTIONALITY==================================================================================================
+    def wasteUI(self, tab_='Waste'):
+        self.tab_ = tab_
+
     #=================================================================================================SETTINGS-UI-AND-FUNCTIONALITY=================================================================================================    
     def settingsUI(self, tab_='Settings'):
         self.tab_ = tab_
@@ -650,12 +654,31 @@ class App(superWindow):
         self.userToolsLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="User tools:")
         self.userToolsLabel.grid(row=0, column=0, padx=(20, 20), pady=20, sticky='w')
         self.addUserButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="Create new user", command=self.addNewUser)
-        self.addUserButton.grid(row=1, column=0, padx=20, pady=20)
+        self.addUserButton.grid(row=1, column=0)
 
         #configure settings button states
         if int(self.userAccessLevel) != 1:
             for settingsButton in [self.addUserButton, self.editUserButton]:
                 settingsButton.configure(state="disabled")
+
+        #show environment variables and edit them if the user is an admin
+        self.envVariableLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Environment variables")
+        self.envVariableLabel.grid(row=2, column=0, padx=(20, 20), pady=20, sticky='w')
+        
+        self.envVarLabels = {}
+        self.envVars = ["DB_USERNAME", "DB_PASSWORD", "DB_HOST", "DB_SCHEMA", "DEF_EMAIL_ADDR", "DEF_EMAIL_ADDR_PASS"]
+        rows = [3, 4, 5, 6, 7, 8]
+
+        if self.userAccessLevel == 1:
+            for i in range(6):
+                maxLen = len(max(self.envVars, key=len))
+                minLen = len(min(self.envVars, key=len))
+                lenCalculation = ((maxLen+minLen)-len(self.envVars[i]))
+                dots = '.'*lenCalculation
+                info = f"{i+1}) {self.envVars[i]}{dots}: {os.getenv(self.envVars[i])}"
+                
+                self.envVarLabels[i] = customtkinter.CTkLabel(self.tabview.tab(tab_), text=info)
+                self.envVarLabels[i].grid(row=rows[i], column=0, padx=(40, 0), sticky='w')
 
     def addNewUser(self):
         user = newUser()
