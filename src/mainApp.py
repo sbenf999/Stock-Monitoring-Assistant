@@ -69,16 +69,18 @@ class App(superWindow):
         self.sidebar_button_4.grid(row=7, column=0, padx=20, pady=10)
         self.sidebar_button_5 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Add supplier"), text="Add supplier")
         self.sidebar_button_5.grid(row=8, column=0, padx=20, pady=10)
+        self.sidebar_button_6 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Waste"), text="Waste")
+        self.sidebar_button_6.grid(row=9, column=0, padx=20, pady=10)
 
         #create a section of buttons for tools that present data in graph format etc
         seperator2 = customtkinter.CTkFrame(self.sidebar_frame, height=1, width=100,fg_color="gray")
-        seperator2.grid(row=9, column=0, padx=20, pady=10)
+        seperator2.grid(row=10, column=0, padx=20, pady=10)
         self.label3 = customtkinter.CTkLabel(self.sidebar_frame, text="Data tools:", font=customtkinter.CTkFont(size=12))
-        self.label3.grid(row=10, column=0, padx=20)
-        self.sidebar_button_6 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Weekly report"), text="Weekly report")
-        self.sidebar_button_6.grid(row=11, column=0, padx=20, pady=10)
-        self.sidebar_button_7 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Settings"), text="Settings")
-        self.sidebar_button_7.grid(row=13, column=0, padx=20, pady=(10,20))
+        self.label3.grid(row=11, column=0, padx=20)
+        self.sidebar_button_7 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Weekly report"), text="Weekly report")
+        self.sidebar_button_7.grid(row=12, column=0, padx=20, pady=10)
+        self.sidebar_button_8 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Settings"), text="Settings")
+        self.sidebar_button_8.grid(row=13, column=0, padx=20, pady=(10,20))
 
         #========================BUTTON-STATES======================>
         #tabview in which all UI will take place to do with functions of the application - the sidebar on the side simply allows for easier switching of the tabs
@@ -121,8 +123,8 @@ class App(superWindow):
 
     def setButtonStates(self):
         #get user access level from login program in order to disable some functions
-        self.tabsDefault = ["Home", "Record a delivery", "Stock counting", "Data view", "Add product", "Add supplier", "Weekly report", "Settings"]
-        self.buttonsDefault = [self.sidebar_button_1, self.sidebar_button_2, self.sidebar_button_3, self.sidebar_button_4, self.sidebar_button_5, self.sidebar_button_6, self.sidebar_button_7]
+        self.tabsDefault = ["Home", "Record a delivery", "Stock counting", "Data view", "Add product", "Add supplier", "Waste", "Weekly report", "Settings"]
+        self.buttonsDefault = [self.sidebar_button_1, self.sidebar_button_2, self.sidebar_button_3, self.sidebar_button_4, self.sidebar_button_5, self.sidebar_button_6, self.sidebar_button_7, self.sidebar_button_8]
         self.tabs = self.tabsDefault
         self.allowances: dict = {
                 1: self.tabsDefault,
@@ -157,8 +159,6 @@ class App(superWindow):
         #create supplier count label and label value
         self.supplierCountLabelValue = customtkinter.CTkLabel(self.tabview.tab(tab_), text=self.supplierDB.getCount("suppliers"), font=("Arial", 20))
         self.supplierCountLabelValue.grid(row=1, column=1, padx=10, pady=10, sticky="e", columnspan=2)  
-
-        self.DBHandler.generateOverallViewTable()
 
     #=========================================================================================RECORD-DELIVERY-UI-AND-FUNCTIONALITY=================================================================================================    
     def recordDeliveryUI(self, tab_='Record a delivery'): #you might want to make this a scrollable fram
