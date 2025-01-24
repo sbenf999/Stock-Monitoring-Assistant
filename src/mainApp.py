@@ -662,7 +662,7 @@ class App(superWindow):
                 settingsButton.configure(state="disabled")
 
         #show environment variables and edit them if the user is an admin
-        self.envVariableLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Environment variables")
+        self.envVariableLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Environment variables:")
         self.envVariableLabel.grid(row=2, column=0, padx=(20, 20), pady=20, sticky='w')
         
         self.envVarLabels = {}
@@ -670,12 +670,10 @@ class App(superWindow):
         rows = [3, 4, 5, 6, 7, 8]
 
         if self.userAccessLevel == 1:
-            for i in range(6):
-                maxLen = len(max(self.envVars, key=len))
-                minLen = len(min(self.envVars, key=len))
-                lenCalculation = ((maxLen+minLen)-len(self.envVars[i]))
-                dots = '.'*lenCalculation
-                info = f"{i+1}) {self.envVars[i]}{dots}: {os.getenv(self.envVars[i])}"
+            #neededLen = len(max(self.envVars, key=len))+len(min(self.envVars, key=len))
+            for i, variable in enumerate(self.envVars):
+                dots = "."*(40-len(variable))
+                info = f"{i+1}) {variable}{dots}: {os.getenv(variable)}"
                 
                 self.envVarLabels[i] = customtkinter.CTkLabel(self.tabview.tab(tab_), text=info)
                 self.envVarLabels[i].grid(row=rows[i], column=0, padx=(40, 0), sticky='w')
