@@ -667,8 +667,11 @@ class App(superWindow):
         self.wasteQuantityLabel.grid(row=2, column=0, padx=(20, 20), pady=10, sticky='w')
         self.wasteQuanitityEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="x")
         self.wasteQuanitityEntry.grid(row=2, column=1, padx=(20, 20), pady=10, sticky='w')
+        self.wasteStateCheckboxVar = customtkinter.StringVar(value="off")
+        self.wasteStateCheckbox = customtkinter.CTkCheckBox(self.tabview.tab(tab_), text="Dealt with",variable=self.wasteStateCheckboxVar, onvalue="on", offvalue="off")
+        self.wasteStateCheckbox.grid(row=2, column=2)
         self.addWasteProduct = customtkinter.CTkButton(self.tabview.tab(tab_), text="Add waste product", command=self.addStockCountProductToDelivery)
-        self.addWasteProduct.grid(row=2, column=2, padx=20, pady=10)
+        self.addWasteProduct.grid(row=2, column=3, padx=20, pady=10)
 
         #create a seperator to distuinguish between sections
         wasteSeperator1 = customtkinter.CTkFrame(self.tabview.tab(tab_), height=1, fg_color="gray")
