@@ -115,6 +115,7 @@ class App(superWindow):
         self.stockCountingUI()
         self.addProductUI()
         self.addSupplierUI()
+        self.wasteUI()
         self.settingsUI()
 
     #function for buttons in the sidebar - used for navigating the tabview on the right
@@ -332,11 +333,15 @@ class App(superWindow):
         self.addProduct = customtkinter.CTkButton(self.tabview.tab(tab_), text="Add product", command=self.addStockCountProductToDelivery)
         self.addProduct.grid(row=1, column=2, padx=20, pady=10)
 
+        #create a seperator to distuinguish between sections
+        stockSeperator = customtkinter.CTkFrame(self.tabview.tab(tab_), height=1, fg_color="gray")
+        stockSeperator.grid(row=2, column=0, columnspan=10, padx=20, pady=20, sticky='nsew')
+
         #scrollable frame for added products
         self.stockCountProducts = []
 
         self.stockCountProductFrame = scrollableWin(master=self.tabview.tab(tab_), width=300, height=200, corner_radius=0, fg_color="transparent")
-        self.stockCountProductFrame.grid(row=2, column=0, sticky="nsew", columnspan=6)
+        self.stockCountProductFrame.grid(row=3, column=0, sticky="nsew", columnspan=6)
         self.stockCountProductNumLabel = customtkinter.CTkLabel(self.stockCountProductFrame, text="Item num", fg_color="transparent")
         self.stockCountProductNumLabel.grid(row=0, column=0, padx=(20), pady=20, sticky='w')
         self.stockCountitemLabel = customtkinter.CTkLabel(self.stockCountProductFrame, text="Item", fg_color="transparent")
@@ -646,6 +651,50 @@ class App(superWindow):
     def wasteUI(self, tab_='Waste'):
         self.tab_ = tab_
 
+        self.findWasteProductLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Search product:")
+        self.findWasteProductLabel.grid(row=0, column=0, padx=(20), pady=20, sticky='w')
+        self.findWasteProductEntry = AutocompleteEntry(self.tabview.tab(tab_), width=500, placeholder_text='Search product...')
+        
+        self.findWasteProductEntry.setSuggestions(self.productDB.getProductNames()) #set suggestions needs to be based on a call to the product table in the database
+        self.findWasteProductEntry.grid(row=0, column=1, padx=20, pady=20, columnspan=3, sticky='w')
+        
+        self.wasteDescriptionLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Waste description: ")
+        self.wasteDescriptionLabel.grid(row=1, column=0, padx=(20, 20), pady=20, sticky='w')
+        self.wasteDescriptionEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), width=500, placeholder_text="waste description...")
+        self.wasteDescriptionEntry.grid(row=1, column=1, padx=(20, 20), sticky='w', columnspan=5)
+
+        self.wasteQuantityLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Quantity: ")
+        self.wasteQuantityLabel.grid(row=2, column=0, padx=(20, 20), pady=10, sticky='w')
+        self.wasteQuanitityEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="x")
+        self.wasteQuanitityEntry.grid(row=2, column=1, padx=(20, 20), pady=10, sticky='w')
+        self.addWasteProduct = customtkinter.CTkButton(self.tabview.tab(tab_), text="Add waste product", command=self.addStockCountProductToDelivery)
+        self.addWasteProduct.grid(row=2, column=2, padx=20, pady=10)
+
+        #create a seperator to distuinguish between sections
+        wasteSeperator1 = customtkinter.CTkFrame(self.tabview.tab(tab_), height=1, fg_color="gray")
+        wasteSeperator1.grid(row=3, column=0, columnspan=10, padx=20, pady=20, sticky='nsew')
+
+        #scrollable frame for added products
+        self.wasteProducts = []
+
+        self.wasteProductFrame = scrollableWin(master=self.tabview.tab(tab_), width=300, height=200, corner_radius=0, fg_color="transparent")
+        self.wasteProductFrame.grid(row=4, column=0, sticky="nsew", columnspan=6)
+        self.wasteProductNumLabel = customtkinter.CTkLabel(self.wasteProductFrame, text="Item num", fg_color="transparent")
+        self.wasteProductNumLabel.grid(row=0, column=0, padx=(20), pady=20, sticky='w')
+        self.wasteItemLabel = customtkinter.CTkLabel(self.wasteProductFrame, text="Item", fg_color="transparent")
+        self.wasteItemLabel.grid(row=0, column=1, padx=(20), pady=20, sticky='w')
+        self.wasteItemQuantityLabel = customtkinter.CTkLabel(self.wasteProductFrame, text="Quantity", fg_color="transparent")
+        self.wasteItemQuantityLabel.grid(row=0, column=2, padx=(20), pady=20, sticky='w')
+        self.wasteToolLabel = customtkinter.CTkLabel(self.wasteProductFrame, text="Tool")
+        self.wasteToolLabel.grid(row=0, column=3, padx=(20), pady=20, sticky='w')
+        
+        #create a seperator to distuinguish between sections
+        wasteSeperator2 = customtkinter.CTkFrame(self.tabview.tab(tab_), height=1, fg_color="gray")
+        wasteSeperator2.grid(row=7, column=0, columnspan=10, padx=20, pady=20, sticky='nsew')
+
+        self.confirmWasteButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="Confirm waste products", command=self.confirmStockCount)
+        self.confirmWasteButton.grid(row=8, column=0, padx=20, pady=10)
+
     #=================================================================================================SETTINGS-UI-AND-FUNCTIONALITY=================================================================================================    
     def settingsUI(self, tab_='Settings'):
         self.tab_ = tab_
@@ -670,10 +719,13 @@ class App(superWindow):
         rows = [3, 4, 5, 6, 7, 8]
 
         if self.userAccessLevel == 1:
-            #neededLen = len(max(self.envVars, key=len))+len(min(self.envVars, key=len))
+            prevDiff = []
             for i, variable in enumerate(self.envVars):
-                dots = "."*(40-len(variable))
-                info = f"{i+1}) {variable}{dots}: {os.getenv(variable)}"
+                prevDiff.append(len(variable))
+                print(prevDiff[i])
+                newDiff = prevDiff[i]-len(variable)
+                dots = "."*(50-((len(variable)-newDiff)))
+                info = f"{i+1}) {self.envVars[i]}{dots}: {os.getenv(variable)}"
                 
                 self.envVarLabels[i] = customtkinter.CTkLabel(self.tabview.tab(tab_), text=info)
                 self.envVarLabels[i].grid(row=rows[i], column=0, padx=(40, 0), sticky='w')
