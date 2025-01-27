@@ -653,7 +653,7 @@ class App(superWindow):
 
         self.findWasteProductLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Search product:")
         self.findWasteProductLabel.grid(row=0, column=0, padx=(20), pady=20, sticky='w')
-        self.findWasteProductEntry = AutocompleteEntry(self.tabview.tab(tab_), width=500, placeholder_text='Search product...')
+        self.findWasteProductEntry = AutocompleteEntry(self.tabview.tab(tab_), width=500, placeholder_text='search product...')
         
         self.findWasteProductEntry.setSuggestions(self.productDB.getProductNames()) #set suggestions needs to be based on a call to the product table in the database
         self.findWasteProductEntry.grid(row=0, column=1, padx=20, pady=20, columnspan=3, sticky='w')
@@ -688,15 +688,75 @@ class App(superWindow):
         self.wasteItemLabel.grid(row=0, column=1, padx=(20), pady=20, sticky='w')
         self.wasteItemQuantityLabel = customtkinter.CTkLabel(self.wasteProductFrame, text="Quantity", fg_color="transparent")
         self.wasteItemQuantityLabel.grid(row=0, column=2, padx=(20), pady=20, sticky='w')
+        self.wasteStatusLabel = customtkinter.CTkLabel(self.wasteProductFrame, text="Status", fg_color="transparent")
+        self.wasteStatusLabel.grid(row=0, column=0, padx=(20), pady=20, sticky='w')
         self.wasteToolLabel = customtkinter.CTkLabel(self.wasteProductFrame, text="Tool")
-        self.wasteToolLabel.grid(row=0, column=3, padx=(20), pady=20, sticky='w')
+        self.wasteToolLabel.grid(row=0, column=4, padx=(20), pady=20, sticky='w')
         
         #create a seperator to distuinguish between sections
         wasteSeperator2 = customtkinter.CTkFrame(self.tabview.tab(tab_), height=1, fg_color="gray")
         wasteSeperator2.grid(row=7, column=0, columnspan=10, padx=20, pady=20, sticky='nsew')
 
-        self.confirmWasteButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="Confirm waste products", command=self.confirmStockCount)
+        self.confirmWasteButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="Confirm waste products", command=self.confirmAddWasteProductProcess)
         self.confirmWasteButton.grid(row=8, column=0, padx=20, pady=10)
+
+    def confirmAddWasteProductProcess(self):
+        try:
+            if messagebox.askquestion(title='Confirm add waste product(s)', message="Do you wish to confirm this waste?"):
+                #create the new supplier
+                self.supplierDB.createSupplier(self.suppliertNameEntry.get(), self.supplierDescriptionEntry.get(), json.dumps(self.supplierDates))
+                
+                #reset widgets
+                self.uiWidgetClearer()
+                
+                #update supplier option menus
+                self.chooseSupplier1.configure(values=self.supplierDB.getSupplierNames())
+                self.chooseSupplier2.configure(values=self.supplierDB.getSupplierNames())
+
+                #delete supplier delivery date fields upon successful supplier creation
+                self.supplierDates = []
+                self.updateSupplierDeliveryDateList()
+
+            #resume with app if "no" option is selected
+            else:
+                pass
+
+        except Exception as error:
+            print(error)
+            messagebox.showerror("Error", f"An error occurred! Please try again. If this issue persits, please contact the maintainer. Error {error}")
+
+    def updateWasteProductList(self):
+        # Create widgets for each waste product
+        self.clearWasteProductList()
+
+        for i, wasteProduct in enumerate(self.wasteProducts):
+            if i==0:
+                self.clearWasteProductList()
+
+            count_label = customtkinter.CTkLabel(self.wasteProductFrame, text=str(i+1))
+            count_label.grid(row=i+2, column=0, padx=20, sticky="w", pady=10)
+
+            #Name label with fixed width
+            name_label = customtkinter.CTkLabel(self.wasteProductFrame, text=wasteProduct)
+            name_label.grid(row=i+2, column=1, padx=20, sticky="w", pady=10)
+
+            #Delete button to remove the supplier date
+            print(self.supplierDates, i)
+            print(self.supplierDates[i])
+            status_label = customtkinter.ctkLabel(self.wasteProductFrame, text=)
+            delete_button = customtkinter.CTkButton(self.wasteProductFrame, text="Delete", command=lambda i=i: self.deleteWasteProduct(i))
+            delete_button.grid(row=i+2, column=4, padx=20, sticky="w", pady=10)
+
+    def clearWasteProductList(self):
+        # Clear the existing list
+        for widget in self.wasteProductFrame.winfo_children():
+            if widget not in [self.wasteProductNumLabel, self.wasteItemLabel, self.wasteItemQuantityLabel, self.wasteStatusLabel]:
+                widget.destroy()
+
+    def deleteWasteProduct(self, index):
+        # Remove waste product from the list
+        del self.wasteProducts[index]
+        self.updateWasteProductList()
 
     #=================================================================================================SETTINGS-UI-AND-FUNCTIONALITY=================================================================================================    
     def settingsUI(self, tab_='Settings'):
