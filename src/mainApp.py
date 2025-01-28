@@ -689,7 +689,7 @@ class App(superWindow):
         self.wasteItemQuantityLabel = customtkinter.CTkLabel(self.wasteProductFrame, text="Quantity", fg_color="transparent")
         self.wasteItemQuantityLabel.grid(row=0, column=2, padx=(20), pady=20, sticky='w')
         self.wasteStatusLabel = customtkinter.CTkLabel(self.wasteProductFrame, text="Status", fg_color="transparent")
-        self.wasteStatusLabel.grid(row=0, column=0, padx=(20), pady=20, sticky='w')
+        self.wasteStatusLabel.grid(row=0, column=3, padx=(20), pady=20, sticky='w')
         self.wasteToolLabel = customtkinter.CTkLabel(self.wasteProductFrame, text="Tool")
         self.wasteToolLabel.grid(row=0, column=4, padx=(20), pady=20, sticky='w')
         
@@ -743,9 +743,17 @@ class App(superWindow):
             #Delete button to remove the supplier date
             print(self.supplierDates, i)
             print(self.supplierDates[i])
-            status_label = customtkinter.ctkLabel(self.wasteProductFrame, text=)
+            self.statusVarText = ''
+            if self.wasteStateCheckboxVar.get() == 'off':
+                self.statusVarText = 'False'
+            
+            else:
+                self.statusVarText = 'True'
+
+            status_label = customtkinter.ctkLabel(self.wasteProductFrame, text=self.statusVarText)
+            status_label.grid(row=i+2, column=2, padx=20, sticky="w", pady=10)
             delete_button = customtkinter.CTkButton(self.wasteProductFrame, text="Delete", command=lambda i=i: self.deleteWasteProduct(i))
-            delete_button.grid(row=i+2, column=4, padx=20, sticky="w", pady=10)
+            delete_button.grid(row=i+2, column=3, padx=20, sticky="w", pady=10)
 
     def clearWasteProductList(self):
         # Clear the existing list
