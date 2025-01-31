@@ -17,11 +17,11 @@ As this project is the source for a Non-Examination Assessment (NEA), unless oth
 
 ## Dependencies
 - customTkinter
+- mysql.connector
 - hashlib
+- dotenv
 - json
 - time
-- dotenv
-- mysql.connector
 
 ## Configuring environment variables
 > [!IMPORTANT]
