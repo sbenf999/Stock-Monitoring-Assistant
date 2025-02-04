@@ -670,7 +670,7 @@ class App(superWindow):
         self.wasteStateCheckboxVar = customtkinter.StringVar(value="off")
         self.wasteStateCheckbox = customtkinter.CTkCheckBox(self.tabview.tab(tab_), text="Dealt with",variable=self.wasteStateCheckboxVar, onvalue="on", offvalue="off")
         self.wasteStateCheckbox.grid(row=2, column=2)
-        self.addWasteProduct = customtkinter.CTkButton(self.tabview.tab(tab_), text="Add waste product", command=self.addStockCountProductToDelivery)
+        self.addWasteProduct = customtkinter.CTkButton(self.tabview.tab(tab_), text="Add waste product", command=self.addWasteProductToList)
         self.addWasteProduct.grid(row=2, column=3, padx=20, pady=10)
 
         #create a seperator to distuinguish between sections
@@ -688,7 +688,7 @@ class App(superWindow):
         self.wasteItemLabel.grid(row=0, column=1, padx=(20), pady=20, sticky='w')
         self.wasteItemQuantityLabel = customtkinter.CTkLabel(self.wasteProductFrame, text="Quantity", fg_color="transparent")
         self.wasteItemQuantityLabel.grid(row=0, column=2, padx=(20), pady=20, sticky='w')
-        self.wasteStatusLabel = customtkinter.CTkLabel(self.wasteProductFrame, text="Status", fg_color="transparent")
+        self.wasteStatusLabel = customtkinter.CTkLabel(self.wasteProductFrame, text="Dealt with", fg_color="transparent")
         self.wasteStatusLabel.grid(row=0, column=3, padx=(20), pady=20, sticky='w')
         self.wasteToolLabel = customtkinter.CTkLabel(self.wasteProductFrame, text="Tool")
         self.wasteToolLabel.grid(row=0, column=4, padx=(20), pady=20, sticky='w')
@@ -725,9 +725,23 @@ class App(superWindow):
             print(error)
             messagebox.showerror("Error", f"An error occurred! Please try again. If this issue persits, please contact the maintainer. Error {error}")
 
+    def addWasteProductToList(self):
+        wasteProduct = [self.findWasteProductEntry.get(), self.wasteDescriptionEntry.get(), self.wasteQuanitityEntry.get(), self.wasteStateCheckboxVar.get()]
+        
+        if wasteProduct:
+            self.wasteProducts.append(wasteProduct)
+            self.updateWasteProductList()
+            self.uiWidgetClearer()
+        
+        else:
+            messagebox.showwarning("Input Error", "Please enter a valid waste product")
+
     def updateWasteProductList(self):
         # Create widgets for each waste product
         self.clearWasteProductList()
+        self.findWasteProductEntry.delete(0, customtkinter.END)
+        self.wasteDescriptionEntry.delete(0, customtkinter.END)
+        self.wasteQuanitityEntry.delete(0, customtkinter.END)
 
         for i, wasteProduct in enumerate(self.wasteProducts):
             if i==0:
@@ -737,12 +751,12 @@ class App(superWindow):
             count_label.grid(row=i+2, column=0, padx=20, sticky="w", pady=10)
 
             #Name label with fixed width
-            name_label = customtkinter.CTkLabel(self.wasteProductFrame, text=wasteProduct)
+            name_label = customtkinter.CTkLabel(self.wasteProductFrame, text=wasteProduct[0])
             name_label.grid(row=i+2, column=1, padx=20, sticky="w", pady=10)
 
             #Delete button to remove the supplier date
-            print(self.supplierDates, i)
-            print(self.supplierDates[i])
+            print(self.wasteProducts, i)
+            print(self.wasteProducts[i])
             self.statusVarText = ''
             if self.wasteStateCheckboxVar.get() == 'off':
                 self.statusVarText = 'False'
@@ -750,10 +764,12 @@ class App(superWindow):
             else:
                 self.statusVarText = 'True'
 
-            status_label = customtkinter.ctkLabel(self.wasteProductFrame, text=self.statusVarText)
-            status_label.grid(row=i+2, column=2, padx=20, sticky="w", pady=10)
+            quantity_label = customtkinter.CTkLabel(self.wasteProductFrame, text=self.wasteQuanitityEntry.get())
+            quantity_label.grid(row=i+2, column=2, padx=20, sticky="w", pady=10)
+            status_label = customtkinter.CTkLabel(self.wasteProductFrame, text=self.statusVarText)
+            status_label.grid(row=i+2, column=3, padx=20, sticky="w", pady=10)
             delete_button = customtkinter.CTkButton(self.wasteProductFrame, text="Delete", command=lambda i=i: self.deleteWasteProduct(i))
-            delete_button.grid(row=i+2, column=3, padx=20, sticky="w", pady=10)
+            delete_button.grid(row=i+2, column=4, padx=20, sticky="w", pady=10)
 
     def clearWasteProductList(self):
         # Clear the existing list
@@ -816,7 +832,6 @@ class App(superWindow):
             
             except ValueError:
                 continue
-
 
 if __name__ == "__main__":
     initialiser = logonDBHandler()
