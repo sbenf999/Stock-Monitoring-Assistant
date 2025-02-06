@@ -50,6 +50,15 @@ class productDBHandler(DBHandler):
         
         except Exception as error:
             return False, error
+        
+    def getRespectiveSupplerID(self, productName):
+        try:
+            self.cursor.execute("SELECT supplier_id FROM products WHERE product_name = %s", (productName,))
+            results = self.cursor.fetchone()
+            return results[0]
+        
+        except Exception as error:
+            return False, error
 
     #need to program
     def deleteProduct(self):

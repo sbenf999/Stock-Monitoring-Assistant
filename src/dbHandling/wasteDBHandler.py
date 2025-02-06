@@ -17,3 +17,14 @@ class wasteDBHandler(DBHandler):
 
         except Exception as error:
             return False, error
+        
+    def createWasteProduct(self, product_id, supplier_id, waste_reason, waste_dealt_with):
+        try:
+            self.cursor.execute('''INSERT INTO waste (product_id, supplier_id, waste_reason, waste_dealt_with) VALUES (%s, %s, %s, %s)''', (product_id, supplier_id, waste_reason, waste_dealt_with))
+            self.connection.commit()
+            return True
+        
+        except Exception as error:
+            self.connection.rollback()
+            print(f"Error in create waste product: {error}")
+            return False, error

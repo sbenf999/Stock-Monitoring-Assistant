@@ -369,6 +369,7 @@ class App(superWindow):
             
             #Update the display
             self.updateStockCountList()
+            self.stockCountProducts = [] #reset stock count products to not retain data
             
             #Clear entry fields after adding
             self.stockCountAutocompleteEntry.delete(0, customtkinter.END)
@@ -688,7 +689,7 @@ class App(superWindow):
         self.wasteItemLabel.grid(row=0, column=1, padx=(20), pady=20, sticky='w')
         self.wasteItemQuantityLabel = customtkinter.CTkLabel(self.wasteProductFrame, text="Quantity", fg_color="transparent")
         self.wasteItemQuantityLabel.grid(row=0, column=2, padx=(20), pady=20, sticky='w')
-        self.wasteStatusLabel = customtkinter.CTkLabel(self.wasteProductFrame, text="Dealt with", fg_color="transparent")
+        self.wasteStatusLabel = customtkinter.CTkLabel(self.wasteProductFrame, text="Status", fg_color="transparent")
         self.wasteStatusLabel.grid(row=0, column=3, padx=(20), pady=20, sticky='w')
         self.wasteToolLabel = customtkinter.CTkLabel(self.wasteProductFrame, text="Tool")
         self.wasteToolLabel.grid(row=0, column=4, padx=(20), pady=20, sticky='w')
@@ -700,22 +701,29 @@ class App(superWindow):
         self.confirmWasteButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="Confirm waste products", command=self.confirmAddWasteProductProcess)
         self.confirmWasteButton.grid(row=8, column=0, padx=20, pady=10)
 
+        #create an on success label to let the user know that the Db call was successful
+        self.successLabel = customtkinter.CTkLabel(self.tabview.tab(self.tab_), text="", text_color="green")
+        self.successLabel.grid(row=8, column=1)
+
     def confirmAddWasteProductProcess(self):
         try:
             if messagebox.askquestion(title='Confirm add waste product(s)', message="Do you wish to confirm this waste?"):
-                #create the new supplier
-                self.supplierDB.createSupplier(self.suppliertNameEntry.get(), self.supplierDescriptionEntry.get(), json.dumps(self.supplierDates))
-                
+                #db call to create waste products
+                for wasteProduct in self.wasteProducts:
+                    relevantProductID = wasteProduct[0]
+                    self.wasteDB.createWasteProduct((self.productDB.getProductID(relevantProductID), (self.supplierDB.getRespectiveSupplerID(relevantProductID)), wasteProduct[2], wasteProduct[3]))
+                    
+                    #update stock level accordingly
+                    self.stockLevelDB.updateStockLevel((-1*int(wasteProduct[2])), relevantProductID) #multiply by minus one in order to subtract
+
                 #reset widgets
                 self.uiWidgetClearer()
                 
-                #update supplier option menus
-                self.chooseSupplier1.configure(values=self.supplierDB.getSupplierNames())
-                self.chooseSupplier2.configure(values=self.supplierDB.getSupplierNames())
+                self.wasteProducts = []
+                self.updateWasteProductList(True)
 
-                #delete supplier delivery date fields upon successful supplier creation
-                self.supplierDates = []
-                self.updateSupplierDeliveryDateList()
+                #confiure text label to say success upon successful db call
+                self.successLabel.configure(text="Success")
 
             #resume with app if "no" option is selected
             else:
@@ -728,20 +736,29 @@ class App(superWindow):
     def addWasteProductToList(self):
         wasteProduct = [self.findWasteProductEntry.get(), self.wasteDescriptionEntry.get(), self.wasteQuanitityEntry.get(), self.wasteStateCheckboxVar.get()]
         
-        if wasteProduct:
+        #make sure we have all the data to create a waste product
+        tally = 0
+        for entryWidgetData in wasteProduct:
+            if not(entryWidgetData == '') and wasteProduct[2].isdigit(): #make sure the quantity entry is a number
+                tally += 1
+
+        if tally == 4:
             self.wasteProducts.append(wasteProduct)
             self.updateWasteProductList()
             self.uiWidgetClearer()
+            
+            #reset entry widgets for a cleaner look and to not retain previously entered product data as this is already stored in the waste product list
+            self.findWasteProductEntry.delete(0, customtkinter.END)
+            self.wasteDescriptionEntry.delete(0, customtkinter.END)
+            self.wasteQuanitityEntry.delete(0, customtkinter.END)
+            self.wasteStateCheckbox.deselect() #make sure the checkbox is in the off state
         
         else:
             messagebox.showwarning("Input Error", "Please enter a valid waste product")
 
-    def updateWasteProductList(self):
-        # Create widgets for each waste product
-        self.clearWasteProductList()
-        self.findWasteProductEntry.delete(0, customtkinter.END)
-        self.wasteDescriptionEntry.delete(0, customtkinter.END)
-        self.wasteQuanitityEntry.delete(0, customtkinter.END)
+    def updateWasteProductList(self, clear_=False):
+        if clear_:
+            self.clearWasteProductList()
 
         for i, wasteProduct in enumerate(self.wasteProducts):
             if i==0:
@@ -757,14 +774,16 @@ class App(superWindow):
             #Delete button to remove the supplier date
             print(self.wasteProducts, i)
             print(self.wasteProducts[i])
+
+            #set the status variable text for a newly added waste product - calling it 'on' in the label is dumb... user doesnt know what it means
             self.statusVarText = ''
-            if self.wasteStateCheckboxVar.get() == 'off':
+            if self.wasteProducts[i][3] == 'off':
                 self.statusVarText = 'False'
             
             else:
                 self.statusVarText = 'True'
 
-            quantity_label = customtkinter.CTkLabel(self.wasteProductFrame, text=self.wasteQuanitityEntry.get())
+            quantity_label = customtkinter.CTkLabel(self.wasteProductFrame, text=self.wasteProducts[i][2])
             quantity_label.grid(row=i+2, column=2, padx=20, sticky="w", pady=10)
             status_label = customtkinter.CTkLabel(self.wasteProductFrame, text=self.statusVarText)
             status_label.grid(row=i+2, column=3, padx=20, sticky="w", pady=10)
@@ -832,6 +851,7 @@ class App(superWindow):
             
             except ValueError:
                 continue
+
 
 if __name__ == "__main__":
     initialiser = logonDBHandler()
