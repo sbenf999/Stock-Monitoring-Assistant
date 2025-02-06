@@ -22,7 +22,7 @@ class appEmail:
         self.mailserver.ehlo()
         self.mailserver.login(self.__defaultSenderAddr, self.__defaultSenderAddrPass)
 
-    def sendEmai(self, destinationAddr, subject, content):
+    def sendEmail(self, destinationAddr, subject, content):
         try:
             self.message = EmailMessage()
             self.message.set_content(content)
@@ -40,5 +40,4 @@ class appEmail:
         except Exception as error:
             print(f"Error encountered when sending email: {error}")
             return False
-        
-
+ 

@@ -113,6 +113,7 @@ class App(superWindow):
         self.homeUI()
         self.recordDeliveryUI()
         self.stockCountingUI()
+        self.dataViewUI
         self.addProductUI()
         self.addSupplierUI()
         self.wasteUI()
@@ -436,6 +437,10 @@ class App(superWindow):
 
         else:
             pass
+
+    #===================================================================================================DATA-VIEW-AND-FUNCTIONALITY====================================================================================================
+    def dataViewUI(self, tab_='Data view'): 
+        self.tab_ = tab_
 
     #=================================================================================================ADD-PRODUCT-UI-AND-FUNCTIONALITY=================================================================================================    
     def addProductUI(self, tab_='Add product'): 
