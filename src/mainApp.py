@@ -3,6 +3,11 @@ import customtkinter
 from tkinter import messagebox
 from time import gmtime, strftime
 import json
+import dotenv
+
+#graphing imports
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 #import processes
 from processes.changePassword import *
@@ -90,8 +95,19 @@ class App(superWindow):
         #create the tabview according to allowances
         self.tabview = customtkinter.CTkTabview(master=self)
         self.tabview.grid(column=1, row=0)
-        for tab in self.allowances[int(self.userAccessLevel)]:
+        for tab in self.tabsDefault:
             self.tabview.add(tab)
+
+        #disable any buttons & tabview tabs that the user doesnt have access to
+        for page in self.tabsDefault:
+            if page not in self.allowances[int(self.userAccessLevel)]:
+                self.tabview.delete(page)
+
+                for button in self.buttonsDefault:
+                    name = button.cget("text")
+                    if name == page:
+                        button.configure(state="disabled")
+                    
 
         #<========================INITIALIZE-DATABASES========================>
         self.DBHandler = DBHandler() 
@@ -111,14 +127,20 @@ class App(superWindow):
                 print(error)
 
         #<========================UI-SETTERS========================>
-        self.homeUI()
-        self.recordDeliveryUI()
-        self.stockCountingUI()
-        self.dataViewUI()
-        self.addProductUI()
-        self.addSupplierUI()
-        self.wasteUI()
-        self.settingsUI()
+        uiSetters = [
+            [self.homeUI, 3], 
+            [self.recordDeliveryUI, 3], 
+            [self.stockCountingUI, 3], 
+            [self.dataViewUI, 1], 
+            [self.addProductUI, 2], 
+            [self.addSupplierUI, 2], 
+            [self.wasteUI, 2], 
+            [self.settingsUI, 1]
+            ]
+        
+        for uiSetter in uiSetters:
+            if self.userAccessLevel <= uiSetter[1]:  
+                uiSetter[0]()  
 
     #function for buttons in the sidebar - used for navigating the tabview on the right
     def goToTab(self, tabName):
@@ -131,17 +153,9 @@ class App(superWindow):
         self.tabs = self.tabsDefault
         self.allowances: dict = {
                 1: self.tabsDefault,
-                2: list(filter(lambda tab_: tab_ not in ["Data view", "Weekly report"], self.tabs)),
-                3: list(filter(lambda tab_: tab_ not in ["Add product", "Add supplier", "Data view", "Weekly report"], self.tabs))
+                2: list(filter(lambda tab_: tab_ not in ["Data view", "Weekly report", "Settings"], self.tabs)),
+                3: list(filter(lambda tab_: tab_ not in ["Add product", "Add supplier", "Data view", "Weekly report", "Settings", "Waste"], self.tabs))
         }
-
-        #disable any buttons that the user doesnt have access to
-        for page in self.tabsDefault:
-            if page not in self.allowances[int(self.userAccessLevel)]:
-                for button in self.buttonsDefault:
-                    name = button.cget("text")
-                    if name == page:
-                        button.configure(state="disabled")
 
     #=================================================================================================HOME-UI-AND-FUNCTIONALITY=================================================================================================    
     def homeUI(self, tab_='Home'):
@@ -155,12 +169,18 @@ class App(superWindow):
         self.welcomeLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text=f"Hi {self.userName}!", font=customtkinter.CTkFont(size=35, weight="bold"), padx=0, pady=0)
         self.welcomeLabel.grid(row=0, column=0, columnspan=4, pady=(30,30))
 
+        self.databaseBreakdown = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Database table breakdown:", font=customtkinter.CTkFont(size=15, weight="normal"), padx=0, pady=0)
+        self.databaseBreakdown.grid(row=1, column=0, columnspan=4, pady=(15,30))
+
         #create the pie chart for displaying the table values
         pieChart = CTkPieChart(self.tabview.tab(tab_), line_width=50)
-        pieChart.grid(row=2, column=0, padx=10, pady=10, sticky="e")
+        pieChart.grid(row=2, column=0, padx=10, pady=(10, 50), sticky="e")
 
-        for table in self.DBHandler.getTables():
-            pieChart.add(table.capitalize(), self.productDB.getCount(table, False))
+        pieChart.add("Products", self.productDB.getCount("products", False), text_color="black", color="#1F538D")
+        pieChart.add("Suppliers", self.productDB.getCount("suppliers", False), text_color="black", color="gray")
+        pieChart.add("Waste", self.productDB.getCount("waste", False), text_color="black", color="green")
+        pieChart.add("Stocklevel", self.productDB.getCount("stocklevel", False), text_color="black", color="purple")
+        pieChart.add("Users", self.productDB.getCount("users", False), text_color="black", color="yellow")
 
         #get the dictionary of key value pairs to create the key for the pie chart
         pieChartValues = pieChart.get()
@@ -458,13 +478,22 @@ class App(superWindow):
         self.dataViewTabs.pop(self.dataViewTabs.index('users')) #remove the user table from data that can be displayed
 
         #create the tabview for displaying the data found in the database tables
-        self.dataViewTabView = customtkinter.CTkTabview(self.tabview.tab(tab_))
-        self.dataViewTabView.grid(row=0, column=0)
+        try:
+            self.dataViewTabView = customtkinter.CTkTabview(self.tabview.tab(tab_))
+            self.dataViewTabView.grid(row=1, column=0)
 
-        #add table tabs to tabview
-        for _tab in self.dataViewTabs:
-            self.dataViewTabView.add(_tab)
+            #add table tabs to tabview
+            for _tab in self.dataViewTabs:
+                self.dataViewTabView.add(_tab)
 
+            self.dataViewSearchBar = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="search data...")
+            self.dataViewSearchBar.grid(row=0, column=0)
+
+
+        except ValueError:
+            pass
+
+        
     #=================================================================================================ADD-PRODUCT-UI-AND-FUNCTIONALITY=================================================================================================    
     def addProductUI(self, tab_='Add product'): 
         #you need to create a product database and then select all products in order to be able to give values for the value list below
@@ -729,10 +758,6 @@ class App(superWindow):
         self.confirmWasteButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="Confirm waste products", command=self.confirmAddWasteProductProcess)
         self.confirmWasteButton.grid(row=8, column=0, padx=20, pady=10)
 
-        #create an on success label to let the user know that the Db call was successful
-        self.successLabel = customtkinter.CTkLabel(self.tabview.tab(self.tab_), text="", text_color="green")
-        self.successLabel.grid(row=8, column=1)
-
     def confirmAddWasteProductProcess(self):
         try:
             if messagebox.askquestion(title='Confirm add waste product(s)', message="Do you wish to confirm this waste?"):
@@ -742,7 +767,7 @@ class App(superWindow):
                     supplier_id = self.productDB.getRespectiveSupplerID(product_id)
                     wasteReason = wasteProduct[1]
                     wasteQuantity = int(wasteProduct[2]) 
-                    wasteState = self.wasteStateCheckbox.get()
+                    wasteState = wasteProduct[3]
 
                     #create waste product in the database
                     self.wasteDB.createWasteProduct(self.productDB.getProductID(product_id), supplier_id, wasteReason, wasteState)
@@ -755,9 +780,6 @@ class App(superWindow):
                 
                 self.wasteProducts = []
                 self.updateWasteProductList(True)
-
-                #confiure text label to say success upon successful db call
-                self.successLabel.configure(text="Success")
 
             #resume with app if "no" option is selected
             else:
@@ -835,32 +857,53 @@ class App(superWindow):
         self.userToolsLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="User tools:")
         self.userToolsLabel.grid(row=0, column=0, padx=(20, 20), pady=20, sticky='w')
         self.addUserButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="Create new user", command=self.addNewUser)
-        self.addUserButton.grid(row=1, column=0)
+        self.addUserButton.grid(row=1, column=0, sticky="nw", padx=(20, 20))
 
         #configure settings button states
         if int(self.userAccessLevel) != 1:
-            for settingsButton in [self.addUserButton, self.editUserButton]:
+            for settingsButton in [self.addUserButton]:
                 settingsButton.configure(state="disabled")
 
-        #show environment variables and edit them if the user is an admin
-        self.envVariableLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Environment variables:")
-        self.envVariableLabel.grid(row=2, column=0, padx=(20, 20), pady=20, sticky='w')
-        
-        self.envVarLabels = {}
-        self.envVars = ["DB_USERNAME", "DB_PASSWORD", "DB_HOST", "DB_SCHEMA", "DEF_EMAIL_ADDR", "DEF_EMAIL_ADDR_PASS"]
-        rows = [3, 4, 5, 6, 7, 8]
-
         if self.userAccessLevel == 1:
-            prevDiff = []
+            #show environment variables and edit them if the user is an admin
+            self.envVariableLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Environment variables:")
+            self.envVariableLabel.grid(row=2, column=0, padx=(20, 20), pady=20, sticky='nw')
+            
+            self.envVarLabels = {}
+            self.envVars = ["DB_USERNAME", "DB_PASSWORD", "DB_HOST", "DB_SCHEMA", "DEF_EMAIL_ADDR", "DEF_EMAIL_ADDR_PASS"]
+            rows = [3, 4, 5, 6, 7, 8]
+
+            maxVarLen = max(len(var) for var in self.envVars)
+            dots_ = 5 
+
+            self.envVarEntries = {} 
+            self.envVarButtons = {}  
+
             for i, variable in enumerate(self.envVars):
-                prevDiff.append(len(variable))
-                print(prevDiff[i])
-                newDiff = prevDiff[i]-len(variable)
-                dots = "."*(50-((len(variable)-newDiff)))
-                info = f"{i+1}) {self.envVars[i]}{dots}: {os.getenv(variable)}"
-                
-                self.envVarLabels[i] = customtkinter.CTkLabel(self.tabview.tab(tab_), text=info)
-                self.envVarLabels[i].grid(row=rows[i], column=0, padx=(40, 0), sticky='w')
+                envValue = os.getenv(variable, "N/A")  
+                dots = "." * (maxVarLen + dots_ - len(variable))
+                info = f"{i+1}) {variable} {dots} {envValue}"
+
+                #label to display current environment variable
+                self.envVarLabels[i] = customtkinter.CTkLabel(self.tabview.tab(tab_), text=info, font=("Courier", 12))
+                self.envVarLabels[i].grid(row=rows[i], column=0, padx=(40, 10), pady=(10,10), sticky='w')
+
+                #entry field to input new value
+                self.envVarEntries[i] = customtkinter.CTkEntry(self.tabview.tab(tab_), width=200, placeholder_text="new value...")
+                self.envVarEntries[i].grid(row=rows[i], column=1, padx=(10, 10), sticky='w')
+
+                #tick button to update the variable
+                def updateEnvVar(var=variable, entryWidget=self.envVarEntries[i]):
+                    newValue = entryWidget.get()
+                    envVarPath="src/config/.env"
+
+                    if newValue:
+                        dotenv.set_key(envVarPath, var, newValue, quote_mode='always', export=False, encoding='utf-8')
+                        print(f"Updated {var} -> {newValue}") 
+                        entryWidget.delete(0, customtkinter.END)
+
+                self.envVarButtons[i] = customtkinter.CTkButton(self.tabview.tab(tab_), text="↻", width=30,  command=updateEnvVar)
+                self.envVarButtons[i].grid(row=rows[i], column=2, padx=(10, 0), sticky='w')
 
     def addNewUser(self):
         user = newUser()

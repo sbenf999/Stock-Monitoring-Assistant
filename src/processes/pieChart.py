@@ -101,8 +101,9 @@ class CTkPieChart(ctk.CTkLabel):
             return
         
         if color is None:
-            color = "#"+''.join([random.choice('ABCDEF0123456789') for i in range(6)])
-            
+            #color = "#"+''.join([random.choice('ABCDEF0123456789') for i in range(6)])
+            color = random.choice(['#E7CBA9', '#CCD4BF', '#F5F3E7', '#EEBAB2'])
+
         if text_color is None:
             if self.is_color_too_bright(color):
                 text_color = "black"
