@@ -12,6 +12,7 @@ from processes.windowSuperClass import superWindow
 from processes.autoCompleteSearch import AutocompleteEntry
 from processes.scrollingWindow import scrollableWin
 from processes.newUser import *
+from processes.pieChart import *
 
 #import database handlers
 from dbHandling.logonDBHandler import *
@@ -152,15 +153,27 @@ class App(superWindow):
 
         #set the welcome label in the center
         self.welcomeLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text=f"Hi {self.userName}!", font=customtkinter.CTkFont(size=35, weight="bold"), padx=0, pady=0)
-        self.welcomeLabel.grid(row=0, column=0, columnspan=4)
+        self.welcomeLabel.grid(row=0, column=0, columnspan=4, pady=(30,30))
 
-        #create product count label and label value
-        self.productCountLabelValue = customtkinter.CTkLabel(self.tabview.tab(tab_), text=self.productDB.getCount("products"), font=("Arial", 20))
-        self.productCountLabelValue.grid(row=1, column=0, padx=10, pady=10, sticky="e")
+        #create the pie chart for displaying the table values
+        pieChart = CTkPieChart(self.tabview.tab(tab_), line_width=50)
+        pieChart.grid(row=2, column=0, padx=10, pady=10, sticky="e")
 
-        #create supplier count label and label value
-        self.supplierCountLabelValue = customtkinter.CTkLabel(self.tabview.tab(tab_), text=self.supplierDB.getCount("suppliers"), font=("Arial", 20))
-        self.supplierCountLabelValue.grid(row=1, column=1, padx=10, pady=10, sticky="e", columnspan=2)  
+        for table in self.DBHandler.getTables():
+            pieChart.add(table.capitalize(), self.productDB.getCount(table, False))
+
+        #get the dictionary of key value pairs to create the key for the pie chart
+        pieChartValues = pieChart.get()
+
+        #create a frame for the piechart
+        pieChartFrame = customtkinter.CTkFrame(self.tabview.tab(tab_), fg_color="transparent")
+        pieChartFrame.grid(row=2, column=1, padx=10, pady=10, sticky="e", columnspan=2) 
+
+        #display the values for the key
+        for key, values in pieChartValues.items():
+            dataCircle = customtkinter.CTkRadioButton(pieChartFrame, hover=False, text=key, width=1,fg_color=values["color"])
+            dataCircle.select()
+            dataCircle.pack(side='top', anchor='nw', pady=5)
 
     #=========================================================================================RECORD-DELIVERY-UI-AND-FUNCTIONALITY=================================================================================================    
     def recordDeliveryUI(self, tab_='Record a delivery'): #you might want to make this a scrollable fram
@@ -683,8 +696,8 @@ class App(superWindow):
         self.wasteQuantityLabel.grid(row=2, column=0, padx=(20, 20), pady=10, sticky='w')
         self.wasteQuanitityEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="x")
         self.wasteQuanitityEntry.grid(row=2, column=1, padx=(20, 20), pady=10, sticky='w')
-        self.wasteStateCheckboxVar = customtkinter.StringVar(value="off")
-        self.wasteStateCheckbox = customtkinter.CTkCheckBox(self.tabview.tab(tab_), text="Dealt with",variable=self.wasteStateCheckboxVar, onvalue="on", offvalue="off")
+        self.wasteStateCheckboxVar = customtkinter.StringVar(value=False)
+        self.wasteStateCheckbox = customtkinter.CTkCheckBox(self.tabview.tab(tab_), text="Dealt with",variable=self.wasteStateCheckboxVar, onvalue=True, offvalue=False)
         self.wasteStateCheckbox.grid(row=2, column=2)
         self.addWasteProduct = customtkinter.CTkButton(self.tabview.tab(tab_), text="Add waste product", command=self.addWasteProductToList)
         self.addWasteProduct.grid(row=2, column=3, padx=20, pady=10)
@@ -724,12 +737,19 @@ class App(superWindow):
         try:
             if messagebox.askquestion(title='Confirm add waste product(s)', message="Do you wish to confirm this waste?"):
                 #db call to create waste products
+                
                 for wasteProduct in self.wasteProducts:
-                    relevantProductID = wasteProduct[0]
-                    self.wasteDB.createWasteProduct((self.productDB.getProductID(relevantProductID), (self.supplierDB.getRespectiveSupplerID(relevantProductID)), wasteProduct[2], wasteProduct[3]))
-                    
-                    #update stock level accordingly
-                    self.stockLevelDB.updateStockLevel((-1*int(wasteProduct[2])), relevantProductID) #multiply by minus one in order to subtract
+                    product_id = wasteProduct[0]
+                    supplier_id = self.productDB.getRespectiveSupplerID(product_id)
+                    wasteReason = wasteProduct[1]
+                    wasteQuantity = int(wasteProduct[2]) 
+                    wasteState = self.wasteStateCheckbox.get()
+
+                    # Create waste product in the database
+                    self.wasteDB.createWasteProduct(self.productDB.getProductID(product_id), supplier_id, wasteReason, wasteState)
+
+                    # Update stock level (subtracting waste quantity)
+                    self.stockLevelDB.updateStockLevel(wasteQuantity*-1, product_id)
 
                 #reset widgets
                 self.uiWidgetClearer()
@@ -790,17 +810,9 @@ class App(superWindow):
             print(self.wasteProducts, i)
             print(self.wasteProducts[i])
 
-            #set the status variable text for a newly added waste product - calling it 'on' in the label is dumb... user doesnt know what it means
-            self.statusVarText = ''
-            if self.wasteProducts[i][3] == 'off':
-                self.statusVarText = 'False'
-            
-            else:
-                self.statusVarText = 'True'
-
             quantity_label = customtkinter.CTkLabel(self.wasteProductFrame, text=self.wasteProducts[i][2])
             quantity_label.grid(row=i+2, column=2, padx=20, sticky="w", pady=10)
-            status_label = customtkinter.CTkLabel(self.wasteProductFrame, text=self.statusVarText)
+            status_label = customtkinter.CTkLabel(self.wasteProductFrame, text=self.wasteProducts[i][3])
             status_label.grid(row=i+2, column=3, padx=20, sticky="w", pady=10)
             delete_button = customtkinter.CTkButton(self.wasteProductFrame, text="Delete", command=lambda i=i: self.deleteWasteProduct(i))
             delete_button.grid(row=i+2, column=4, padx=20, sticky="w", pady=10)
