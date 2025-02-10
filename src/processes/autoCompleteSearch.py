@@ -4,7 +4,7 @@ import tkinter as tk
 class AutocompleteEntry(ctk.CTkEntry):
     def __init__(self, master=None, **kwargs):
         super().__init__(master, **kwargs)
-        self.suggestionsButtons = []  # A list to store the suggestion buttons
+        self.suggestionsButtons = []  #list to store the suggestion buttons
         self.suggestions = []
         self.allSuggestions = []
         self.bind("<KeyRelease>", self.onKeyrelease)

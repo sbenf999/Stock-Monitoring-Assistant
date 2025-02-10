@@ -737,7 +737,6 @@ class App(superWindow):
         try:
             if messagebox.askquestion(title='Confirm add waste product(s)', message="Do you wish to confirm this waste?"):
                 #db call to create waste products
-                
                 for wasteProduct in self.wasteProducts:
                     product_id = wasteProduct[0]
                     supplier_id = self.productDB.getRespectiveSupplerID(product_id)
@@ -745,11 +744,11 @@ class App(superWindow):
                     wasteQuantity = int(wasteProduct[2]) 
                     wasteState = self.wasteStateCheckbox.get()
 
-                    # Create waste product in the database
+                    #create waste product in the database
                     self.wasteDB.createWasteProduct(self.productDB.getProductID(product_id), supplier_id, wasteReason, wasteState)
 
-                    # Update stock level (subtracting waste quantity)
-                    self.stockLevelDB.updateStockLevel(wasteQuantity*-1, product_id)
+                    #update stock level (subtracting waste quantity)
+                    self.stockLevelDB.updateStockLevel(wasteQuantity*-1, self.productDB.getProductID(product_id))
 
                 #reset widgets
                 self.uiWidgetClearer()

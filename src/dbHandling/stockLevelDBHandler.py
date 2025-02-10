@@ -39,16 +39,14 @@ class stockLevelDBHandler(DBHandler):
         try:
             self.cursor.execute("SELECT COUNT(*) FROM stockLevel")
             rowCount = self.cursor.fetchone()[0]
-            print(rowCount)
 
             if rowCount == 0:
-                self.cursor.execute("INSERT INTO stockLevel (stock_count) VALUES (%s) WHERE product_id = %s", (addedStockCount,productID))
+                self.cursor.execute("INSERT INTO stockLevel (stock_count) VALUES (%s) WHERE product_id = %s", (addedStockCount, productID))
 
             else:
-                self.cursor.execute("UPDATE stockLevel SET stock_count = stock_count + %s WHERE product_id = %s", (addedStockCount,productID))
+                self.cursor.execute("UPDATE stockLevel SET stock_count = stock_count + %s WHERE product_id = %s", (addedStockCount, productID))
             
             self.connection.commit()
-            print("success")
 
         except Exception as error:
             print(f"error: {error}")
