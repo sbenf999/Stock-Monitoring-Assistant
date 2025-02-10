@@ -242,7 +242,7 @@ class App(superWindow):
         self.addProduct.grid(row=4, column=2, padx=20, pady=10)
 
         #create a seperator to distuinguish between sections
-        seperator2 = customtkinter.CTkFrame(self.tabview.tab(tab_), height=1, fg_color="gray")
+        seperator2 = customtkinter.CTkFrame(self.tabview.tab(tab_), height=2, fg_color="gray")
         seperator2.grid(row=5, column=0, columnspan=10, padx=20, pady=20, sticky='nsew')
 
         #scrollable frame for added products
@@ -260,7 +260,7 @@ class App(superWindow):
         self.toolLabel.grid(row=0, column=3, padx=(20), pady=20, sticky='w')
         
         #create a seperator to distuinguish between sections
-        seperator3 = customtkinter.CTkFrame(self.tabview.tab(tab_), height=1, fg_color="gray")
+        seperator3 = customtkinter.CTkFrame(self.tabview.tab(tab_), height=2, fg_color="gray")
         seperator3.grid(row=7, column=0, columnspan=10, padx=20, pady=20, sticky='nsew')
 
         self.confirmDelivery = customtkinter.CTkButton(self.tabview.tab(tab_), text="Confirm delivery", command=self.confirmDelivery)
@@ -368,7 +368,7 @@ class App(superWindow):
         self.addProduct.grid(row=1, column=2, padx=20, pady=10)
 
         #create a seperator to distuinguish between sections
-        stockSeperator = customtkinter.CTkFrame(self.tabview.tab(tab_), height=1, fg_color="gray")
+        stockSeperator = customtkinter.CTkFrame(self.tabview.tab(tab_), height=2, fg_color="gray")
         stockSeperator.grid(row=2, column=0, columnspan=10, padx=20, pady=20, sticky='nsew')
 
         #scrollable frame for added products
@@ -386,7 +386,7 @@ class App(superWindow):
         self.stockCounttoolLabel.grid(row=0, column=3, padx=(20), pady=20, sticky='w')
         
         #create a seperator to distuinguish between sections
-        stockCountseperator = customtkinter.CTkFrame(self.tabview.tab(tab_), height=1, fg_color="gray")
+        stockCountseperator = customtkinter.CTkFrame(self.tabview.tab(tab_), height=2, fg_color="gray")
         stockCountseperator.grid(row=7, column=0, columnspan=10, padx=20, pady=20, sticky='nsew')
 
         self.confirmStockCountButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="Confirm stock count", command=self.confirmStockCount)
@@ -613,7 +613,7 @@ class App(superWindow):
         self.addSupplierDate.grid(row=3, column=2, padx=20, pady=10)
 
         #create a seperator to distuinguish between sections
-        seperator = customtkinter.CTkFrame(self.tabview.tab(tab_), height=1, fg_color="gray")
+        seperator = customtkinter.CTkFrame(self.tabview.tab(tab_), height=2, fg_color="gray")
         seperator.grid(row=4, column=0, columnspan=10, padx=20, pady=20, sticky='nsew')
 
         #scrollable frame for added supplier dates
@@ -629,7 +629,7 @@ class App(superWindow):
         self.toolLabel.grid(row=0, column=3, padx=(20), pady=20, sticky='w')
         
         #create a seperator to distuinguish between sections
-        seperator2 = customtkinter.CTkFrame(self.tabview.tab(tab_), height=1, fg_color="gray")
+        seperator2 = customtkinter.CTkFrame(self.tabview.tab(tab_), height=2, fg_color="gray")
         seperator2.grid(row=6, column=0, columnspan=10, padx=20, pady=20, sticky='nsew')
 
         self.confirmAddSupplier = customtkinter.CTkButton(self.tabview.tab(tab_), text="Confirm add supplier", command=self.confirmAddSupplierProcess)
@@ -732,7 +732,7 @@ class App(superWindow):
         self.addWasteProduct.grid(row=2, column=3, padx=20, pady=10)
 
         #create a seperator to distuinguish between sections
-        wasteSeperator1 = customtkinter.CTkFrame(self.tabview.tab(tab_), height=1, fg_color="gray")
+        wasteSeperator1 = customtkinter.CTkFrame(self.tabview.tab(tab_), height=2, fg_color="gray")
         wasteSeperator1.grid(row=3, column=0, columnspan=10, padx=20, pady=20, sticky='nsew')
 
         #scrollable frame for added products
@@ -752,7 +752,7 @@ class App(superWindow):
         self.wasteToolLabel.grid(row=0, column=4, padx=(20), pady=20, sticky='w')
         
         #create a seperator to distuinguish between sections
-        wasteSeperator2 = customtkinter.CTkFrame(self.tabview.tab(tab_), height=1, fg_color="gray")
+        wasteSeperator2 = customtkinter.CTkFrame(self.tabview.tab(tab_), height=2, fg_color="gray")
         wasteSeperator2.grid(row=7, column=0, columnspan=10, padx=20, pady=20, sticky='nsew')
 
         self.confirmWasteButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="Confirm waste products", command=self.confirmAddWasteProductProcess)
