@@ -113,7 +113,7 @@ class App(superWindow):
         self.homeUI()
         self.recordDeliveryUI()
         self.stockCountingUI()
-        self.dataViewUI
+        self.dataViewUI()
         self.addProductUI()
         self.addSupplierUI()
         self.wasteUI()
@@ -345,7 +345,7 @@ class App(superWindow):
         self.stockCountProductFrame.grid(row=3, column=0, sticky="nsew", columnspan=6)
         self.stockCountProductNumLabel = customtkinter.CTkLabel(self.stockCountProductFrame, text="Item num", fg_color="transparent")
         self.stockCountProductNumLabel.grid(row=0, column=0, padx=(20), pady=20, sticky='w')
-        self.stockCountitemLabel = customtkinter.CTkLabel(self.stockCountProductFrame, text="Item", fg_color="transparent")
+        self.stockCountitemLabel = customtkinter.CTkLabel(self.stockCountProductFrame, text="Date", fg_color="transparent")
         self.stockCountitemLabel.grid(row=0, column=1, padx=(20), pady=20, sticky='w')
         self.stockCountitemQuantityLabel = customtkinter.CTkLabel(self.stockCountProductFrame, text="Quantity", fg_color="transparent")
         self.stockCountitemQuantityLabel.grid(row=0, column=2, padx=(20), pady=20, sticky='w')
@@ -441,6 +441,16 @@ class App(superWindow):
     #===================================================================================================DATA-VIEW-AND-FUNCTIONALITY====================================================================================================
     def dataViewUI(self, tab_='Data view'): 
         self.tab_ = tab_
+        self.dataViewTabs = self.DBHandler.getTables()
+        self.dataViewTabs.pop(self.dataViewTabs.index('users')) #remove the user table from data that can be displayed
+
+        #create the tabview for displaying the data found in the database tables
+        self.dataViewTabView = customtkinter.CTkTabview(self.tabview.tab(tab_))
+        self.dataViewTabView.grid(row=0, column=0)
+
+        #add table tabs to tabview
+        for _tab in self.dataViewTabs:
+            self.dataViewTabView.add(_tab)
 
     #=================================================================================================ADD-PRODUCT-UI-AND-FUNCTIONALITY=================================================================================================    
     def addProductUI(self, tab_='Add product'): 
