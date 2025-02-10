@@ -246,28 +246,28 @@ class App(superWindow):
         self.confirmDelivery = customtkinter.CTkButton(self.tabview.tab(tab_), text="Confirm delivery", command=self.confirmDelivery)
         self.confirmDelivery.grid(row=8, column=0, padx=20, pady=10)
     
-    # Function to add product
+    #function to add product
     def addProductToDelivery(self):
         productName = self.autocompleteEntry.get()
         productQuantity = self.quantityEntry.get()
         
-        #Check if product name and quantity are not empty
+        #check if product name and quantity are not empty
         if productName and productQuantity.isdigit():
             quantity = int(productQuantity)
             self.products.append([productName, quantity])
             
-            #Update the display
+            #update the display
             self.updateProductList()
             
-            #Clear entry fields after adding
+            #clear entry fields after adding
             self.autocompleteEntry.delete(0, customtkinter.END)
             self.quantityEntry.delete(0, customtkinter.END)
         else:
             messagebox.showwarning("Input Error", "Please enter a valid product name and quantity")
 
-    #Function to update the product list
+    #function to update the product list
     def updateProductList(self):
-        #Create a label and entry widget for each product in the list
+        #create a label and entry widget for each product in the list
         self.clearProductList()
 
         for i, product in enumerate(self.products):
@@ -277,30 +277,30 @@ class App(superWindow):
             countLabel = customtkinter.CTkLabel(self.productFrame, text=str(i+1))
             countLabel.grid(row=i+2, column=0, padx=20, sticky="w", pady=10)
 
-            #Name label with fixed width
+            #name label with fixed width
             nameLabel = customtkinter.CTkLabel(self.productFrame, text=product[0])
             nameLabel.grid(row=i+2, column=1, padx=20, sticky="w", pady=10)
 
-            #Quantity entry with fixed width
+            #quantity entry with fixed width
             quantityEntryWidget = customtkinter.CTkEntry(self.productFrame)
             quantityEntryWidget.grid(row=i+2, column=2, padx=20, sticky="w", pady=10)
-            quantityEntryWidget.insert(0, str(product[1]))  # Insert the current quantity
+            quantityEntryWidget.insert(0, str(product[1]))  #insert the current quantity
 
-            #Delete button to remove the product
+            #delete button to remove the product
             print(self.products, i)
             print(self.products[i])
             deleteButton = customtkinter.CTkButton(self.productFrame, text="Delete", command=lambda i=i: self.deleteProductInDelivery(i))
             deleteButton.grid(row=i+2, column=3, padx=20, sticky="w", pady=10)
 
-    #Function to delete a product
+    #function to delete a product
     def deleteProductInDelivery(self, index):
-        #Remove product from the list
+        #remove product from the list
         del self.products[index]
         self.updateProductList()
 
     #Function to clear product list
     def clearProductList(self):
-        #Clear the existing list
+        #clear the existing list
         for widget in self.productFrame.winfo_children():
             if widget not in [self.productNumLabel, self.itemLabel, self.itemQuantityLabel, self.toolLabel]:
                 widget.destroy()
@@ -376,24 +376,24 @@ class App(superWindow):
         productName = self.stockCountAutocompleteEntry.get()
         productQuantity = self.stockCountQuantityEntry.get()
         
-        #Check if product name and quantity are not empty
+        #check if product name and quantity are not empty
         if productName and productQuantity.isdigit():
             quantity = int(productQuantity)
             self.stockCountProducts.append([productName, quantity])
             
-            #Update the display
+            #update the display
             self.updateStockCountList()
             self.stockCountProducts = [] #reset stock count products to not retain data
             
-            #Clear entry fields after adding
+            #clear entry fields after adding
             self.stockCountAutocompleteEntry.delete(0, customtkinter.END)
             self.stockCountQuantityEntry.delete(0, customtkinter.END)
         else:
             messagebox.showwarning("Input Error", "Please enter a valid product name and quantity")
 
-    #Function to update the product list
+    #function to update the product list
     def updateStockCountList(self):
-        #Create a label and entry widget for each product in the list
+        #create a label and entry widget for each product in the list
         self.clearStockCountList()
 
         for i, stockCountProduct in enumerate(self.stockCountProducts):
@@ -403,16 +403,16 @@ class App(superWindow):
             stockCountLabel = customtkinter.CTkLabel(self.stockCountProductFrame, text=str(i+1))
             stockCountLabel.grid(row=i+2, column=0, padx=20, sticky="w", pady=10)
 
-            #Name label with fixed width
+            #name label with fixed width
             nameLabel = customtkinter.CTkLabel(self.stockCountProductFrame, text=stockCountProduct[0])
             nameLabel.grid(row=i+2, column=1, padx=20, sticky="w", pady=10)
 
-            #Quantity entry with fixed width
+            #quantity entry with fixed width
             quantityEntryWidget = customtkinter.CTkEntry(self.stockCountProductFrame)
             quantityEntryWidget.grid(row=i+2, column=2, padx=20, sticky="w", pady=10)
-            quantityEntryWidget.insert(0, str(stockCountProduct[1]))  # Insert the current quantity
+            quantityEntryWidget.insert(0, str(stockCountProduct[1]))  #insert the current quantity
 
-            #Delete button to remove the product
+            #delete button to remove the product
             print(self.stockCountProducts, i)
             print(self.stockCountProducts[i])
             deleteButton = customtkinter.CTkButton(self.stockCountProductFrame, text="Delete", command=lambda i=i: self.deleteProductInStockCountList(i))
@@ -424,9 +424,9 @@ class App(superWindow):
         del self.stockCountProducts[index]
         self.updateStockCountList()
 
-    #Function to clear product list
+    #function to clear product list
     def clearStockCountList(self):
-        #Clear the existing list
+        #clear the existing list
         for widget in self.stockCountProductFrame.winfo_children():
             if widget not in [self.stockCountProductNumLabel, self.stockCountitemLabel, self.stockCountitemQuantityLabel, self.stockCounttoolLabel]:
                 widget.destroy()
@@ -552,7 +552,7 @@ class App(superWindow):
             print(error)
             messagebox.showerror("Error", f"An error occurred! Please try again. If this issue persits, please contact the maintainer. Error {error}")
 
-    #Limits entry widget to 200 characters by default
+    #limits entry widget to 200 characters by default
     def limit_entry(self, limit=200, *args):
         current_text = self.limiter.get()
         
@@ -635,7 +635,7 @@ class App(superWindow):
     def addSupplierDeliveryDate(self):
         deliveryDate = self.supplierDatesEntry.get()
         
-        # Check supplier date are not empty
+        #check supplier date are not empty
         if deliveryDate:
             self.supplierDates.append(deliveryDate)
             self.updateSupplierDeliveryDateList()
@@ -645,7 +645,7 @@ class App(superWindow):
             messagebox.showwarning("Input Error", "Please enter a valid delivery date")
 
     def updateSupplierDeliveryDateList(self):
-        # Create widgets for each supplier date
+        #create widgets for each supplier date
         self.clearSupplierDeliveryDateList()
 
         for i, supplierDate in enumerate(self.supplierDates):
@@ -655,24 +655,24 @@ class App(superWindow):
             count_label = customtkinter.CTkLabel(self.supplierDateFrame, text=str(i+1))
             count_label.grid(row=i+2, column=0, padx=20, sticky="w", pady=10)
 
-            #Name label with fixed width
+            #name label with fixed width
             name_label = customtkinter.CTkLabel(self.supplierDateFrame, text=supplierDate)
             name_label.grid(row=i+2, column=1, padx=20, sticky="w", pady=10)
 
-            #Delete button to remove the supplier date
+            #delete button to remove the supplier date
             print(self.supplierDates, i)
             print(self.supplierDates[i])
             delete_button = customtkinter.CTkButton(self.supplierDateFrame, text="Delete", command=lambda i=i: self.deleteSupplierDate(i))
             delete_button.grid(row=i+2, column=3, padx=20, sticky="w", pady=10)
 
     def clearSupplierDeliveryDateList(self):
-        # Clear the existing list
+        #clear the existing list
         for widget in self.supplierDateFrame.winfo_children():
             if widget not in [self.supplierDateNumLabel, self.dateLabel, self.toolLabel]:
                 widget.destroy()
 
     def deleteSupplierDate(self, index):
-        # Remove supplier date from the list
+        #remove supplier date from the list
         del self.supplierDates[index]
         self.updateSupplierDeliveryDateList()
 
@@ -817,7 +817,7 @@ class App(superWindow):
             delete_button.grid(row=i+2, column=4, padx=20, sticky="w", pady=10)
 
     def clearWasteProductList(self):
-        # Clear the existing list
+        #clear the existing list
         for widget in self.wasteProductFrame.winfo_children():
             if widget not in [self.wasteProductNumLabel, self.wasteItemLabel, self.wasteItemQuantityLabel, self.wasteStatusLabel]:
                 widget.destroy()
