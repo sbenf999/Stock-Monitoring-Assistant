@@ -83,7 +83,7 @@ class App(superWindow):
         self.sidebar_button_8 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Settings"), text="Settings")
         self.sidebar_button_8.grid(row=13, column=0, padx=20, pady=(10,20))
 
-        #========================BUTTON-STATES======================>
+        #========================BUTTON-STATES=======================>
         #tabview in which all UI will take place to do with functions of the application - the sidebar on the side simply allows for easier switching of the tabs
         self.setButtonStates() #set the button states (disabled or enabled) based on the user access
         
