@@ -15,14 +15,6 @@ As this project is the source for a Non-Examination Assessment (NEA), unless oth
 - See `contributing.md` for ways to get started
   - Please adhere to this project's `code of conduct`
 
-## Dependencies
-- customTkinter
-- mysql.connector
-- hashlib
-- dotenv
-- json
-- time
-
 ## Configuring environment variables
 > [!IMPORTANT]
 The database handler uses environment variables located in a ```.env``` file which is _untracked_ by source control for security reasons. Therefore, create a ```config``` folder under the ```src``` folder and create a ```.env``` file inside, following the template provided in the ```src/templates``` folder named ```envVarTemplate.txt```.
