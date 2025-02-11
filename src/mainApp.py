@@ -15,9 +15,13 @@ from processes.loginProcess import *
 from processes.popUpWindow import *
 from processes.windowSuperClass import superWindow
 from processes.autoCompleteSearch import AutocompleteEntry
-from processes.scrollingWindow import scrollableWin
+from processes.scrollingWindow import *
 from processes.newUser import *
+
+#not programmed by me
 from processes.pieChart import *
+from processes.table import *
+from processes.doubleAxesScrollingFrame import *
 
 #import database handlers
 from dbHandling.logonDBHandler import *
@@ -139,7 +143,7 @@ class App(superWindow):
             ]
         
         for uiSetter in uiSetters:
-            if self.userAccessLevel <= uiSetter[1]:  
+            if int(self.userAccessLevel) <= uiSetter[1]:  
                 uiSetter[0]()  
 
     #function for buttons in the sidebar - used for navigating the tabview on the right
@@ -176,12 +180,16 @@ class App(superWindow):
         pieChart = CTkPieChart(self.tabview.tab(tab_), line_width=50)
         pieChart.grid(row=2, column=0, padx=10, pady=(10, 50), sticky="e")
 
-        pieChart.add("Products", self.productDB.getCount("products", False), text_color="black", color="#1F538D")
-        pieChart.add("Suppliers", self.productDB.getCount("suppliers", False), text_color="black", color="gray")
-        pieChart.add("Waste", self.productDB.getCount("waste", False), text_color="black", color="green")
-        pieChart.add("Stocklevel", self.productDB.getCount("stocklevel", False), text_color="black", color="purple")
-        pieChart.add("Users", self.productDB.getCount("users", False), text_color="black", color="yellow")
+        try:
+            pieChart.add("Products", self.productDB.getCount("products", False), text_color="black", color="#1F538D")
+            pieChart.add("Suppliers", self.productDB.getCount("suppliers", False), text_color="black", color="gray")
+            pieChart.add("Waste", self.productDB.getCount("waste", False), text_color="black", color="green")
+            pieChart.add("Stocklevel", self.productDB.getCount("stocklevel", False), text_color="black", color="purple")
+            pieChart.add("Users", self.productDB.getCount("users", False), text_color="black", color="yellow")
 
+        except TypeError:
+            pass
+        
         #get the dictionary of key value pairs to create the key for the pie chart
         pieChartValues = pieChart.get()
 
@@ -477,22 +485,40 @@ class App(superWindow):
         self.dataViewTabs = self.DBHandler.getTables()
         self.dataViewTabs.pop(self.dataViewTabs.index('users')) #remove the user table from data that can be displayed
 
-        #create the tabview for displaying the data found in the database tables
-        try:
-            self.dataViewTabView = customtkinter.CTkTabview(self.tabview.tab(tab_))
-            self.dataViewTabView.grid(row=1, column=0)
+        self.dataViewTabView = customtkinter.CTkTabview(self.tabview.tab(tab_))
+        self.dataViewTabView.grid(row=1, column=0, pady=(50,50), padx=(50, 50))
 
-            #add table tabs to tabview
-            for _tab in self.dataViewTabs:
-                self.dataViewTabView.add(_tab)
+        #add table tabs to tabview
+        for _tab in self.dataViewTabs:
+            self.dataViewTabView.add(_tab)
+            self.seeTableData(_tab)
+        
+    #function to display the data inside the current table
+    def seeTableData(self, tab__):
+        #search entry to search the tableValues list
+        self.searchEntry = customtkinter.CTkEntry(self.dataViewTabView.tab(tab__), placeholder_text="search...", width=500)
+        self.searchEntry.grid(row=0, column=0, padx=(50, 50), pady=(20,20), sticky='nsew', columnspan=6)
 
-            self.dataViewSearchBar = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="search data...")
-            self.dataViewSearchBar.grid(row=0, column=0)
+        xy_frame = CTkXYFrame(self.dataViewTabView.tab(tab__), width=600)
+        xy_frame.grid(row=1, column=0, sticky="nsew", columnspan=6)
 
+        #this needs to contain the database in a 2d list
+        self.tableValues = [self.DBHandler.getColumnNames(tab__)]
 
-        except ValueError:
-            pass
+        for row in self.DBHandler.getData(tab__):
+            listVersion = list(row)
+            for item in listVersion:
+                item = str(item)
 
+            self.tableValues.append(listVersion)
+
+        #print(self.DBHandler.getData(tab__))
+        
+        rowCount = self.DBHandler.getCount(tab__, False) 
+        columnCount = self.DBHandler.getColumnCount(tab__) 
+
+        self.displayTable = CTkTable(xy_frame, row=rowCount, column=columnCount, values=self.tableValues)
+        self.displayTable.grid(row=0, column=0)
         
     #=================================================================================================ADD-PRODUCT-UI-AND-FUNCTIONALITY=================================================================================================    
     def addProductUI(self, tab_='Add product'): 

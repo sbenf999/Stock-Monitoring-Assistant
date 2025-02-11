@@ -51,6 +51,23 @@ class DBHandler:
         except Exception as error:
             print(f"Error encountered (getCount): {error}")
             return None
+        
+    def getColumnNames(self, tableName):
+        self.cursor.execute(f"SELECT * FROM {tableName} LIMIT 0")
+        self.cursor.fetchall()
+
+        columnNames = []
+        for description in self.cursor.description:
+            columnNames.append(description[0])
+
+        return columnNames
+    
+    def getColumnCount(self, tableName):
+        self.cursor.execute(f"SELECT * FROM {tableName} LIMIT 1") 
+        self.cursor.fetchall()
+        columnCount = len(self.cursor.description)
+        
+        return columnCount
 
     def getTables(self):
         try:
@@ -61,6 +78,10 @@ class DBHandler:
 
         except Exception as error:
             print(f"error encountered: {error}")
+
+    def getData(self, tableName):
+        self.cursor.execute(f"SELECT * FROM {tableName}")
+        return self.cursor.fetchall()
 
     def close(self):
         self.connection.close()

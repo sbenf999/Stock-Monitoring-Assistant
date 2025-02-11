@@ -7,3 +7,4 @@
 #         - ask for database credentials
 #         - test connection to the database
 #         - create the necessary tables and potentially an admin user
+
