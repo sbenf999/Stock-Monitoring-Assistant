@@ -38,16 +38,16 @@ class App(superWindow):
         self.userAccessLevel = userAccessLevel
         self.userName = userName
 
-        # configure window
+        #configure window
         self.title("OneStop Stock Assistant System")
         self.geometry(f"{App.WIDTH}x{App.HEIGHT}")
         self.resizable(False, False)
 
-        # configure grid layout (4x4)
+        #configure grid layout (4x4)
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure((0, 1, 2), weight=1)
 
-        # create sidebar frame with widgets and create the logo text
+        #create sidebar frame with widgets and create the logo text
         self.sidebar_frame = customtkinter.CTkFrame(self, width=140, corner_radius=0)
         self.sidebar_frame.grid(row=0, column=0, rowspan=4, sticky="nsew")
         self.sidebar_frame.grid_rowconfigure(4, weight=1)
