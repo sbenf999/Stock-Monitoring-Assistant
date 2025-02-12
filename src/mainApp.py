@@ -5,10 +5,6 @@ from time import gmtime, strftime
 import json
 import dotenv
 
-#graphing imports
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-
 #import processes
 from processes.changePassword import *
 from processes.loginProcess import *
