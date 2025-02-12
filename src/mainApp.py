@@ -34,7 +34,7 @@ from dbHandling.stockLevelDBHandler import *
 class App(superWindow):
 
     WIDTH = 1100
-    HEIGHT = 775
+    HEIGHT = 675
 
     def __init__(self, userAccessLevel, userName="user"):
         super().__init__()
@@ -488,13 +488,17 @@ class App(superWindow):
         self.dataViewTabView = customtkinter.CTkTabview(self.tabview.tab(tab_))
         self.dataViewTabView.grid(row=1, column=0, pady=(50,50), padx=(50, 50))
 
+        tableDimensions = []
+        for table in self.DBHandler.getTables():
+            tableDimensions.append([(self.DBHandler.getCount(table, False))+1, (self.DBHandler.getColumnCount(table)+1)])
+
         #add table tabs to tabview
-        for _tab in self.dataViewTabs:
+        for i, _tab in enumerate(self.dataViewTabs):
             self.dataViewTabView.add(_tab)
-            self.seeTableData(_tab)
+            self.seeTableData(_tab, tableDimensions[i][0], tableDimensions[i][1])
         
     #function to display the data inside the current table
-    def seeTableData(self, tab__):
+    def seeTableData(self, tab__, row_count, column_count):
         #search entry to search the tableValues list
         self.searchEntry = customtkinter.CTkEntry(self.dataViewTabView.tab(tab__), placeholder_text="search...", width=500)
         self.searchEntry.grid(row=0, column=0, padx=(50, 50), pady=(20,20), sticky='nsew', columnspan=6)
@@ -503,23 +507,17 @@ class App(superWindow):
         xy_frame.grid(row=1, column=0, sticky="nsew", columnspan=6)
 
         #this needs to contain the database in a 2d list
-        self.tableValues = [self.DBHandler.getColumnNames(tab__)]
+        self.tableValues = []
 
         for row in self.DBHandler.getData(tab__):
             listVersion = list(row)
-            for item in listVersion:
-                item = str(item)
-
             self.tableValues.append(listVersion)
 
-        #print(self.DBHandler.getData(tab__))
-        
-        rowCount = self.DBHandler.getCount(tab__, False) 
-        columnCount = self.DBHandler.getColumnCount(tab__) 
-
-        self.displayTable = CTkTable(xy_frame, row=rowCount, column=columnCount, values=self.tableValues)
+        self.displayTable = CTkTable(xy_frame, row=self.DBHandler.getCount(tab__, False), column=self.DBHandler.getColumnCount(tab__), values=self.tableValues)
         self.displayTable.grid(row=0, column=0)
-        
+
+        print(self.tableValues)
+
     #=================================================================================================ADD-PRODUCT-UI-AND-FUNCTIONALITY=================================================================================================    
     def addProductUI(self, tab_='Add product'): 
         #you need to create a product database and then select all products in order to be able to give values for the value list below
