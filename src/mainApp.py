@@ -41,7 +41,7 @@ class App(superWindow):
         #configure window
         self.title("OneStop Stock Assistant System")
         self.geometry(f"{App.WIDTH}x{App.HEIGHT}")
-        self.resizable(False, False)
+        self.resizable(True, False)
 
         #configure grid layout (4x4)
         self.grid_columnconfigure(1, weight=1)
@@ -484,35 +484,37 @@ class App(superWindow):
         self.dataViewTabView = customtkinter.CTkTabview(self.tabview.tab(tab_))
         self.dataViewTabView.grid(row=1, column=0, pady=(50,50), padx=(50, 50))
 
-        tableDimensions = []
-        for table in self.DBHandler.getTables():
-            tableDimensions.append([(self.DBHandler.getCount(table, False))+1, (self.DBHandler.getColumnCount(table)+1)])
-
         #add table tabs to tabview
-        for i, _tab in enumerate(self.dataViewTabs):
+        for _tab in self.dataViewTabs:
             self.dataViewTabView.add(_tab)
-            self.seeTableData(_tab, tableDimensions[i][0], tableDimensions[i][1])
+            self.seeTableData(_tab)
         
     #function to display the data inside the current table
-    def seeTableData(self, tab__, row_count, column_count):
+    def seeTableData(self, tab__):
         #search entry to search the tableValues list
-        self.searchEntry = customtkinter.CTkEntry(self.dataViewTabView.tab(tab__), placeholder_text="search...", width=500)
-        self.searchEntry.grid(row=0, column=0, padx=(50, 50), pady=(20,20), sticky='nsew', columnspan=6)
+        self.searchEntry = customtkinter.CTkEntry(self.dataViewTabView.tab(tab__), placeholder_text="search...", width=400)
+        self.searchEntry.grid(row=0, column=0, padx=20, pady=30, sticky='nsew')
 
-        xy_frame = CTkXYFrame(self.dataViewTabView.tab(tab__), width=600)
-        xy_frame.grid(row=1, column=0, sticky="nsew", columnspan=6)
+        self.searchButton = customtkinter.CTkButton(self.dataViewTabView.tab(tab__), text="Search 🔍")
+        self.searchButton.grid(row=0, column=1, sticky='nsew', padx=20, pady=30)
+
+        xy_frame = CTkXYFrame(self.dataViewTabView.tab(tab__), width=600, height=150)
+        xy_frame.grid(row=2, column=0, sticky="nsew", columnspan=6)
 
         #this needs to contain the database in a 2d list
-        self.tableValues = []
+        self.tableValues = [self.DBHandler.getColumnNames(tab__)]
 
         for row in self.DBHandler.getData(tab__):
             listVersion = list(row)
+
+            for i, listItem in enumerate(listVersion):
+                if type(listItem) is bytearray: #if the listItem is a byteArray (aka supplier dates as its stored in json), remove the byteArray prefixes
+                    listVersion[i] = str(listItem.decode("utf-8"))
+
             self.tableValues.append(listVersion)
 
-        self.displayTable = CTkTable(xy_frame, row=self.DBHandler.getCount(tab__, False), column=self.DBHandler.getColumnCount(tab__), values=self.tableValues)
+        self.displayTable = CTkTable(xy_frame, values=self.tableValues)
         self.displayTable.grid(row=0, column=0)
-
-        print(self.tableValues)
 
     #=================================================================================================ADD-PRODUCT-UI-AND-FUNCTIONALITY=================================================================================================    
     def addProductUI(self, tab_='Add product'): 
