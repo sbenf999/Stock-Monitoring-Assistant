@@ -62,6 +62,11 @@ class DBHandler:
 
         return columnNames
     
+    def getColumnData(self, columnName, tableName):
+        self.cursor.execute(f"SELECT {columnName} FROM {tableName}") 
+    
+        return self.cursor.fetchall()
+    
     def getColumnCount(self, tableName):
         self.cursor.execute(f"SELECT * FROM {tableName} LIMIT 1") 
         self.cursor.fetchall()

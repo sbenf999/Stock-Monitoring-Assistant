@@ -23,6 +23,9 @@ class AutocompleteEntry(ctk.CTkEntry):
         else:
             self.hideSuggestions()
 
+    def getEntryData(self):
+        return self.get()
+
     def showSuggestions(self):
         self.hideSuggestions()
 

@@ -4,6 +4,7 @@ from tkinter import messagebox
 from time import gmtime, strftime
 import json
 import dotenv
+from functools import reduce
 
 #import processes
 from processes.changePassword import *
@@ -484,25 +485,41 @@ class App(superWindow):
         self.dataViewTabView = customtkinter.CTkTabview(self.tabview.tab(tab_))
         self.dataViewTabView.grid(row=1, column=0, pady=(50,50), padx=(50, 50))
 
+        #each search entry for each tab will produce suggestions based on the data in these respective columns. The index is the number of the column to be used when the the search button command is called
+        searchEntrySuggestionsColumns = [
+                                    ["product_name", 2], 
+                                    ["stock_id", 0], 
+                                    ["supplier_name", 1], 
+                                    ["waste_id", 0]
+                                    ]
+
         #add table tabs to tabview
-        for _tab in self.dataViewTabs:
+        for i, _tab in enumerate(self.dataViewTabs):
             self.dataViewTabView.add(_tab)
-            self.seeTableData(_tab)
+            self.seeTableData(_tab, searchEntrySuggestionsColumns[i][0], searchEntrySuggestionsColumns[i][1]) #set the individual dataview UI for each respective table and its UI
         
     #function to display the data inside the current table
-    def seeTableData(self, tab__):
+    def seeTableData(self, tab__, searchEntrySuggestions, columnIndex):
         #search entry to search the tableValues list
-        self.searchEntry = customtkinter.CTkEntry(self.dataViewTabView.tab(tab__), placeholder_text="search...", width=400)
+        self.searchEntry = AutocompleteEntry(self.dataViewTabView.tab(tab__), placeholder_text="search...", width=400)
+
+        #sanitise columnData that was originally in tuple form and convert it into a string form
+        suggestions = self.DBHandler.getColumnData(searchEntrySuggestions, tab__)
+        for i, suggestion in enumerate(suggestions):
+            suggestions[i] = str(reduce(lambda x, y: str(x) + ' ' + str(y), suggestion))
+        
+        #set the suggestions for the auto compplete based on the sanitsed data
+        self.searchEntry.setSuggestions(suggestions)
         self.searchEntry.grid(row=0, column=0, padx=20, pady=30, sticky='nsew')
 
-        self.searchButton = customtkinter.CTkButton(self.dataViewTabView.tab(tab__), text="Search 🔍")
+        #this needs to contain the database in a 2d list
+        self.tableValues = [self.DBHandler.getColumnNames(tab__)]
+
+        self.searchButton = customtkinter.CTkButton(self.dataViewTabView.tab(tab__), text="Search 🔍", command=lambda:self.searchButtonAlgo(self.searchEntry.getEntryData(), columnIndex, self.tableValues))
         self.searchButton.grid(row=0, column=1, sticky='nsew', padx=20, pady=30)
 
         xy_frame = CTkXYFrame(self.dataViewTabView.tab(tab__), width=600, height=150)
         xy_frame.grid(row=2, column=0, sticky="nsew", columnspan=6)
-
-        #this needs to contain the database in a 2d list
-        self.tableValues = [self.DBHandler.getColumnNames(tab__)]
 
         for row in self.DBHandler.getData(tab__):
             listVersion = list(row)
@@ -515,6 +532,14 @@ class App(superWindow):
 
         self.displayTable = CTkTable(xy_frame, values=self.tableValues)
         self.displayTable.grid(row=0, column=0)
+
+    def searchButtonAlgo(self, itemToFind, column, dataSet):
+        print(len(self.searchEntry.get()))
+        # print(itemToFind, column)
+        # for i, row in enumerate(dataSet):
+        #     if row[int(column)] == itemToFind:
+        #         print("yipee")
+        #         self.displayTable.select(row=i, column=column)
 
     #=================================================================================================ADD-PRODUCT-UI-AND-FUNCTIONALITY=================================================================================================    
     def addProductUI(self, tab_='Add product'): 
