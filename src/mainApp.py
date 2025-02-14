@@ -108,8 +108,7 @@ class App(superWindow):
                     name = button.cget("text")
                     if name == page:
                         button.configure(state="disabled")
-                    
-
+                
         #<========================INITIALIZE-DATABASES========================>
         self.DBHandler = DBHandler() 
         self.supplierDB = supplierDBHandler()
@@ -407,7 +406,6 @@ class App(superWindow):
             
             #update the display
             self.updateStockCountList()
-            self.stockCountProducts = [] #reset stock count products to not retain data
             
             #clear entry fields after adding
             self.stockCountAutocompleteEntry.delete(0, customtkinter.END)
@@ -456,12 +454,14 @@ class App(superWindow):
                 widget.destroy()
 
     def confirmStockCount(self):
+        print("THIS IS A GREAT SUCCESS")
         if messagebox.askquestion(title='Confirm stockcount', message="Do you wish to confirm the stockcount?"):
             try:
                 #update stock levels and any other data here
                 for stockCountProduct in self.stockCountProducts:
                     #update stock level
                     productID = self.productDB.getProductID(stockCountProduct[0])
+                    print("testing the updatestock level func")
                     self.stockLevelDB.updateStockLevel(stockCountProduct[1], productID)
 
                 #clear widgets once the stockcount has been confirmed
@@ -474,6 +474,7 @@ class App(superWindow):
 
         else:
             pass
+            print("liygliyg")
 
     #===================================================================================================DATA-VIEW-AND-FUNCTIONALITY====================================================================================================
     def dataViewUI(self, tab_='Data view'): 
@@ -532,7 +533,7 @@ class App(superWindow):
         self.displayTable = CTkTable(xy_frame, values=self.tableValues)
         self.displayTable.grid(row=0, column=0)
 
-    def searchButtonAlgo(self, itemToFind, column, dataSet):
+    def searchButtonAlgo(self):#, itemToFind, column, dataSet):
         print(len(self.searchEntry.get()))
         # print(itemToFind, column)
         # for i, row in enumerate(dataSet):
