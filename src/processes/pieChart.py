@@ -62,38 +62,41 @@ class CTkPieChart(ctk.CTkLabel):
             sum_ += i["value"]
             
         for value in self.values.values():
-            old_angle = new_angle
-            new_angle = old_angle + (value['value']/sum_) * 360
+            try:
+                old_angle = new_angle
+                new_angle = old_angle + (value['value']/sum_) * 360
+                    
+                draw.arc((self.border_width, self.border_width, 990-self.border_width, 990-self.border_width), old_angle, new_angle, value['color'], width)
                 
-            draw.arc((self.border_width, self.border_width, 990-self.border_width, 990-self.border_width), old_angle, new_angle, value['color'], width)
-            
-            midpoint_angle = (old_angle + new_angle)/2
-            
-            xn = yn = (900 - self.border_width)/2
-            radians = (990 - self.border_width)/2
-            arc_pos = radians / 3
-            textpos = arc_pos/1.5
-            perc = int(round(value['value']/sum_ * 100))
-            
-            midpoint1_x = xn + (radians - textpos) * math.cos(math.radians(midpoint_angle))
-            midpoint1_y = yn + (radians - textpos) * math.sin(math.radians(midpoint_angle))
-            
-            draw.text((midpoint1_x, midpoint1_y), text=str(perc)+"%", fill=value['text_color'],
-                      font=ImageFont.load_default(size=70))
-            
-        x0 = width+self.border_width
-        x1 = 990-width-self.border_width
-        
-        if x0>x1:
-            x1=x0
+                midpoint_angle = (old_angle + new_angle)/2
+                
+                xn = yn = (900 - self.border_width)/2
+                radians = (990 - self.border_width)/2
+                arc_pos = radians / 3
+                textpos = arc_pos/1.5
+                perc = int(round(value['value']/sum_ * 100))
+                
+                midpoint1_x = xn + (radians - textpos) * math.cos(math.radians(midpoint_angle))
+                midpoint1_y = yn + (radians - textpos) * math.sin(math.radians(midpoint_angle))
+                
+                draw.text((midpoint1_x, midpoint1_y), text=str(perc)+"%", fill=value['text_color'],
+                        font=ImageFont.load_default(size=70))
+                
+                x0 = width+self.border_width
+                x1 = 990-width-self.border_width
+                
+                if x0>x1:
+                    x1=x0
 
-        draw.arc((x0,x0,x1,x1), 0, 360,
-                 self.widget._apply_appearance_mode(self.border_color), self.border_width)
-        self.arc = ctk.CTkImage(self.im.resize((self.size, self.size), Image.LANCZOS), size=(self.size, self.size))
+                draw.arc((x0,x0,x1,x1), 0, 360,
+                        self.widget._apply_appearance_mode(self.border_color), self.border_width)
+                self.arc = ctk.CTkImage(self.im.resize((self.size, self.size), Image.LANCZOS), size=(self.size, self.size))
 
-        super().configure(image=self.arc)
+                super().configure(image=self.arc)
 
-        
+            except: 
+                pass
+
     def add(self, tag, value, color=None, text_color=None, draw=True):
         
         if tag in self.values:

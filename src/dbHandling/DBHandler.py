@@ -23,7 +23,8 @@ class DBHandler:
     def __init__(self):
         try:
             self.connection = mysql.connector.connect(user=self.__username, password=self.__password, host=self.__host, database=self.__schema)#, auth_plugin='mysql_native_password') 
-            self.cursor = self.connection.cursor(prepared=True)   
+            self.cursor = self.connection.cursor(prepared=True)
+            print(self.isConnected()) 
 
         except mysql.connector.Error as err:
             if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
@@ -33,7 +34,14 @@ class DBHandler:
                 print("Database does not exist")
             else:
                 print(err)   
-    
+
+    #method to test connection to server
+    def isConnected(self):
+        if self.connection.is_connected():
+            return f"Database {self} initialised successfully"
+        
+        return False
+
     def getCount(self, tableName, displayType=True):
         try:
             self.cursor.execute(f"SELECT COUNT(*) FROM {tableName}")

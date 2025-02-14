@@ -122,7 +122,6 @@ class App(superWindow):
         for database in databases:
             try:
                 database.initializeDatabase()
-                print(f"Database {database} initialised successfully")
 
             except Exception as error:
                 print(error)
