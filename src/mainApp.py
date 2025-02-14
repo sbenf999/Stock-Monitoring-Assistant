@@ -454,14 +454,12 @@ class App(superWindow):
                 widget.destroy()
 
     def confirmStockCount(self):
-        print("THIS IS A GREAT SUCCESS")
         if messagebox.askquestion(title='Confirm stockcount', message="Do you wish to confirm the stockcount?"):
             try:
                 #update stock levels and any other data here
                 for stockCountProduct in self.stockCountProducts:
                     #update stock level
                     productID = self.productDB.getProductID(stockCountProduct[0])
-                    print("testing the updatestock level func")
                     self.stockLevelDB.updateStockLevel(stockCountProduct[1], productID)
 
                 #clear widgets once the stockcount has been confirmed
