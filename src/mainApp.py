@@ -482,6 +482,8 @@ class App(superWindow):
         self.dataViewTabView = customtkinter.CTkTabview(self.tabview.tab(tab_))
         self.dataViewTabView.grid(row=1, column=0, pady=(50,50), padx=(50, 50))
 
+        self.searchEntries = []
+
         #each search entry for each tab will produce suggestions based on the data in these respective columns. The index is the number of the column to be used when the the search button command is called
         searchEntrySuggestionsColumns = [
                                     ["product_name", 2], 
@@ -493,10 +495,10 @@ class App(superWindow):
         #add table tabs to tabview
         for i, _tab in enumerate(self.dataViewTabs):
             self.dataViewTabView.add(_tab)
-            self.seeTableData(_tab, searchEntrySuggestionsColumns[i][0], searchEntrySuggestionsColumns[i][1]) #set the individual dataview UI for each respective table and its UI
+            self.seeTableData(_tab, searchEntrySuggestionsColumns[i][0], searchEntrySuggestionsColumns[i][1], i) #set the individual dataview UI for each respective table and its UI
         
     #function to display the data inside the current table
-    def seeTableData(self, tab__, searchEntrySuggestions, columnIndex):
+    def seeTableData(self, tab__, searchEntrySuggestions, columnIndex, counter):
         #search entry to search the tableValues list
         self.searchEntry = AutocompleteEntry(self.dataViewTabView.tab(tab__), placeholder_text="search...", width=400)
 
@@ -509,10 +511,13 @@ class App(superWindow):
         self.searchEntry.setSuggestions(suggestions)
         self.searchEntry.grid(row=0, column=0, padx=20, pady=30, sticky='nsew')
 
+        #add search entry to search entries 2d list alongisde counter
+        self.searchEntries.append([self.searchEntry, counter])
+
         #this needs to contain the database in a 2d list
         self.tableValues = [self.DBHandler.getColumnNames(tab__)]
 
-        self.searchButton = customtkinter.CTkButton(self.dataViewTabView.tab(tab__), text="Search 🔍", command=lambda:self.searchButtonAlgo(self.searchEntry.getEntryData(), columnIndex, self.tableValues))
+        self.searchButton = customtkinter.CTkButton(self.dataViewTabView.tab(tab__), text="Search 🔍", command=lambda:self.searchButtonAlgo(counter))#self.searchEntry.getEntryData(), columnIndex, self.tableValues))
         self.searchButton.grid(row=0, column=1, sticky='nsew', padx=20, pady=30)
 
         xy_frame = CTkXYFrame(self.dataViewTabView.tab(tab__), width=600, height=150)
@@ -530,8 +535,8 @@ class App(superWindow):
         self.displayTable = CTkTable(xy_frame, values=self.tableValues)
         self.displayTable.grid(row=0, column=0)
 
-    def searchButtonAlgo(self):#, itemToFind, column, dataSet):
-        print(len(self.searchEntry.get()))
+    def searchButtonAlgo(self, position):#, itemToFind, column, dataSet):
+        print(self.searchEntries[position][0].get())
         # print(itemToFind, column)
         # for i, row in enumerate(dataSet):
         #     if row[int(column)] == itemToFind:
