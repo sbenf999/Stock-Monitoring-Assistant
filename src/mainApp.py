@@ -186,6 +186,7 @@ class App(superWindow):
             pieChart.add("Waste", self.productDB.getCount("waste", False), text_color="black", color="green")
             pieChart.add("Stocklevel", self.productDB.getCount("stocklevel", False), text_color="black", color="purple")
             pieChart.add("Users", self.productDB.getCount("users", False), text_color="black", color="yellow")
+            pieChart.add("StockLevelHistory", self.productDB.getCount("stocklevelhistory", False), text_color="black", color="indigo")
 
         except TypeError:
             pass
@@ -980,7 +981,7 @@ class App(superWindow):
 
 
 if __name__ == "__main__":
-    def runMainApp(number):
+    def runMainApp():
         #initalise the databases logon database
         initialiser = logonDBHandler()
         initialiser.initializeDatabase()
@@ -993,7 +994,7 @@ if __name__ == "__main__":
         runStockCheck = CheckStockCount()
         runStockCheck.runStockLevelCheckAgainstMinimum()
 
-    thread1 = threading.Thread(target=runMainApp, args=(random.randint(1, 100),))
+    thread1 = threading.Thread(target=runMainApp)
     thread2 = threading.Thread(target=checkStockCounts)
 
     thread1.start()

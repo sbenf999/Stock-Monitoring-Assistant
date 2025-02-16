@@ -10,11 +10,24 @@ class stockLevelHistoryDBHandler(DBHandler):
                     product_id INT,
                     stock_history_product_name VARCHAR(100) NOT NULL,
                     stock_count INT,
-                    date DATETIME NOT NULL,
+                    date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (stock_id) REFERENCES stocklevel(stock_id),
                     FOREIGN KEY (product_id) REFERENCES products(product_id)
                 )
             ''')
 
         except Exception as error:
+            return False, error
+        
+    def addStockLevelHistoryData(self, stockID, productID, stockHistoryProductName, stockCount, date_):
+        try:
+            params = (stockID, productID, stockHistoryProductName, stockCount, date_)
+
+            self.cursor.execute('''INSERT INTO stockLevelHistory (stock_id, product_id, stock_history_product_name, stock_count, date) VALUES (%s, %s, %s, %s, %s)''', params)
+            self.connection.commit()
+            return True
+
+        except Exception as error:
+            self.connection.rollback()
+            print(f"slhdb: {error}")
             return False, error
