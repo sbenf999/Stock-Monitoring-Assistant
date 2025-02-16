@@ -467,7 +467,7 @@ class CTkTable(customtkinter.CTkFrame):
 
     def select_row(self, row):
         """ select an entire row """
-        self.edit_row(row, fg_color=self.hover_color)
+        self.edit_row(row, fg_color="#3FAA48")
         if self.orient!="horizontal":
             if self.header_color:
                 self.edit_column(0, fg_color=self.header_color)

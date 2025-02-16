@@ -483,6 +483,8 @@ class App(superWindow):
         self.dataViewTabView.grid(row=1, column=0, pady=(50,50), padx=(50, 50))
 
         self.searchEntries = []
+        self.dataSets = []
+        self.displayTables = []
 
         #each search entry for each tab will produce suggestions based on the data in these respective columns. The index is the number of the column to be used when the the search button command is called
         searchEntrySuggestionsColumns = [
@@ -499,6 +501,7 @@ class App(superWindow):
         
     #function to display the data inside the current table
     def seeTableData(self, tab__, searchEntrySuggestions, columnIndex, counter):
+        self.counter = counter
         #search entry to search the tableValues list
         self.searchEntry = AutocompleteEntry(self.dataViewTabView.tab(tab__), placeholder_text="search...", width=400)
 
@@ -516,8 +519,9 @@ class App(superWindow):
 
         #this needs to contain the database in a 2d list
         self.tableValues = [self.DBHandler.getColumnNames(tab__)]
+        self.dataSets.append(self.tableValues)
 
-        self.searchButton = customtkinter.CTkButton(self.dataViewTabView.tab(tab__), text="Search 🔍", command=lambda:self.searchButtonAlgo(counter))#self.searchEntry.getEntryData(), columnIndex, self.tableValues))
+        self.searchButton = customtkinter.CTkButton(self.dataViewTabView.tab(tab__), text="Search 🔍", command=lambda:self.searchButtonAlgo(self.searchEntries[counter][0].get(), columnIndex, self.dataSets[counter], self.displayTables[counter]))
         self.searchButton.grid(row=0, column=1, sticky='nsew', padx=20, pady=30)
 
         xy_frame = CTkXYFrame(self.dataViewTabView.tab(tab__), width=600, height=150)
@@ -532,17 +536,15 @@ class App(superWindow):
 
             self.tableValues.append(listVersion)
 
-        self.displayTable = CTkTable(xy_frame, values=self.tableValues)
+        self.displayTable = CTkTable(xy_frame, values=self.tableValues, header_color="#1F538D")
         self.displayTable.grid(row=0, column=0)
+        self.displayTables.append(self.displayTable)
 
-    def searchButtonAlgo(self, position):#, itemToFind, column, dataSet):
-        print(self.searchEntries[position][0].get())
-        # print(itemToFind, column)
-        # for i, row in enumerate(dataSet):
-        #     if row[int(column)] == itemToFind:
-        #         print("yipee")
-        #         self.displayTable.select(row=i, column=column)
-
+    def searchButtonAlgo(self, itemToFind, column, dataSet, table):
+        for i, row in enumerate(dataSet):
+            if str(row[int(column)]) == itemToFind:
+                table.select_row(row=i)
+                
     #=================================================================================================ADD-PRODUCT-UI-AND-FUNCTIONALITY=================================================================================================    
     def addProductUI(self, tab_='Add product'): 
         #you need to create a product database and then select all products in order to be able to give values for the value list below
