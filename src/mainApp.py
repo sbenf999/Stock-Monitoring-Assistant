@@ -924,8 +924,8 @@ class App(superWindow):
             self.envVariableLabel.grid(row=2, column=0, padx=(20, 20), pady=20, sticky='nw')
             
             self.envVarLabels = {}
-            self.envVars = ["DB_USERNAME", "DB_PASSWORD", "DB_HOST", "DB_SCHEMA", "DEF_EMAIL_ADDR", "DEF_EMAIL_ADDR_PASS"]
-            rows = [3, 4, 5, 6, 7, 8]
+            self.envVars = ["DB_USERNAME", "DB_PASSWORD", "DB_HOST", "DB_SCHEMA", "DEF_EMAIL_ADDR", "DEF_EMAIL_ADDR_PASS", "DEF_ALERT_RECIPIENT_EMAIL"]
+            rows = [3, 4, 5, 6, 7, 8, 9]
 
             maxVarLen = max(len(var) for var in self.envVars)
             dots_ = 5 
