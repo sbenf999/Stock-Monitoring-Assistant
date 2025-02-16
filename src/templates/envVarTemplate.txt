@@ -4,3 +4,4 @@ DB_HOST=your_host
 DB_SCHEMA=your_database
 DEF_EMAIL_ADDR=your_sender_email_addr
 DEF_EMAIL_ADDR_PASS=your_sender_email_pass
+DEF_ALERT_RECIPIENT_EMAIL=your_default_email_addr_for_receiving_app_alerts

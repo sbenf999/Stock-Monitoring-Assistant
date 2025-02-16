@@ -17,6 +17,7 @@ class DBHandler:
     __password = os.getenv('DB_PASSWORD')
     __host = os.getenv('DB_HOST')
     __schema = os.getenv('DB_SCHEMA')
+    _defAlertEmail = os.getenv('DEF_ALERT_RECIPIENT_EMAIL')
     connection = ""
     cursor = ""
 

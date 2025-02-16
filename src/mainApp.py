@@ -5,6 +5,8 @@ from time import gmtime, strftime
 import json
 import dotenv
 from functools import reduce
+import threading
+import random
 
 #import processes
 from processes.changePassword import *
@@ -14,6 +16,7 @@ from processes.windowSuperClass import superWindow
 from processes.autoCompleteSearch import AutocompleteEntry
 from processes.scrollingWindow import *
 from processes.newUser import *
+from processes.stockLevelChecker import *
 
 #not programmed by me
 from processes.pieChart import *
@@ -974,9 +977,27 @@ class App(superWindow):
 
 
 if __name__ == "__main__":
-    initialiser = logonDBHandler()
-    initialiser.initializeDatabase()
-    #login = Logon()
-    #login.mainloop()
-    app = App(1)
-    app.mainloop()
+    def runMainApp(number):
+        #initalise the databases logon database
+        initialiser = logonDBHandler()
+        initialiser.initializeDatabase()
+
+        #Run the UI 
+        app = App(1)
+        app.mainloop()
+
+    def checkStockCounts():
+        runStockCheck = CheckStockCount()
+        runStockCheck.runStockLevelCheckAgainstMinimum()
+
+    thread1 = threading.Thread(target=runMainApp, args=(random.randint(1, 100),))
+    thread2 = threading.Thread(target=checkStockCounts)
+
+    thread1.start()
+    thread2.start()
+
+    thread1.join()
+    thread2.join()
+
+    
+
