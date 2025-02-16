@@ -29,6 +29,7 @@ from dbHandling.productDBHandler import *
 from dbHandling.supplierDBHandler import *
 from dbHandling.wasteDBHandler import *
 from dbHandling.stockLevelDBHandler import *
+from dbHandling.stockLevelHistoryDBHandler import *
 
 #main app class
 class App(superWindow):
@@ -118,8 +119,9 @@ class App(superWindow):
         self.productDB = productDBHandler()
         self.wasteDB = wasteDBHandler()  
         self.stockLevelDB = stockLevelDBHandler()
+        self.stockLevelHistoryDB = stockLevelHistoryDBHandler()
 
-        databases = [self.supplierDB, self.productDB, self.wasteDB, self.stockLevelDB]
+        databases = [self.supplierDB, self.productDB, self.wasteDB, self.stockLevelDB, self.stockLevelHistoryDB]
 
         for database in databases:
             try:
@@ -481,6 +483,7 @@ class App(superWindow):
         self.tab_ = tab_
         self.dataViewTabs = self.DBHandler.getTables()
         self.dataViewTabs.pop(self.dataViewTabs.index('users')) #remove the user table from data that can be displayed
+        self.dataViewTabs.pop(self.dataViewTabs.index('stocklevelhistory')) #remove the stockLevelHistory table from data that can be displayed
 
         self.dataViewTabView = customtkinter.CTkTabview(self.tabview.tab(tab_))
         self.dataViewTabView.grid(row=1, column=0, pady=(50,50), padx=(50, 50))
@@ -494,7 +497,7 @@ class App(superWindow):
                                     ["product_name", 2], 
                                     ["stock_id", 0], 
                                     ["supplier_name", 1], 
-                                    ["waste_id", 0]
+                                    ["waste_id", 0],
                                     ]
 
         #add table tabs to tabview
