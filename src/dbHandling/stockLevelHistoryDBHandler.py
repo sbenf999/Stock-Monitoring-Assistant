@@ -19,11 +19,11 @@ class stockLevelHistoryDBHandler(DBHandler):
         except Exception as error:
             return False, error
         
-    def addStockLevelHistoryData(self, stockID, productID, stockHistoryProductName, stockCount, date_):
+    def addStockLevelHistoryData(self, stockID, productID, stockHistoryProductName, stockCount):
         try:
-            params = (stockID, productID, stockHistoryProductName, stockCount, date_)
+            params = (stockID, productID, stockHistoryProductName, stockCount)
 
-            self.cursor.execute('''INSERT INTO stockLevelHistory (stock_id, product_id, stock_history_product_name, stock_count, date) VALUES (%s, %s, %s, %s, %s)''', params)
+            self.cursor.execute('''INSERT INTO stockLevelHistory (stock_id, product_id, stock_history_product_name, stock_count) VALUES (%s, %s, %s, %s)''', params)
             self.connection.commit()
             return True
 

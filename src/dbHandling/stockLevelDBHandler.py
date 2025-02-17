@@ -1,7 +1,12 @@
 from dbHandling.DBHandler import *
+from dbHandling.stockLevelHistoryDBHandler import *
+from dbHandling.productDBHandler import *
 import json
 
 class stockLevelDBHandler(DBHandler):
+    stockLevelHistoryDB = stockLevelHistoryDBHandler()
+    productDBHandler_ = productDBHandler()
+
     def initializeDatabase(self):
         try:
             self.cursor.execute('''
@@ -28,6 +33,10 @@ class stockLevelDBHandler(DBHandler):
 
             self.cursor.execute('''INSERT INTO stocklevel (product_id, minimum_stock_level, reOrder_level, stock_count, lastDelivery) VALUES (%s, %s, %s, %s, %s)''', params)
             self.connection.commit()
+
+            stockID = self.getStockID(productID)
+            self.stockLevelHistoryDB.addStockLevelHistoryData(stockID, productID, self.productDBHandler_.getProductName(productID), stockCount)
+
             return True
 
         except Exception as error:
@@ -45,12 +54,24 @@ class stockLevelDBHandler(DBHandler):
                 self.cursor.execute("INSERT INTO stockLevel (stock_count) VALUES (%s) WHERE product_id = %s", (addedStockCount, productID))
 
             else:
-                self.cursor.execute("UPDATE stockLevel SET stock_count = %s WHERE product_id = %s", (addedStockCount, productID))
+                self.cursor.execute("UPDATE stockLevel SET stock_count = stock_count + %s WHERE product_id = %s", (addedStockCount, productID))
             
             self.connection.commit()
 
+            stockID = self.getStockID(productID)
+            self.stockLevelHistoryDB.addStockLevelHistoryData(stockID, productID, self.productDBHandler_.getProductName(productID), stockLevelNum)
+
         except Exception as error:
-            print(f"error: {error}")
+            print(f"error in updateStockLevel: {error}")
+            return False
+        
+    def getStockID(self, productID):
+        try:
+            self.cursor.execute("SELECT stock_Id FROM stockLevel WHERE product_id = %s", (productID,))
+            return self.cursor.fetchone()[0]
+
+        except Exception as error:
+            print(f"error in getStockId: {error}")
             return False
 
     def updateLastDelivery(self, lastDelivery, productID):

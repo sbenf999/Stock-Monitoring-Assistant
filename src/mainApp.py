@@ -979,7 +979,6 @@ class App(superWindow):
             except ValueError:
                 continue
 
-
 if __name__ == "__main__":
     def runMainApp():
         #initalise the databases logon database

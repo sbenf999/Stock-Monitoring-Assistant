@@ -1,8 +1,19 @@
+#database imports
 from dbHandling.DBHandler import *
 from dbHandling.stockLevelDBHandler import *
 from dbHandling.productDBHandler import *
 
+#process imports
 from processes.sendEmail import *
+
+#graphing imports
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+from matplotlib.figure import Figure 
+import numpy as np
+import matplotlib.pyplot as plt
+
+#general imports
+import customtkinter
 
 class CheckStockCount(DBHandler):
     __defaultStockLevelTable = "stocklevel"
@@ -21,3 +32,22 @@ class CheckStockCount(DBHandler):
             
             emailAlert = appEmail()
             emailAlert.sendEmail(self._defAlertEmail, subject, content)
+
+    def plotGraph(self, productName):
+        xAxisVals = []
+        yAxisVals = []
+
+        self.graphFrame = customtkinter.CTkFrame(self)
+        self.graphFrame.pack(pady=20, padx=20, fill="both", expand=True)
+
+        fig, ax = plt.subplots(figsize=(5, 3))
+        ax.plot(xAxisVals, yAxisVals, marker="o", linestyle="-", color="#1F538D")
+        ax.set_title(f"{productName} stock level")
+        ax.set_xlabel("Date")
+        ax.set_ylabel("Stock level")
+
+        self.canvas = FigureCanvasTkAgg(fig, master=self.graphFrame)
+        self.canvas.get_tk_widget().pack(fill="both", expand=True)
+        self.canvas.draw()
+
+
