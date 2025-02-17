@@ -2,6 +2,7 @@
 from dbHandling.DBHandler import *
 from dbHandling.stockLevelDBHandler import *
 from dbHandling.productDBHandler import *
+from dbHandling.stockLevelHistoryDBHandler import *
 
 #process imports
 from processes.sendEmail import *
@@ -32,22 +33,3 @@ class CheckStockCount(DBHandler):
             
             emailAlert = appEmail()
             emailAlert.sendEmail(self._defAlertEmail, subject, content)
-
-    def plotGraph(self, productName):
-        xAxisVals = []
-        yAxisVals = []
-
-        self.graphFrame = customtkinter.CTkFrame(self)
-        self.graphFrame.pack(pady=20, padx=20, fill="both", expand=True)
-
-        fig, ax = plt.subplots(figsize=(5, 3))
-        ax.plot(xAxisVals, yAxisVals, marker="o", linestyle="-", color="#1F538D")
-        ax.set_title(f"{productName} stock level")
-        ax.set_xlabel("Date")
-        ax.set_ylabel("Stock level")
-
-        self.canvas = FigureCanvasTkAgg(fig, master=self.graphFrame)
-        self.canvas.get_tk_widget().pack(fill="both", expand=True)
-        self.canvas.draw()
-
-

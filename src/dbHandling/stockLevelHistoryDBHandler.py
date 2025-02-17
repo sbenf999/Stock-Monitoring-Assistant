@@ -21,11 +21,22 @@ class stockLevelHistoryDBHandler(DBHandler):
         
     def addStockLevelHistoryData(self, stockID, productID, stockHistoryProductName, stockCount):
         try:
-            params = (stockID, productID, stockHistoryProductName, stockCount)
+            params = (stockID, productID, stockHistoryProductName, stockCount[0])
 
             self.cursor.execute('''INSERT INTO stockLevelHistory (stock_id, product_id, stock_history_product_name, stock_count) VALUES (%s, %s, %s, %s)''', params)
             self.connection.commit()
             return True
+
+        except Exception as error:
+            self.connection.rollback()
+            print(f"slhdb: {error}")
+            return False, error
+        
+    def getGraphValues(self, productName):
+        try:
+            self.cursor.execute('''SELECT date, stock_count FROM stocklevelhistory WHERE stock_history_product_name = %s''', (productName,))
+            data = self.cursor.fetchall()
+            return data
 
         except Exception as error:
             self.connection.rollback()

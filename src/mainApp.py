@@ -528,11 +528,11 @@ class App(superWindow):
         self.tableValues = [self.DBHandler.getColumnNames(tab__)]
         self.dataSets.append(self.tableValues)
 
-        self.searchButton = customtkinter.CTkButton(self.dataViewTabView.tab(tab__), text="Search 🔍", command=lambda:self.searchButtonAlgo(self.searchEntries[counter][0].get(), columnIndex, self.dataSets[counter], self.displayTables[counter]))
+        self.searchButton = customtkinter.CTkButton(self.dataViewTabView.tab(tab__), text="Search 🔍", command=lambda:self.searchButtonAlgo(self.searchEntries[counter][0].get(), columnIndex, self.dataSets[counter], self.displayTables[counter], tab__))
         self.searchButton.grid(row=0, column=1, sticky='nsew', padx=20, pady=30)
 
-        xy_frame = CTkXYFrame(self.dataViewTabView.tab(tab__), width=600, height=150)
-        xy_frame.grid(row=2, column=0, sticky="nsew", columnspan=6)
+        self.xy_frame = CTkXYFrame(self.dataViewTabView.tab(tab__), width=600, height=150)
+        self.xy_frame.grid(row=2, column=0, sticky="nsew", columnspan=6)
 
         for row in self.DBHandler.getData(tab__):
             listVersion = list(row)
@@ -543,15 +543,42 @@ class App(superWindow):
 
             self.tableValues.append(listVersion)
 
-        self.displayTable = CTkTable(xy_frame, values=self.tableValues, header_color="#1F538D")
+        self.displayTable = CTkTable(self.xy_frame, values=self.tableValues, header_color="#1F538D")
         self.displayTable.grid(row=0, column=0)
         self.displayTables.append(self.displayTable)
 
-    def searchButtonAlgo(self, itemToFind, column, dataSet, table):
+    def searchButtonAlgo(self, itemToFind, column, dataSet, table, tab):
+        self.graphVisualiser = CheckStockCount()
         for i, row in enumerate(dataSet):
             if str(row[int(column)]) == itemToFind:
                 table.select_row(row=i)
                 
+                if tab == "products":
+                    #plot graph
+                    xAxisVals = []
+                    xAxisValsPrettified = []
+                    yAxisVals = []
+
+                    for row in self.stockLevelHistoryDB.getGraphValues(itemToFind):
+                        xAxisVals.append(row[0])
+                        xAxisValsPrettified.append(str(row[0])[:-9])
+                        yAxisVals.append(row[1])
+
+                    self.graphFrame = scrollableWin(self.dataViewTabView.tab(tab))
+                    self.graphFrame.grid(row=3, column=0, sticky="nsew")
+
+                    fig, ax = plt.subplots(figsize=(12, 7))
+                    ax.plot(xAxisVals, yAxisVals, marker="o", linestyle="-", color="#1F538D")
+                    ax.set_title(f"{itemToFind} stock level")
+                    ax.set_xticks(xAxisValsPrettified)
+                    ax.set_xticklabels(xAxisValsPrettified, rotation=45)
+                    ax.set_xlabel("Date")
+                    ax.set_ylabel("Stock level")
+
+                    self.canvas = FigureCanvasTkAgg(fig, master=self.graphFrame)
+                    self.canvas.get_tk_widget().pack(fill="both", expand=True)
+                    self.canvas.draw()
+
     #=================================================================================================ADD-PRODUCT-UI-AND-FUNCTIONALITY=================================================================================================    
     def addProductUI(self, tab_='Add product'): 
         #you need to create a product database and then select all products in order to be able to give values for the value list below
