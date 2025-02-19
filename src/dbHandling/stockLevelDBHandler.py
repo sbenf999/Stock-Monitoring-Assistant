@@ -78,7 +78,6 @@ class stockLevelDBHandler(DBHandler):
         try:
             self.cursor.execute("SELECT COUNT(*) FROM stockLevel")
             rowCount = self.cursor.fetchone()[0]
-            print(rowCount)
 
             if rowCount == 0:
                 self.cursor.execute("INSERT INTO stockLevel (lastDelivery) VALUES (%s) WHERE product_id = %s", (lastDelivery,productID))
