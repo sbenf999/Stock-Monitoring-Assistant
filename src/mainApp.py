@@ -484,7 +484,12 @@ class App(superWindow):
         self.tab_ = tab_
         self.dataViewTabs = self.DBHandler.getTables()
         self.dataViewTabs.pop(self.dataViewTabs.index('users')) #remove the user table from data that can be displayed
-        self.dataViewTabs.pop(self.dataViewTabs.index('stockLevelHistory')) #remove the stockLevelHistory table from data that can be displayed
+
+        try:
+            self.dataViewTabs.pop(self.dataViewTabs.index('stockLevelHistory')) #remove the stockLevelHistory table from data that can be displayed
+
+        except:
+            self.dataViewTabs.pop(self.dataViewTabs.index('stocklevelhistory')) #remove the stockLevelHistory table from data that can be displayed
 
         self.dataViewTabView = customtkinter.CTkTabview(self.tabview.tab(tab_))
         self.dataViewTabView.grid(row=1, column=0, pady=(50,50), padx=(50, 50))
@@ -554,35 +559,34 @@ class App(superWindow):
                 table.select_row(row=i)
                 
                 if tab == "products":
-                    #plot graph
-                    try:
-                        xAxisVals = []
-                        xAxisValsPrettified = []
-                        yAxisVals = []
+                    self.visualizeButton = customtkinter.CTkButton(self.dataViewTabView.tab(tab), text="Visualize graph", command=lambda:self.visualize(itemToFind, tab))
+                    self.visualizeButton.grid(row=3, column=0, pady=20, padx=(10,20), sticky="w")
 
-                        for row in self.stockLevelHistoryDB.getGraphValues(itemToFind):
-                            xAxisVals.append(row[0])
-                            xAxisValsPrettified.append(str(row[0])[:-9])
-                            yAxisVals.append(row[1])
+    def visualize(self, itemToFind, tab):
+        #plot graph
+        xAxisVals = []
+        xAxisValsPrettified = []
+        yAxisVals = []
 
-                        self.graphFrame = scrollableWin(self.dataViewTabView.tab(tab))
-                        self.graphFrame.grid(row=3, column=0, sticky="nsew")
+        for row in self.stockLevelHistoryDB.getGraphValues(itemToFind):
+            xAxisVals.append(row[0])
+            xAxisValsPrettified.append(str(row[0])[:-9])
+            yAxisVals.append(row[1])
 
-                        fig, ax = plt.subplots(figsize=(12, 7))
-                        ax.plot(xAxisVals, yAxisVals, marker="o", linestyle="-", color="#1F538D")
-                        ax.set_title(f"{itemToFind} stock level")
-                        ax.set_xticks(xAxisValsPrettified)
-                        ax.set_xticklabels(xAxisValsPrettified, rotation=45)
-                        ax.set_xlabel("Date")
-                        ax.set_ylabel("Stock level")
+        self.graphFrame = scrollableWin(self.dataViewTabView.tab(tab))
+        self.graphFrame.grid(row=3, column=0, sticky="nsew")
 
-                        self.canvas = FigureCanvasTkAgg(fig, master=self.graphFrame)
-                        self.canvas.get_tk_widget().pack(fill="both", expand=True)
-                        self.canvas.draw()
+        fig, ax = plt.subplots(figsize=(12, 7))
+        ax.plot(xAxisVals, yAxisVals, marker="o", linestyle="-", color="#1F538D")
+        ax.set_title(f"{itemToFind} stock level")
+        ax.set_xticks(xAxisValsPrettified)
+        ax.set_xticklabels(xAxisValsPrettified, rotation=45)
+        ax.set_xlabel("Date")
+        ax.set_ylabel("Stock level")
 
-                    except Exception as error:
-                        #probably an NSException
-                        pass
+        self.canvas = FigureCanvasTkAgg(fig, master=self.graphFrame)
+        self.canvas.get_tk_widget().pack(fill="both", expand=True)
+        self.canvas.draw()
 
     #=================================================================================================ADD-PRODUCT-UI-AND-FUNCTIONALITY=================================================================================================    
     def addProductUI(self, tab_='Add product'): 
