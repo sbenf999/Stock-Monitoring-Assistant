@@ -484,7 +484,7 @@ class App(superWindow):
         self.tab_ = tab_
         self.dataViewTabs = self.DBHandler.getTables()
         self.dataViewTabs.pop(self.dataViewTabs.index('users')) #remove the user table from data that can be displayed
-        self.dataViewTabs.pop(self.dataViewTabs.index('stocklevelhistory')) #remove the stockLevelHistory table from data that can be displayed
+        self.dataViewTabs.pop(self.dataViewTabs.index('stockLevelHistory')) #remove the stockLevelHistory table from data that can be displayed
 
         self.dataViewTabView = customtkinter.CTkTabview(self.tabview.tab(tab_))
         self.dataViewTabView.grid(row=1, column=0, pady=(50,50), padx=(50, 50))
@@ -555,29 +555,34 @@ class App(superWindow):
                 
                 if tab == "products":
                     #plot graph
-                    xAxisVals = []
-                    xAxisValsPrettified = []
-                    yAxisVals = []
+                    try:
+                        xAxisVals = []
+                        xAxisValsPrettified = []
+                        yAxisVals = []
 
-                    for row in self.stockLevelHistoryDB.getGraphValues(itemToFind):
-                        xAxisVals.append(row[0])
-                        xAxisValsPrettified.append(str(row[0])[:-9])
-                        yAxisVals.append(row[1])
+                        for row in self.stockLevelHistoryDB.getGraphValues(itemToFind):
+                            xAxisVals.append(row[0])
+                            xAxisValsPrettified.append(str(row[0])[:-9])
+                            yAxisVals.append(row[1])
 
-                    self.graphFrame = scrollableWin(self.dataViewTabView.tab(tab))
-                    self.graphFrame.grid(row=3, column=0, sticky="nsew")
+                        self.graphFrame = scrollableWin(self.dataViewTabView.tab(tab))
+                        self.graphFrame.grid(row=3, column=0, sticky="nsew")
 
-                    fig, ax = plt.subplots(figsize=(12, 7))
-                    ax.plot(xAxisVals, yAxisVals, marker="o", linestyle="-", color="#1F538D")
-                    ax.set_title(f"{itemToFind} stock level")
-                    ax.set_xticks(xAxisValsPrettified)
-                    ax.set_xticklabels(xAxisValsPrettified, rotation=45)
-                    ax.set_xlabel("Date")
-                    ax.set_ylabel("Stock level")
+                        fig, ax = plt.subplots(figsize=(12, 7))
+                        ax.plot(xAxisVals, yAxisVals, marker="o", linestyle="-", color="#1F538D")
+                        ax.set_title(f"{itemToFind} stock level")
+                        ax.set_xticks(xAxisValsPrettified)
+                        ax.set_xticklabels(xAxisValsPrettified, rotation=45)
+                        ax.set_xlabel("Date")
+                        ax.set_ylabel("Stock level")
 
-                    self.canvas = FigureCanvasTkAgg(fig, master=self.graphFrame)
-                    self.canvas.get_tk_widget().pack(fill="both", expand=True)
-                    self.canvas.draw()
+                        self.canvas = FigureCanvasTkAgg(fig, master=self.graphFrame)
+                        self.canvas.get_tk_widget().pack(fill="both", expand=True)
+                        self.canvas.draw()
+
+                    except Exception as error:
+                        #probably an NSException
+                        pass
 
     #=================================================================================================ADD-PRODUCT-UI-AND-FUNCTIONALITY=================================================================================================    
     def addProductUI(self, tab_='Add product'): 
@@ -1020,14 +1025,20 @@ if __name__ == "__main__":
         runStockCheck = CheckStockCount()
         runStockCheck.runStockLevelCheckAgainstMinimum()
 
-    thread1 = threading.Thread(target=runMainApp)
-    thread2 = threading.Thread(target=checkStockCounts)
+    mainAppThread = threading.Thread(target=runMainApp)
+    checkStockCountThread = threading.Thread(target=checkStockCounts)
 
-    thread1.start()
-    thread2.start()
+    #for running on mac, the UI needs to run on the main thread, otherwise there will be an exception
+    if threading.current_thread() is threading.main_thread():
+        runMainApp()
 
-    thread1.join()
-    thread2.join()
+    else:
+        threading.main_thread().run(runMainApp)
+
+    checkStockCountThread.start()
+    checkStockCountThread.join()
+
+    
 
     
 
