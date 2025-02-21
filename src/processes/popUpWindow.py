@@ -1,7 +1,9 @@
 import customtkinter
 import tkinter
 
-class popUpWindow(customtkinter.CTk):
+from processes.windowSuperClass import *
+
+class popUpWindow(superWindow):
     def __init__(self, message, windowName="Popup Message"):
         self.message = message
         self.windowName = windowName

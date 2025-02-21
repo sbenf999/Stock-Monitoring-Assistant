@@ -7,15 +7,6 @@ from dbHandling.stockLevelHistoryDBHandler import *
 #process imports
 from processes.sendEmail import *
 
-#graphing imports
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-from matplotlib.figure import Figure 
-import numpy as np
-import matplotlib.pyplot as plt
-
-#general imports
-import customtkinter
-
 class CheckStockCount(DBHandler):
     __defaultStockLevelTable = "stocklevel"
     

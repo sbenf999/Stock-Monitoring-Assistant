@@ -47,7 +47,6 @@ class supplierDBHandler(DBHandler):
         except Exception as error:
             self.connection.rollback()
             return False, error
-        
 
     #needs to be programmed
     def deleteSupplier(self):
