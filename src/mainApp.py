@@ -2,6 +2,7 @@
 import customtkinter
 from tkinter import messagebox
 from time import gmtime, strftime
+from datetime import timedelta
 import json
 import dotenv
 from functools import reduce
@@ -21,6 +22,7 @@ from processes.stockLevelChecker import *
 #not programmed by me
 from processes.pieChart import *
 from processes.doubleAxesScrollingFrame import *
+from processes.CTkDatePicker import *
 
 #import database handlers
 from dbHandling.logonDBHandler import *
@@ -138,6 +140,7 @@ class App(superWindow):
             [self.addProductUI, 2], 
             [self.addSupplierUI, 2], 
             [self.wasteUI, 2], 
+            [self.weeklyReportUI, 1],
             [self.settingsUI, 1]
             ]
         
@@ -951,6 +954,50 @@ class App(superWindow):
         # Remove waste product from the list
         del self.wasteProducts[index]
         self.updateWasteProductList()
+
+    #===============================================================================================WEEKLY-REPORT-UI-AND-FUNCTIONALITY===================================================================================================    
+    def weeklyReportUI(self, tab_='Weekly report'):
+        self.tab_ = tab_
+
+        self.selectDateRangeStartLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Select date range start:")
+        self.selectDateRangeStartLabel.grid(row=0, column=0, padx=(20, 20), pady=20, sticky='w')
+
+        self.startDatePicker = CTkDatePicker(self.tabview.tab(tab_))
+        self.startDatePicker.grid(row=0, column=1)
+
+        self.selectDateRangeEndLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Select date range end:")
+        self.selectDateRangeEndLabel.grid(row=1, column=0, padx=(20, 20), pady=20, sticky='w')
+
+        self.endDatePicker = CTkDatePicker(self.tabview.tab(tab_))
+        self.endDatePicker.grid(row=1, column=1)
+
+        seperator = customtkinter.CTkFrame(self.tabview.tab(tab_), height=2, fg_color="gray")
+        seperator.grid(row=4, column=0, columnspan=10, padx=20, pady=20, sticky='nsew')
+
+        self.sendEmailVar = customtkinter.StringVar(value=False)
+        self.sendEmailCheckbox = customtkinter.CTkCheckBox(self.tabview.tab(tab_), text="Send email breakdown",variable=self.sendEmailVar, onvalue=True, offvalue=False)
+        self.sendEmailCheckbox.grid(row=5, column=0, padx=(20, 20), pady=20, sticky='w')
+
+        self.produceTxtOutputVar = customtkinter.StringVar(value=False)
+        self.produceTxtOutput = customtkinter.CTkCheckBox(self.tabview.tab(tab_), text="Produce .txt output",variable=self.sendEmailVar, onvalue=True, offvalue=False)
+        self.produceTxtOutput.grid(row=5, column=1, padx=(20, 20), pady=20, sticky='w')
+
+        self.generateWeeklyReportButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="Generate weekly report")
+        self.generateWeeklyReportButton.grid(row=6, column=0, padx=(20, 20), pady=20, sticky='w')
+
+    def findDateRange(start,stop):        
+        dates = []
+        diff = (stop-start).days
+
+        for i in range(diff+1):
+            day = start + timedelta(days=i)
+            dates.append(day)
+
+        if dates:
+            return dates
+        
+        else:
+            print('Make sure the end date is later than start date')
 
     #=================================================================================================SETTINGS-UI-AND-FUNCTIONALITY=================================================================================================    
     def settingsUI(self, tab_='Settings'):
