@@ -6,6 +6,7 @@ import json
 import dotenv
 from functools import reduce
 import threading
+from CTkTable import *
 
 #import processes
 from processes.changePassword import *
@@ -19,7 +20,6 @@ from processes.stockLevelChecker import *
 
 #not programmed by me
 from processes.pieChart import *
-from processes.table import *
 from processes.doubleAxesScrollingFrame import *
 
 #import database handlers
@@ -52,45 +52,45 @@ class App(superWindow):
         self.grid_rowconfigure((0, 1, 2), weight=1)
 
         #create sidebar frame with widgets and create the logo text
-        self.sidebar_frame = customtkinter.CTkFrame(self, width=140, corner_radius=0)
-        self.sidebar_frame.grid(row=0, column=0, rowspan=4, sticky="nsew")
-        self.sidebar_frame.grid_rowconfigure(4, weight=1)
-        self.logo_label = customtkinter.CTkLabel(self.sidebar_frame, text="OSSMA", font=customtkinter.CTkFont(size=20, weight="bold"))
-        self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
+        self.sidebarFrame = customtkinter.CTkFrame(self, width=140, corner_radius=0)
+        self.sidebarFrame.grid(row=0, column=0, rowspan=4, sticky="nsew")
+        self.sidebarFrame.grid_rowconfigure(4, weight=1)
+        self.logoLabel = customtkinter.CTkLabel(self.sidebarFrame, text="OSSMA", font=customtkinter.CTkFont(size=20, weight="bold"))
+        self.logoLabel.grid(row=0, column=0, padx=20, pady=(20, 10))
 
         #create a section of buttons for stock taking tools
-        self.label1 = customtkinter.CTkLabel(self.sidebar_frame, text="Stock taking tools:", font=customtkinter.CTkFont(size=12))
+        self.label1 = customtkinter.CTkLabel(self.sidebarFrame, text="Stock taking tools:", font=customtkinter.CTkFont(size=12))
         self.label1.grid(row=1, column=0, padx=20)
-        self.sidebar_button_1 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Record a delivery"), text="Record a delivery")
-        self.sidebar_button_1.grid(row=2, column=0, padx=20, pady=10)
-        self.sidebar_button_2 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Stock counting"), text="Stock counting")
-        self.sidebar_button_2.grid(row=3, column=0, padx=20, pady=10)
+        self.sideBarButton1 = customtkinter.CTkButton(self.sidebarFrame, command=lambda: self.goToTab("Record a delivery"), text="Record a delivery")
+        self.sideBarButton1.grid(row=2, column=0, padx=20, pady=10)
+        self.sideBarButton2 = customtkinter.CTkButton(self.sidebarFrame, command=lambda: self.goToTab("Stock counting"), text="Stock counting")
+        self.sideBarButton2.grid(row=3, column=0, padx=20, pady=10)
 
         #exit button
-        self.sidebarExitButton = customtkinter.CTkButton(self.sidebar_frame, command=self.onClosing, text="Exit")
+        self.sidebarExitButton = customtkinter.CTkButton(self.sidebarFrame, command=self.onClosing, text="Exit")
         self.sidebarExitButton.grid(row=4, column=0, padx=20, pady=10)
         
         #create a section of buttons for database tools, such as adding a product or supplier
-        self.label2 = customtkinter.CTkLabel(self.sidebar_frame, text="Database tools:", font=customtkinter.CTkFont(size=12))
+        self.label2 = customtkinter.CTkLabel(self.sidebarFrame, text="Database tools:", font=customtkinter.CTkFont(size=12))
         self.label2.grid(row=5, column=0, padx=20)
-        self.sidebar_button_3 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Data view"), text="Data view")
-        self.sidebar_button_3.grid(row=6, column=0, padx=20, pady=10)
-        self.sidebar_button_4 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Add product"), text="Add product")
-        self.sidebar_button_4.grid(row=7, column=0, padx=20, pady=10)
-        self.sidebar_button_5 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Add supplier"), text="Add supplier")
-        self.sidebar_button_5.grid(row=8, column=0, padx=20, pady=10)
-        self.sidebar_button_6 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Waste"), text="Waste")
-        self.sidebar_button_6.grid(row=9, column=0, padx=20, pady=10)
+        self.sideBarButton3 = customtkinter.CTkButton(self.sidebarFrame, command=lambda: self.goToTab("Data view"), text="Data view")
+        self.sideBarButton3.grid(row=6, column=0, padx=20, pady=10)
+        self.sideBarButton4 = customtkinter.CTkButton(self.sidebarFrame, command=lambda: self.goToTab("Add product"), text="Add product")
+        self.sideBarButton4.grid(row=7, column=0, padx=20, pady=10)
+        self.sideBarButton5 = customtkinter.CTkButton(self.sidebarFrame, command=lambda: self.goToTab("Add supplier"), text="Add supplier")
+        self.sideBarButton5.grid(row=8, column=0, padx=20, pady=10)
+        self.sideBarButton6 = customtkinter.CTkButton(self.sidebarFrame, command=lambda: self.goToTab("Waste"), text="Waste")
+        self.sideBarButton6.grid(row=9, column=0, padx=20, pady=10)
 
         #create a section of buttons for tools that present data in graph format etc
-        seperator2 = customtkinter.CTkFrame(self.sidebar_frame, height=1, width=100,fg_color="gray")
+        seperator2 = customtkinter.CTkFrame(self.sidebarFrame, height=1, width=100,fg_color="gray")
         seperator2.grid(row=10, column=0, padx=20, pady=10)
-        self.label3 = customtkinter.CTkLabel(self.sidebar_frame, text="Data tools:", font=customtkinter.CTkFont(size=12))
+        self.label3 = customtkinter.CTkLabel(self.sidebarFrame, text="Data tools:", font=customtkinter.CTkFont(size=12))
         self.label3.grid(row=11, column=0, padx=20)
-        self.sidebar_button_7 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Weekly report"), text="Weekly report")
-        self.sidebar_button_7.grid(row=12, column=0, padx=20, pady=10)
-        self.sidebar_button_8 = customtkinter.CTkButton(self.sidebar_frame, command=lambda: self.goToTab("Settings"), text="Settings")
-        self.sidebar_button_8.grid(row=13, column=0, padx=20, pady=(10,20))
+        self.sideBarButton7 = customtkinter.CTkButton(self.sidebarFrame, command=lambda: self.goToTab("Weekly report"), text="Weekly report")
+        self.sideBarButton7.grid(row=12, column=0, padx=20, pady=10)
+        self.sideBarButton8 = customtkinter.CTkButton(self.sidebarFrame, command=lambda: self.goToTab("Settings"), text="Settings")
+        self.sideBarButton8.grid(row=13, column=0, padx=20, pady=(10,20))
 
         #========================BUTTON-STATES=======================>
         #tabview in which all UI will take place to do with functions of the application - the sidebar on the side simply allows for easier switching of the tabs
@@ -152,7 +152,7 @@ class App(superWindow):
     def setButtonStates(self):
         #get user access level from login program in order to disable some functions
         self.tabsDefault = ["Home", "Record a delivery", "Stock counting", "Data view", "Add product", "Add supplier", "Waste", "Weekly report", "Settings"]
-        self.buttonsDefault = [self.sidebar_button_1, self.sidebar_button_2, self.sidebar_button_3, self.sidebar_button_4, self.sidebar_button_5, self.sidebar_button_6, self.sidebar_button_7, self.sidebar_button_8]
+        self.buttonsDefault = [self.sideBarButton1, self.sideBarButton2, self.sideBarButton3, self.sideBarButton4, self.sideBarButton5, self.sideBarButton6, self.sideBarButton7, self.sideBarButton8]
         self.tabs = self.tabsDefault
         self.allowances: dict = {
                 1: self.tabsDefault,
@@ -558,14 +558,14 @@ class App(superWindow):
                 table.select_row(row=i)
                 
                 if tab == "products":
-                    self.visualizeButton = customtkinter.CTkButton(self.dataViewTabView.tab(tab), text="Visualize graph", command=lambda:self.visualize(itemToFind, tab))
+                    self.visualizeButton = customtkinter.CTkButton(self.dataViewTabView.tab(tab), text="Visualize graph", command=lambda:self.visualize(itemToFind))
                     self.visualizeButton.grid(row=3, column=0, pady=20, padx=(10,20), sticky="w")
 
             else:
                 table.deselect_row(row=i)
 
 
-    def visualize(self, itemToFind, tab):
+    def visualize(self, itemToFind):
         xAxisVals = []
         xAxisValsPrettified = []
         yAxisVals = []

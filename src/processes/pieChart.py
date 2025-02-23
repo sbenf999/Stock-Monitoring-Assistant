@@ -1,15 +1,16 @@
+"""
+A customtkinter widget for pie chart display.
+Author: Akascape
+Version: 0.1
+Link: https://github.com/Akascape/CTkXYFrame
+"""
+
 from PIL import Image, ImageDraw, ImageFont
 import customtkinter as ctk
 import random
 import math
 
 class CTkPieChart(ctk.CTkLabel):
-    """
-    A customtkinter widget for pie chart display.
-    Author: Akascape
-    Version: 0.1
-    """
-    
     def __init__(self,
                  master,
                  command=None,
