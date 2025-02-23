@@ -4,6 +4,12 @@ from dbHandling.stockLevelDBHandler import *
 from dbHandling.productDBHandler import *
 from dbHandling.stockLevelHistoryDBHandler import *
 
+#graphing imports
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+from matplotlib.figure import Figure 
+import numpy as np
+import matplotlib.pyplot as plt
+
 #process imports
 from processes.sendEmail import *
 

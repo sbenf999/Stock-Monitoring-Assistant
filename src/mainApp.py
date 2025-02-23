@@ -561,8 +561,11 @@ class App(superWindow):
                     self.visualizeButton = customtkinter.CTkButton(self.dataViewTabView.tab(tab), text="Visualize graph", command=lambda:self.visualize(itemToFind, tab))
                     self.visualizeButton.grid(row=3, column=0, pady=20, padx=(10,20), sticky="w")
 
+            else:
+                table.deselect_row(row=i)
+
+
     def visualize(self, itemToFind, tab):
-        #plot graph
         xAxisVals = []
         xAxisValsPrettified = []
         yAxisVals = []
@@ -572,20 +575,27 @@ class App(superWindow):
             xAxisValsPrettified.append(str(row[0])[:-9])
             yAxisVals.append(row[1])
 
-        self.graphFrame = scrollableWin(self.dataViewTabView.tab(tab))
-        self.graphFrame.grid(row=3, column=0, sticky="nsew")
+        x = xAxisVals
+        y = yAxisVals
 
-        fig, ax = plt.subplots(figsize=(12, 7))
-        ax.plot(xAxisVals, yAxisVals, marker="o", linestyle="-", color="#1F538D")
-        ax.set_title(f"{itemToFind} stock level")
-        ax.set_xticks(xAxisValsPrettified)
-        ax.set_xticklabels(xAxisValsPrettified, rotation=45)
-        ax.set_xlabel("Date")
-        ax.set_ylabel("Stock level")
+        #create a line chart
+        plt.figure(figsize=(8, 6))
+        plt.plot(x, y, marker='o', linestyle='-')
 
-        self.canvas = FigureCanvasTkAgg(fig, master=self.graphFrame)
-        self.canvas.get_tk_widget().pack(fill="both", expand=True)
-        self.canvas.draw()
+        #add annotations
+        for i, (xi, yi) in enumerate(zip(x, y)):
+            plt.annotate(f'({yi})', (xi, yi), textcoords="offset points", xytext=(0, 10), ha='center')
+
+        #add title and labels
+        plt.title(f"{itemToFind} stock level")
+        plt.xlabel("Date")
+        plt.ylabel("Stock level")
+
+        #display grid
+        plt.grid(True)
+
+        #show the plot
+        plt.show()
 
     #=================================================================================================ADD-PRODUCT-UI-AND-FUNCTIONALITY=================================================================================================    
     def addProductUI(self, tab_='Add product'): 
