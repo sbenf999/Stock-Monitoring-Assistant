@@ -96,6 +96,9 @@ class DBHandler:
     def getData(self, tableName):
         self.cursor.execute(f"SELECT * FROM {tableName}")
         return self.cursor.fetchall()
+    
+    def generalUpdateRecord(self, tableName, columnName, oldVar, newVar):
+        self.cursor.execute(f"INSERT INTO {tableName} ({columnName}) VALUES (%s) WHERE {columnName} == {oldVar}", (newVar,))
 
     def close(self):
         self.connection.close()

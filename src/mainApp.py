@@ -519,6 +519,7 @@ class App(superWindow):
         
     #function to display the data inside the current table
     def seeTableData(self, tab__, searchEntrySuggestions, columnIndex, counter):
+        self.tabbbb = tab__
         self.counter = counter
         #search entry to search the tableValues list
         self.searchEntry = AutocompleteEntry(self.dataViewTabView.tab(tab__), placeholder_text="search...", width=400)
@@ -555,23 +556,34 @@ class App(superWindow):
             self.tableValues.append(listVersion)
 
         #display the table of values
-        self.displayTable = CTkTable(self.xy_frame, values=self.tableValues, header_color="#1F538D", command=self.changeField)
+        self.displayTable = CTkTable(self.xy_frame, values=self.tableValues, header_color="#1F538D", command=self.getCellData)
         self.displayTable.grid(row=0, column=0)
         self.displayTables.append(self.displayTable)
 
-    def changeField(self, data):
-        row = data['row']
-        column = data['column']
-        value = data['value']
+    def getCellData(self, data):
+        #get the cell data from the button in the form of a dictionary, convert to list for needed values
+        cellData = [data['row'], data['column'], data['value']]
 
-        vals = [row, column, value]
-        #you need to program here an algorithm to allow the user to change the value of the field, and then update it in the database        
+        #ensure nothing happens if a user clicks on a table column name
+        if (cellData[0] != 0):
+            self.changeFieldData(cellData)
 
+    def changeFieldData(self, valuesList):
+        #create the entry to change a val
+        self.cellEntry = customtkinter.CTkEntry(self.dataViewTabView.tab(self.dataViewTabView.get()), width=400)
+        self.cellEntry.grid(row=4, column=0, padx=(10, 20), columnspan=3, sticky="w")
 
+        #config the pre-existing val into the entry placeholder text
+        self.cellEntry.configure(placeholder_text=f"Change chosen value {valuesList[2]}...")
+
+        #button to confirm the change, command will be tied to an sql statement that updates the value in the correct table
+        self.cellEntryButton = customtkinter.CTkButton(self.dataViewTabView.tab(self.dataViewTabView.get()), text="Confirm change")
+        self.cellEntryButton.grid(row=4, column=1, pady=20, padx=(20, 0), sticky="w")
+        
     def searchButtonAlgo(self, itemToFind, column, dataSet, table, tab):
         self.graphVisualiser = CheckStockCount()
         for i, row in enumerate(dataSet):
-            if str(row[int(column)]) == itemToFind:
+            if str(row[int(column)]) == str(itemToFind):
                 table.select_row(row=i)
                 
                 if tab == "products":
@@ -1084,6 +1096,17 @@ class App(superWindow):
             
             except ValueError:
                 continue
+
+    #===================================================================================================STATIC-METHODS================================================================================================================
+    #func to check if there are any widgets present in a row
+    def isRowEmpty(parent, rowNumber):
+        for widget in parent.winfo_children():
+            info = widget.grid_info() 
+
+            if 'row' in info and info['row'] == rowNumber:
+                return False  
+        
+        return True
 
 if __name__ == "__main__":
     def runMainApp():
