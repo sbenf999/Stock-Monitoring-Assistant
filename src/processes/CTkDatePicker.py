@@ -23,7 +23,7 @@ class CTkDatePicker(ctk.CTkFrame):
         
         super().__init__(master, **kwargs)
 
-        self.date_entry = ctk.CTkEntry(self)
+        self.date_entry = ctk.CTkEntry(self, placeholder_text="xx/xx/xx...")
         self.date_entry.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
         
         self.calendar_button = ctk.CTkButton(self, text="▼", width=20, command=self.open_calendar)

@@ -226,9 +226,12 @@ class App(superWindow):
         #delivery date shoud create an ovveride feature if user doesnt want t   o use current system date
         self.enterDeliveryDateLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Delivery date:", anchor='w')
         self.enterDeliveryDateLabel.grid(row=1, column=0, padx=(20, 20), pady=20, sticky='w')
-        self.deliveryDate = strftime("%d/%m/%y", gmtime())
-        self.enterDeliveryDateLabelAbs = customtkinter.CTkLabel(self.tabview.tab(tab_), text=self.deliveryDate)
-        self.enterDeliveryDateLabelAbs.grid(row=1, column=1, padx=(20, 20), pady=20, sticky='w')
+        self.deliveryDate = CTkDatePicker(self.tabview.tab(tab_))
+        self.deliveryDate.grid(row=1, column=1, padx=(15, 20), pady=10, sticky='w')
+        month = str(datetime.now().month)
+        if len(month) == 1:
+            month = f"0{datetime.now().month}"
+        self.deliveryDate.date_entry.insert(0, f"{month}/{datetime.now().day}/{datetime.now().year}")
 
         #delivery time shoud create an ovveride feature if user doesnt want to use current system time
         self.enterDeliveryTimeLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Delivery time:")
@@ -293,6 +296,7 @@ class App(superWindow):
             #clear entry fields after adding
             self.autocompleteEntry.delete(0, customtkinter.END)
             self.quantityEntry.delete(0, customtkinter.END)
+            self.deliveryDate.date_entry.delete(0, customtkinter.END)
         else:
             messagebox.showwarning("Input Error", "Please enter a valid product name and quantity")
 
@@ -346,7 +350,7 @@ class App(superWindow):
                     productID = self.productDB.getProductID(product[0])
                     self.stockLevelDB.updateStockLevel(product[1], productID, True)
                     #update last delivery date for product
-                    self.stockLevelDB.updateLastDelivery(f'["{self.deliveryDate}"]', productID) #check json stuff
+                    self.stockLevelDB.updateLastDelivery(f'["{self.deliveryDate.get_date()}"]', productID) #check json stuff
 
                 #clear widgets once the delivery has been confirmed
                 self.uiWidgetClearer()
@@ -709,11 +713,12 @@ class App(superWindow):
         self.supplierDescriptionEntry.grid(row=2, column=1, padx=(20, 20), pady=20, sticky='w', columnspan=5)
 
         #you need supplier dates here, consider storing this as a list in a JSON format
-
         self.supplierDates = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Supplier date: ")
         self.supplierDates.grid(row=3, column=0, padx=(20, 20), pady=10, sticky='w')
-        self.supplierDatesEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="xx/xx/xx")
-        self.supplierDatesEntry.grid(row=3, column=1, padx=(20, 20), pady=10, sticky='w')
+        self.supplierDatesEntry = CTkDatePicker(self.tabview.tab(tab_))
+        self.supplierDatesEntry.grid(row=3, column=1, padx=(15, 20), pady=10, sticky='w')
+
+
         self.addSupplierDate = customtkinter.CTkButton(self.tabview.tab(tab_), text="Add supplier delivery date", command=self.addSupplierDeliveryDate)
         self.addSupplierDate.grid(row=3, column=2, padx=20, pady=10)
 
@@ -767,13 +772,13 @@ class App(superWindow):
             messagebox.showerror("Error", f"An error occurred! Please try again. If this issue persits, please contact the maintainer. Error {error}")
 
     def addSupplierDeliveryDate(self):
-        deliveryDate = self.supplierDatesEntry.get()
+        deliveryDate = self.supplierDatesEntry.get_date()
         
         #check supplier date are not empty
         if deliveryDate:
             self.supplierDates.append(deliveryDate)
             self.updateSupplierDeliveryDateList()
-            self.supplierDatesEntry.delete(0, customtkinter.END)
+            self.supplierDatesEntry.date_entry.delete(0, customtkinter.END)
         
         else:
             messagebox.showwarning("Input Error", "Please enter a valid delivery date")
@@ -970,19 +975,19 @@ class App(superWindow):
         self.endDatePicker = CTkDatePicker(self.tabview.tab(tab_))
         self.endDatePicker.grid(row=1, column=1)
 
-        seperator = customtkinter.CTkFrame(self.tabview.tab(tab_), height=2, fg_color="gray")
-        seperator.grid(row=4, column=0, columnspan=10, padx=20, pady=20, sticky='nsew')
+        seperator = customtkinter.CTkFrame(self.tabview.tab(tab_), height=2, fg_color="gray", width=660)
+        seperator.grid(row=2, column=0, columnspan=10, padx=20, pady=20)
 
         self.sendEmailVar = customtkinter.StringVar(value=False)
         self.sendEmailCheckbox = customtkinter.CTkCheckBox(self.tabview.tab(tab_), text="Send email breakdown",variable=self.sendEmailVar, onvalue=True, offvalue=False)
-        self.sendEmailCheckbox.grid(row=5, column=0, padx=(20, 20), pady=20, sticky='w')
+        self.sendEmailCheckbox.grid(row=3, column=0, padx=(20, 20), pady=20, sticky='w')
 
         self.produceTxtOutputVar = customtkinter.StringVar(value=False)
         self.produceTxtOutput = customtkinter.CTkCheckBox(self.tabview.tab(tab_), text="Produce .txt output",variable=self.sendEmailVar, onvalue=True, offvalue=False)
-        self.produceTxtOutput.grid(row=5, column=1, padx=(20, 20), pady=20, sticky='w')
+        self.produceTxtOutput.grid(row=3, column=1, padx=(20, 20), pady=20, sticky='w')
 
         self.generateWeeklyReportButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="Generate weekly report")
-        self.generateWeeklyReportButton.grid(row=6, column=0, padx=(20, 20), pady=20, sticky='w')
+        self.generateWeeklyReportButton.grid(row=4, column=0, padx=(20, 20), pady=20, sticky='w')
 
     def findDateRange(start,stop):        
         dates = []
