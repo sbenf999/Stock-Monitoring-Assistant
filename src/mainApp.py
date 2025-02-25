@@ -554,9 +554,19 @@ class App(superWindow):
 
             self.tableValues.append(listVersion)
 
-        self.displayTable = CTkTable(self.xy_frame, values=self.tableValues, header_color="#1F538D")
+        #display the table of values
+        self.displayTable = CTkTable(self.xy_frame, values=self.tableValues, header_color="#1F538D", command=self.changeField)
         self.displayTable.grid(row=0, column=0)
         self.displayTables.append(self.displayTable)
+
+    def changeField(self, data):
+        row = data['row']
+        column = data['column']
+        value = data['value']
+
+        vals = [row, column, value]
+        #you need to program here an algorithm to allow the user to change the value of the field, and then update it in the database        
+
 
     def searchButtonAlgo(self, itemToFind, column, dataSet, table, tab):
         self.graphVisualiser = CheckStockCount()
