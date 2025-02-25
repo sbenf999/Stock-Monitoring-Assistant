@@ -344,7 +344,7 @@ class App(superWindow):
                 for product in self.products:
                     #update stock level
                     productID = self.productDB.getProductID(product[0])
-                    self.stockLevelDB.updateStockLevel(product[1], productID)
+                    self.stockLevelDB.updateStockLevel(product[1], productID, True)
                     #update last delivery date for product
                     self.stockLevelDB.updateLastDelivery(f'["{self.deliveryDate}"]', productID) #check json stuff
 
@@ -566,7 +566,6 @@ class App(superWindow):
 
             else:
                 table.deselect_row(row=i)
-
 
     def visualize(self, itemToFind):
         xAxisVals = []

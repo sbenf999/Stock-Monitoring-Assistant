@@ -44,22 +44,23 @@ class stockLevelDBHandler(DBHandler):
             print(f"sldb: {error}")
             return False, error
         
-    def updateStockLevel(self, addedStockCount, productID):
+    def updateStockLevel(self, addedStockCount, productID, isDelivery=False):
         try:
             self.cursor.execute("SELECT stock_count FROM stockLevel WHERE product_id = %s", (productID,))
             stockLevelNum = self.cursor.fetchone()
             print(stockLevelNum, addedStockCount)
 
-            if stockLevelNum[0] == 0:
-                self.cursor.execute("INSERT INTO stockLevel (stock_count) VALUES (%s) WHERE product_id = %s", (addedStockCount, productID))
-
-            else:
+            if isDelivery: #if the update stock level is for a delivery, we are simply adding more not overwriting the previous stock level (as a delivery = more stock)
                 self.cursor.execute("UPDATE stockLevel SET stock_count = stock_count + %s WHERE product_id = %s", (addedStockCount, productID))
             
+            else:
+                self.cursor.execute("UPDATE stockLevel SET stock_count = %s WHERE product_id = %s", (addedStockCount, productID))
+
             self.connection.commit()
 
+            #update stock level history table with change in stockLevel
             stockID = self.getStockID(productID)
-            self.stockLevelHistoryDB.addStockLevelHistoryData(stockID, productID, self.productDBHandler_.getProductName(productID), stockLevelNum)
+            self.stockLevelHistoryDB.addStockLevelHistoryData(stockID, productID, self.productDBHandler_.getProductName(productID), stockLevelNum[0])
 
         except Exception as error:
             print(f"error in updateStockLevel: {error}")
