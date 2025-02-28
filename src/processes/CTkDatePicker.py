@@ -31,7 +31,7 @@ class CTkDatePicker(ctk.CTkFrame):
 
         self.popup = None
         self.selected_date = None
-        self.date_format = "%m/%d/%Y"
+        self.date_format = "%d/%m/%Y"
         self.allow_manual_input = True  
         
     def set_date_format(self, date_format):
