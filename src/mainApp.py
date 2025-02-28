@@ -1037,14 +1037,16 @@ class App(superWindow):
         if messagebox.askquestion(title='Confirm generate weekly report', message="Do you wish to generate this weekly report?"):
             #WEEKLY REPORT GENERATION==============================================================================================
             dateRangeList = self.findDateRange(startDate, endDate)
-            print(dateRangeList)
-            singleProductDataRecord = []
+            productNames = self.productDB.getProductNames()
+            productData2dList = []
 
             for date_ in dateRangeList:
-                #do the database call here
-                pass
+                for productName in productNames:
+                    productID = self.productDB.getProductID(productName)
+                    #do some funky inner join to get stock level and last stock level update date that fits the current date_index
 
-            
+
+
 
             #OPTIONAL STUFFS=======================================================================================================
             #user might want the report emailed, so do this here
