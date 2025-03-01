@@ -1041,9 +1041,26 @@ class App(superWindow):
             productData2dList = []
 
             for date_ in dateRangeList:
+                prevProductData = None
                 for productName in productNames:
                     productID = self.productDB.getProductID(productName)
-                    #do some funky inner join to get stock level and last stock level update date that fits the current date_index
+                    self.DBHandler.cursor.execute("SELECT stock_count, stock_history_product_name FROM stocklevelhistory WHERE DATE(date) = STR_TO_DATE(%s, '%d/%m/%Y')", (date_,))
+                    stockCount = self.DBHandler.cursor.fetchall()
+                    print(stockCount)
+
+                    for stock in stockCount:
+                        if stock[1] == productName:
+                            if prevProductData and prevProductData[0] == productName:
+                                productData2dList[prevProductData[1]][2] += stock[0]
+
+                            else:
+                                productData2dList.append([productID, productName, stock[0]])
+
+                            prevProductData = [productName, len(productData2dList)-1, stock[0]]
+
+            print(productData2dList)
+
+                    
 
 
 
