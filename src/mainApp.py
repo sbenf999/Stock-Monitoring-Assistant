@@ -8,7 +8,7 @@ import dotenv
 from functools import reduce
 import threading
 from CTkTable import *
-import os 
+from os import *
 import sys 
 
 #import processes
@@ -1158,7 +1158,7 @@ class App(superWindow):
 
 
             #OPTIONAL STUFFS=======================================================================================================
-            #user might want the report emailed, so do this here
+            #user might want the report emailed, so do this here (however this is selected by default)
             if self.sendEmailCheckbox.get():
                 #send email containing report here
                 pass
@@ -1170,6 +1170,30 @@ class App(superWindow):
                     os.makedirs(reportPath)
 
                 #create .txt file here
+                newWeeklyReportFilePath = reportPath + f"\weekly_report_{date.today().strftime('%d-%m-%Y')}.txt"
+                print(f"Generated file path: {newWeeklyReportFilePath}")
+
+                if not os.path.isfile(newWeeklyReportFilePath):
+                    with open(newWeeklyReportFilePath, 'w') as file_:
+                        for i, productReport in enumerate(weeklyReportData):
+                            if i != 0:
+                                file_.write(f"<=====================================NEXT-PRODUCT========================================>\n")
+
+                            file_.write(f"PRODUCT-NAME: {productReport[0]}\n")
+                            
+                            file_.write(f"_______________________________________________________________________\n")
+                            file_.write(f"PRODUCT-STOCK-COUNTS:\n")
+                            file_.write(f"_______________________________________________________________________\n")
+                            
+                            for j, date in enumerate(productReport[1]):
+                                file_.write(f"{date}: {productReport[2][j]}\n")
+
+                            file_.write(f"_______________________________________________________________________\n")
+                            file_.write(f"LINEAR-REGRESSION-ANALYSIS: {productReport[2]}\n")
+                            file_.write(f"_______________________________________________________________________\n")
+                            file_.write(f"PREDICTED-STOCK-COUNT-FOR-NEXT-WEEK: \n-> {productReport[3]}\n")
+                            file_.write(f"_______________________________________________________________________\n")
+                            file_.write(f"<=========================================================================================>\n\n\n\n")
 
 
             else:
