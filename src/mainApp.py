@@ -1021,8 +1021,11 @@ class App(superWindow):
         seperator2.grid(row=4, column=0, columnspan=10, padx=20, pady=20)
 
     def findDateRange(self, startDate, endDate):
-        if type(startDate) == str: startDate = datetime.strptime(startDate, "%d/%m/%Y")
-        if type(endDate) == str: endDate = datetime.strptime(endDate, "%d/%m/%Y")
+        if type(startDate) == str: 
+            startDate = datetime.strptime(startDate, "%d/%m/%Y")
+
+        if type(endDate) == str: 
+            endDate = datetime.strptime(endDate, "%d/%m/%Y")
 
         dateRangeList = []
         currentDate = startDate
@@ -1038,31 +1041,120 @@ class App(superWindow):
             #WEEKLY REPORT GENERATION==============================================================================================
             dateRangeList = self.findDateRange(startDate, endDate)
             productNames = self.productDB.getProductNames()
-            productData2dList = []
+            productDataMap = {}  #dict to store product data 
 
-            for date_ in dateRangeList:
-                prevProductData = None
+            #fetch stock history data 
+            self.DBHandler.cursor.execute("SELECT stock_count, stock_history_product_name, DATE_FORMAT(date, '%d/%m/%Y') FROM stocklevelhistory")
+            allStockData = self.DBHandler.cursor.fetchall()  
+
+            #put stock history into the dict
+            stockHistoryDict = {}
+            for stockCount, productName, dateStr in allStockData:
+                key = (productName, dateStr)
+                if key not in stockHistoryDict:
+                    stockHistoryDict[key] = []
+                stockHistoryDict[key].append(stockCount)  
+
+            #process data into productData2dList
+            for dateStr in dateRangeList:
                 for productName in productNames:
-                    productID = self.productDB.getProductID(productName)
-                    self.DBHandler.cursor.execute("SELECT stock_count, stock_history_product_name FROM stocklevelhistory WHERE DATE(date) = STR_TO_DATE(%s, '%d/%m/%Y')", (date_,))
-                    stockCount = self.DBHandler.cursor.fetchall()
-                    print(stockCount)
+                    key = (productName, dateStr)
+                    if key in stockHistoryDict:
+                        stockCounts = stockHistoryDict[key]
+                        
+                        if productName not in productDataMap:
+                            productDataMap[productName] = [productName, [], []]
+                        
+                        productDataMap[productName][1].extend(stockCounts)  
+                        productDataMap[productName][2].extend([dateStr] * len(stockCounts))
 
-                    for stock in stockCount:
-                        if stock[1] == productName:
-                            if prevProductData and prevProductData[0] == productName:
-                                productData2dList[prevProductData[1]][2] += stock[0]
+            #conv dict vals into list
+            productData2dList = list(productDataMap.values())
 
-                            else:
-                                productData2dList.append([productID, productName, stock[0]])
+            weeklyReportData = []
+            for currentIndex, valueList in enumerate(productData2dList):
+                #add the productName to the current products data analysis
+                weeklyReportData.append([valueList[0]])
 
-                            prevProductData = [productName, len(productData2dList)-1, stock[0]]
+                #create a dates and stockCounts list so that data can be analysed
+                dates = []
+                stockCounts = []
+                for i in range(len(valueList[1])):
+                    dateObj = datetime.strptime(valueList[2][i], "%d/%m/%Y")
+                    dates.append(dateObj)
+                    stockCounts.append(valueList[1][i])
 
-            print(productData2dList)
-
+                #append date and subsequent stock count info to the weekly report for this product
+                newDates = []
+                for date in dates:
+                    newDates.append(datetime.strftime(date, "%d/%m/%Y")) #reformat the dates
                     
+                weeklyReportData[currentIndex].append(newDates)
+                weeklyReportData[currentIndex].append(stockCounts)
 
+                #convert dates to ints
+                startDate_ = dates[0]
+                days = []
 
+                for date in dates:
+                    days.append((date - startDate_).days)
+                    
+                #calculate the trend in stock count (is it positive, negative, or stable?)
+                sumX = 0
+                sumY = 0
+                sumXY = 0
+                sumX2 = 0
+
+                for i in range(len(days)):
+                    sumX += days[i]
+                    sumY += stockCounts[i]
+                    sumXY += days[i] * stockCounts[i]
+                    sumX2 += days[i] ** 2
+
+                #calc the gradient
+                numerator = (len(days) * sumXY) - (sumX * sumY)
+                denominator = (len(days) * sumX2) - (sumX ** 2)
+
+                if denominator != 0:
+                    gradient = numerator / denominator
+                else:
+                    gradient = 0  
+
+                if gradient > 0:
+                    conclusion = "Increasing stock levels"
+                    
+                elif gradient < 0:
+                    conclusion = "Decreasing stock levels"
+
+                else:
+                    conclusion = "No significant change"
+                
+                #add the type of trend in the stock level of the current product
+                weeklyReportData[currentIndex].append(conclusion)
+
+                #calculate the y intercept
+                if len(days) > 0:
+                    intercept = (sumY - gradient * sumX) / len(days)
+                else:
+                    intercept = 0  
+
+                #predict stock levels for the next 7 days
+                futureDays = []
+                futureStock = []
+
+                lastDay = days[-1] #last recorded day
+
+                for i in range(1, 7): 
+                    next_day = lastDay + i
+                    futureDays.append(next_day)
+                    futureStock.append(gradient * next_day + intercept)
+
+                #add the predicted stock level for the next week to the data analysis for the current product
+                weeklyReportData[currentIndex].append(futureStock)
+
+            for ls in weeklyReportData:
+                print(ls)
+                print()
 
 
             #OPTIONAL STUFFS=======================================================================================================
