@@ -72,9 +72,6 @@ class productDBHandler(DBHandler):
     def deleteProduct(self):
         pass
 
-    def updateProductStockCount(self):
-        pass
-
     def updateProductValue(self, dbColumnVal, productID):
         self.cursor.execute("UPDATE products SET %s WHERE product_id = %s", (dbColumnVal, productID))
         self.connection.commit()

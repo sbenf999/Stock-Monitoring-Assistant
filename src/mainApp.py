@@ -8,8 +8,10 @@ import dotenv
 from functools import reduce
 import threading
 from CTkTable import *
-from os import *
+import os
+from os import path
 import sys 
+import shutil
 
 #import processes
 from processes.changePassword import *
@@ -17,7 +19,6 @@ from processes.loginProcess import *
 from processes.popUpWindow import *
 from processes.windowSuperClass import superWindow
 from processes.autoCompleteSearch import AutocompleteEntry
-from processes.scrollingWindow import *
 from processes.newUser import *
 from processes.stockLevelChecker import *
 
@@ -265,7 +266,7 @@ class App(superWindow):
         #scrollable frame for added products
         self.products = []
 
-        self.productFrame = scrollableWin(master=self.tabview.tab(tab_), width=300, height=200, corner_radius=0, fg_color="transparent")
+        self.productFrame = customtkinter.CTkScrollableFrame(master=self.tabview.tab(tab_), width=300, height=200, corner_radius=0, fg_color="transparent")
         self.productFrame.grid(row=6, column=0, sticky="nsew", columnspan=6)
         self.productNumLabel = customtkinter.CTkLabel(self.productFrame, text="Item num", fg_color="transparent")
         self.productNumLabel.grid(row=0, column=0, padx=(20), pady=20, sticky='w')
@@ -392,7 +393,7 @@ class App(superWindow):
         #scrollable frame for added products
         self.stockCountProducts = []
 
-        self.stockCountProductFrame = scrollableWin(master=self.tabview.tab(tab_), width=300, height=200, corner_radius=0, fg_color="transparent")
+        self.stockCountProductFrame = customtkinter.CTkScrollableFrame(master=self.tabview.tab(tab_), width=300, height=200, corner_radius=0, fg_color="transparent")
         self.stockCountProductFrame.grid(row=3, column=0, sticky="nsew", columnspan=6)
         self.stockCountProductNumLabel = customtkinter.CTkLabel(self.stockCountProductFrame, text="Item num", fg_color="transparent")
         self.stockCountProductNumLabel.grid(row=0, column=0, padx=(20), pady=20, sticky='w')
@@ -754,7 +755,7 @@ class App(superWindow):
         #scrollable frame for added supplier dates
         self.supplierDates = []
 
-        self.supplierDateFrame = scrollableWin(master=self.tabview.tab(tab_), width=300, height=200, corner_radius=0, fg_color="transparent")
+        self.supplierDateFrame = customtkinter.CTkScrollableFrame(master=self.tabview.tab(tab_), width=300, height=200, corner_radius=0, fg_color="transparent")
         self.supplierDateFrame.grid(row=5, column=0, sticky="nsew", columnspan=6)
         self.supplierDateNumLabel = customtkinter.CTkLabel(self.supplierDateFrame, text="Date num", fg_color="transparent")
         self.supplierDateNumLabel.grid(row=0, column=0, padx=(20), pady=20, sticky='w')
@@ -873,7 +874,7 @@ class App(superWindow):
         #scrollable frame for added products
         self.wasteProducts = []
 
-        self.wasteProductFrame = scrollableWin(master=self.tabview.tab(tab_), width=300, height=200, corner_radius=0, fg_color="transparent")
+        self.wasteProductFrame = customtkinter.CTkScrollableFrame(master=self.tabview.tab(tab_), width=300, height=200, corner_radius=0, fg_color="transparent")
         self.wasteProductFrame.grid(row=4, column=0, sticky="nsew", columnspan=6)
         self.wasteProductNumLabel = customtkinter.CTkLabel(self.wasteProductFrame, text="Item num", fg_color="transparent")
         self.wasteProductNumLabel.grid(row=0, column=0, padx=(20), pady=20, sticky='w')
@@ -1165,7 +1166,7 @@ class App(superWindow):
 
             #local weekly reports are stored in a weekly reports folder, if it doesnt exist then make it
             if self.produceTxtOutputVar.get():
-                reportPath = f"{self._appLocation}\weeklyReports"
+                reportPath = f"weeklyReports"
                 if not os.path.exists(reportPath):
                     os.makedirs(reportPath)
 
@@ -1189,12 +1190,13 @@ class App(superWindow):
                                 file_.write(f"{date}: {productReport[2][j]}\n")
 
                             file_.write(f"_______________________________________________________________________\n")
-                            file_.write(f"LINEAR-REGRESSION-ANALYSIS: {productReport[2]}\n")
+                            file_.write(f"LINEAR-REGRESSION-ANALYSIS: {productReport[3]}\n")
                             file_.write(f"_______________________________________________________________________\n")
-                            file_.write(f"PREDICTED-STOCK-COUNT-FOR-NEXT-WEEK: \n-> {productReport[3]}\n")
+                            file_.write(f"PREDICTED-STOCK-COUNT-FOR-NEXT-WEEK: \n-> {productReport[4]}\n")
                             file_.write(f"_______________________________________________________________________\n")
                             file_.write(f"<=========================================================================================>\n\n\n\n")
 
+                shutil.move("path/to/current/file.foo", "path/to/new/destination/for/file.foo")
 
             else:
                 messagebox.showwarning("Input Error", "Please enter a valid date range. One or more dates may be missing.")
