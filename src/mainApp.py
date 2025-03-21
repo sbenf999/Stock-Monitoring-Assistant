@@ -1164,8 +1164,8 @@ class App(superWindow):
                 weeklyReportData[currentIndex].append(futureStock)
 
                 #calculate profit margins for the current week for this product
-                self.DBHandler.cursor.execute("SELECT stock_count, stock_history_product_name, DATE_FORMAT(date, '%d/%m/%Y') FROM stocklevelhistory")
-                allStockData = self.DBHandler.cursor.fetchall()  
+                self.DBHandler.cursor.execute("SELECT product_buy_price, product_sell_price FROM products")
+                allProductPriceData = self.DBHandler.cursor.fetchall()  
 
             for ls in weeklyReportData:
                 print(ls)
