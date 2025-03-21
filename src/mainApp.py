@@ -649,14 +649,19 @@ class App(superWindow):
 
         #create entry widgets and their respective labels for data input
         self.productNameLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Product name: ")
-        self.productNameLabel.grid(row=1, column=0, padx=(20, 20), pady=20, sticky='w')
+        self.productNameLabel.grid(row=0, column=2, padx=(20, 20), pady=20, sticky='w')
         self.productNameEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="product name...")
-        self.productNameEntry.grid(row=1, column=1, padx=(20, 20), pady=20, sticky='w')
+        self.productNameEntry.grid(row=0, column=3, padx=(20, 20), pady=20, sticky='w')
 
-        self.productPriceEntryLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Product price: ")
-        self.productPriceEntryLabel.grid(row=1, column=2, padx=(20, 20), pady=20, sticky='w')
-        self.productPriceEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="price...")
-        self.productPriceEntry.grid(row=1, column=3, padx=(20, 20), pady=20, sticky='w')
+        self.productBuyPriceEntryLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Product buy price: ")
+        self.productBuyPriceEntryLabel.grid(row=1, column=0, padx=(20, 20), pady=20, sticky='w')
+        self.productBuyPriceEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="buy price...")
+        self.productBuyPriceEntry.grid(row=1, column=1, padx=(20, 20), pady=20, sticky='w')
+
+        self.productSellPriceEntryLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Product sell price: ")
+        self.productSellPriceEntryLabel.grid(row=1, column=2, padx=(20, 20), pady=20, sticky='w')
+        self.productSellPriceEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="sell price...")
+        self.productSellPriceEntry.grid(row=1, column=3, padx=(20, 20), pady=20, sticky='w')
 
         self.productPSLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Product pack size: ")
         self.productPSLabel.grid(row=2, column=0, padx=(20, 20), pady=20, sticky='w')
@@ -692,12 +697,12 @@ class App(superWindow):
             if messagebox.askquestion(title='Confirm add product', message="Do you wish to confirm this new product?"):
                 #create the new product - supplier_id needs to be found first#
                 supplierID = self.supplierDB.getSupplierID(self.chooseSupplier2.get())
-                self.productDB.createProduct(supplierID[0], self.productNameEntry.get(), self.productDescriptionEntry.get(), self.productPSEntry.get(), self.productWeightEntry.get(), self.productPriceEntry.get())
+                self.productDB.createProduct(supplierID[0], self.productNameEntry.get(), self.productDescriptionEntry.get(), self.productPSEntry.get(), self.productWeightEntry.get(), self.productBuyPriceEntry.get(), self.productSellPriceEntry,)
                 stockLevelProductID = self.productDB.getProductID(self.productNameEntry.get())
                 self.stockLevelDB.addStockLevelData(stockLevelProductID, self.minimumStockLevelEntry.get(), self.reorderStockLevelEntry.get())
                 self.autocompleteEntry.setSuggestions(self.productDB.getProductNames())
 
-                for widget in [self.productNameEntry, self.productPriceEntry, self.productPSEntry, self.productWeightEntry, self.minimumStockLevelEntry, self.reorderStockLevelEntry, self.productDescriptionEntry]:
+                for widget in [self.productNameEntry, self.productBuyPriceEntry, self.productSellPriceEntry, self.productPSEntry, self.productWeightEntry, self.minimumStockLevelEntry, self.reorderStockLevelEntry, self.productDescriptionEntry]:
                     try:
                         widget.delete(0, customtkinter.END)
                         widget._activate_placeholder()
@@ -1052,14 +1057,17 @@ class App(superWindow):
             stockHistoryDict = {}
             for stockCount, productName, dateStr in allStockData:
                 key = (productName, dateStr)
+
                 if key not in stockHistoryDict:
                     stockHistoryDict[key] = []
+
                 stockHistoryDict[key].append(stockCount)  
 
             #process data into productData2dList
             for dateStr in dateRangeList:
                 for productName in productNames:
                     key = (productName, dateStr)
+
                     if key in stockHistoryDict:
                         stockCounts = stockHistoryDict[key]
                         
@@ -1118,6 +1126,7 @@ class App(superWindow):
 
                 if denominator != 0:
                     gradient = numerator / denominator
+
                 else:
                     gradient = 0  
 
@@ -1136,6 +1145,7 @@ class App(superWindow):
                 #calculate the y intercept
                 if len(days) > 0:
                     intercept = (sumY - gradient * sumX) / len(days)
+
                 else:
                     intercept = 0  
 
@@ -1153,17 +1163,16 @@ class App(superWindow):
                 #add the predicted stock level for the next week to the data analysis for the current product
                 weeklyReportData[currentIndex].append(futureStock)
 
+                #calculate profit margins for the current week for this product
+                self.DBHandler.cursor.execute("SELECT stock_count, stock_history_product_name, DATE_FORMAT(date, '%d/%m/%Y') FROM stocklevelhistory")
+                allStockData = self.DBHandler.cursor.fetchall()  
+
             for ls in weeklyReportData:
                 print(ls)
                 print()
 
-
             #OPTIONAL STUFFS=======================================================================================================
-            #user might want the report emailed, so do this here (however this is selected by default)
-            if self.sendEmailCheckbox.get():
-                #send email containing report here
-                pass
-
+            totalInfo = """"""
             #local weekly reports are stored in a weekly reports folder, if it doesnt exist then make it
             if self.produceTxtOutputVar.get():
                 reportPath = f"weeklyReports"
@@ -1177,28 +1186,43 @@ class App(superWindow):
                 if not os.path.isfile(newWeeklyReportFilePath):
                     with open(newWeeklyReportFilePath, 'w') as file_:
                         for i, productReport in enumerate(weeklyReportData):
+                            multiLineInfo = f""""""
                             if i != 0:
-                                file_.write(f"<=====================================NEXT-PRODUCT========================================>\n")
+                                multiLineInfo += "<=====================================NEXT-PRODUCT========================================>\n"
 
-                            file_.write(f"PRODUCT-NAME: {productReport[0]}\n")
+                            multiLineInfo += f"PRODUCT-NAME: {productReport[0]}\n"
                             
-                            file_.write(f"_______________________________________________________________________\n")
-                            file_.write(f"PRODUCT-STOCK-COUNTS:\n")
-                            file_.write(f"_______________________________________________________________________\n")
+                            multiLineInfo += f"_______________________________________________________________________\n"
+                            multiLineInfo +=f"PRODUCT-STOCK-COUNTS:\n"
+                            multiLineInfo += f"_______________________________________________________________________\n"
                             
                             for j, date in enumerate(productReport[1]):
-                                file_.write(f"{date}: {productReport[2][j]}\n")
+                                multiLineInfo += f"{date}: {productReport[2][j]}\n"
 
-                            file_.write(f"_______________________________________________________________________\n")
-                            file_.write(f"LINEAR-REGRESSION-ANALYSIS: {productReport[3]}\n")
-                            file_.write(f"_______________________________________________________________________\n")
-                            file_.write(f"PREDICTED-STOCK-COUNT-FOR-NEXT-WEEK: \n-> {productReport[4]}\n")
-                            file_.write(f"_______________________________________________________________________\n")
-                            file_.write(f"<=========================================================================================>\n\n\n\n")
+                            multiLineInfo += f"_______________________________________________________________________\n"
+                            multiLineInfo += f"LINEAR-REGRESSION-ANALYSIS: {productReport[3]}\n"
+                            multiLineInfo += f"_______________________________________________________________________\n"
+                            multiLineInfo += f"PREDICTED-STOCK-COUNT-FOR-NEXT-WEEK: \n-> {productReport[4]}\n"
+                            multiLineInfo += f"_______________________________________________________________________\n"
+                            multiLineInfo += f"<=========================================================================================>\n\n\n\n"
 
-                shutil.move("path/to/current/file.foo", "path/to/new/destination/for/file.foo")
+                            file_.write(multiLineInfo)
+                            totalInfo += multiLineInfo
 
-            else:
+                    #move weekly report file to weekly reports
+                    shutil.move(newWeeklyReportFilePath, f"weeklyReports/{newWeeklyReportFilePath}")
+
+                    #user might want the report emailed, so do this here (however this is selected by default)
+                    if self.sendEmailCheckbox.get():
+                        #send email containing report here
+                        emailAlert = appEmail()
+                        emailAlert.sendEmail(self._defAlertEmail, f"Weekly report - {date.today().strftime('%d-%m-%Y')}", totalInfo)
+
+                else:
+                    message = popUpWindow("Weekly report already exists")
+                    message.create()
+
+            else: 
                 messagebox.showwarning("Input Error", "Please enter a valid date range. One or more dates may be missing.")
 
 

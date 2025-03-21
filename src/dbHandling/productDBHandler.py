@@ -12,7 +12,8 @@ class productDBHandler(DBHandler):
                     product_pack_size INT NOT NULL,
                     product_weight INT NOT NULL,
                     product_barcode VARCHAR(50) NOT NULL,
-                    product_price DECIMAL(10,2) NOT NULL,
+                    product_buy_price DECIMAL(10,2) NOT NULL,
+                    product_sell_price DECIMAL (10,2) NOT NULL,
                     FOREIGN KEY (supplier_id) REFERENCES suppliers(supplier_ID)
                 )
             ''')
@@ -20,9 +21,9 @@ class productDBHandler(DBHandler):
         except Exception as error:
             return False, error
         
-    def createProduct(self, supplier_id, product_name, product_description, product_pack_size, product_weight, product_price, product_barcode=000000000):
+    def createProduct(self, supplier_id, product_name, product_description, product_pack_size, product_weight, product_buy_price, product_sell_price, product_barcode=000000000):
         try:
-            self.cursor.execute('''INSERT INTO products (supplier_id, product_name, product_description, product_pack_size, product_weight, product_barcode, product_price) VALUES (%s, %s, %s, %s, %s, %s, %s)''', (supplier_id, product_name, product_description, product_pack_size, product_weight, product_barcode, product_price))
+            self.cursor.execute('''INSERT INTO products (supplier_id, product_name, product_description, product_pack_size, product_weight, product_barcode, product_buy_price, product_sell_price) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)''', (supplier_id, product_name, product_description, product_pack_size, product_weight, product_barcode, product_buy_price, product_sell_price))
             self.connection.commit()
             return True
         
