@@ -12,6 +12,7 @@ import os
 from os import path
 import sys 
 import shutil
+from datetime import *
 
 #import processes
 from processes.changePassword import *
@@ -41,6 +42,7 @@ class App(superWindow):
     WIDTH = 1100
     HEIGHT = 675
     _appLocation = os.path.dirname(os.path.abspath(sys.argv[0]))
+    _defAlertEmail = os.getenv('DEF_ALERT_RECIPIENT_EMAIL')
 
     def __init__(self, userAccessLevel, userName="user"):
         super().__init__()
@@ -697,7 +699,7 @@ class App(superWindow):
             if messagebox.askquestion(title='Confirm add product', message="Do you wish to confirm this new product?"):
                 #create the new product - supplier_id needs to be found first#
                 supplierID = self.supplierDB.getSupplierID(self.chooseSupplier2.get())
-                self.productDB.createProduct(supplierID[0], self.productNameEntry.get(), self.productDescriptionEntry.get(), self.productPSEntry.get(), self.productWeightEntry.get(), self.productBuyPriceEntry.get(), self.productSellPriceEntry,)
+                self.productDB.createProduct(supplierID[0], self.productNameEntry.get(), self.productDescriptionEntry.get(), self.productPSEntry.get(), self.productWeightEntry.get(), self.productBuyPriceEntry.get(), self.productSellPriceEntry.get())
                 stockLevelProductID = self.productDB.getProductID(self.productNameEntry.get())
                 self.stockLevelDB.addStockLevelData(stockLevelProductID, self.minimumStockLevelEntry.get(), self.reorderStockLevelEntry.get())
                 self.autocompleteEntry.setSuggestions(self.productDB.getProductNames())
@@ -1095,8 +1097,8 @@ class App(superWindow):
 
                 #append date and subsequent stock count info to the weekly report for this product
                 newDates = []
-                for date in dates:
-                    newDates.append(datetime.strftime(date, "%d/%m/%Y")) #reformat the dates
+                for _date in dates:
+                    newDates.append(datetime.strftime(_date, "%d/%m/%Y")) #reformat the dates
                     
                 weeklyReportData[currentIndex].append(newDates)
                 weeklyReportData[currentIndex].append(stockCounts)
@@ -1105,8 +1107,8 @@ class App(superWindow):
                 startDate_ = dates[0]
                 days = []
 
-                for date in dates:
-                    days.append((date - startDate_).days)
+                for _date in dates:
+                    days.append((_date - startDate_).days)
                     
                 #calculate the trend in stock count (is it positive, negative, or stable?)
                 sumX = 0
@@ -1168,63 +1170,63 @@ class App(superWindow):
                 allProductPriceData = self.DBHandler.cursor.fetchall()  
 
             for ls in weeklyReportData:
-                print(ls)
+                print(f"asdjklasdjkl {ls}")
                 print()
 
+
             #OPTIONAL STUFFS=======================================================================================================
-            totalInfo = """"""
-            #local weekly reports are stored in a weekly reports folder, if it doesnt exist then make it
-            if self.produceTxtOutputVar.get():
-                reportPath = f"weeklyReports"
-                if not os.path.exists(reportPath):
-                    os.makedirs(reportPath)
+            #if either of the send email or produce .txt file checkboxes are selected, then generate the multiline string output and go from there
+            if self.produceTxtOutputVar.get() or self.sendEmailCheckbox.get():
+                totalInfo = """"""
+                for i, productReport in enumerate(weeklyReportData):
+                    multiLineInfo = f""""""
+                    if i != 0:
+                        multiLineInfo += "<=====================================NEXT-PRODUCT========================================>\n"
 
-                #create .txt file here
-                newWeeklyReportFilePath = reportPath + f"\weekly_report_{date.today().strftime('%d-%m-%Y')}.txt"
-                print(f"Generated file path: {newWeeklyReportFilePath}")
+                    multiLineInfo += f"PRODUCT-NAME: {productReport[0]}\n"
+                    
+                    multiLineInfo += f"_______________________________________________________________________\n"
+                    multiLineInfo +=f"PRODUCT-STOCK-COUNTS:\n"
+                    multiLineInfo += f"_______________________________________________________________________\n"
+                    
+                    for j, date_ in enumerate(productReport[1]):
+                        multiLineInfo += f"{date_}: {productReport[2][j]}\n"
 
-                if not os.path.isfile(newWeeklyReportFilePath):
-                    with open(newWeeklyReportFilePath, 'w') as file_:
-                        for i, productReport in enumerate(weeklyReportData):
-                            multiLineInfo = f""""""
-                            if i != 0:
-                                multiLineInfo += "<=====================================NEXT-PRODUCT========================================>\n"
+                    multiLineInfo += f"_______________________________________________________________________\n"
+                    multiLineInfo += f"LINEAR-REGRESSION-ANALYSIS: {productReport[3]}\n"
+                    multiLineInfo += f"_______________________________________________________________________\n"
+                    multiLineInfo += f"PREDICTED-STOCK-COUNT-FOR-NEXT-WEEK: \n-> {productReport[4]}\n"
+                    multiLineInfo += f"_______________________________________________________________________\n"
+                    multiLineInfo += f"<=========================================================================================>\n\n\n\n"
 
-                            multiLineInfo += f"PRODUCT-NAME: {productReport[0]}\n"
+                    totalInfo += multiLineInfo
+
+                #local weekly reports are stored in a weekly reports folder, if it doesnt exist then make it
+                if self.produceTxtOutputVar.get():
+                    reportPath = f"weeklyReports"
+                    if not os.path.exists(reportPath):
+                        os.makedirs(reportPath)
+
+                    #create .txt file here
+                    newWeeklyReportFilePath = f"weekly_report_{date.today().strftime('%d-%m-%Y')}.txt"
+                    print(f"Generated file path: {newWeeklyReportFilePath}")
+
+                    if not os.path.isfile(newWeeklyReportFilePath):
+                        with open(newWeeklyReportFilePath, 'w') as file_:
+                            file_.write(totalInfo)
                             
-                            multiLineInfo += f"_______________________________________________________________________\n"
-                            multiLineInfo +=f"PRODUCT-STOCK-COUNTS:\n"
-                            multiLineInfo += f"_______________________________________________________________________\n"
-                            
-                            for j, date in enumerate(productReport[1]):
-                                multiLineInfo += f"{date}: {productReport[2][j]}\n"
+                        #move weekly report file to weekly reports
+                        shutil.move(newWeeklyReportFilePath, f"weeklyReports/{newWeeklyReportFilePath}")
+                    
+                    else:
+                        message = popUpWindow("Weekly report already exists")
+                        message.create()
 
-                            multiLineInfo += f"_______________________________________________________________________\n"
-                            multiLineInfo += f"LINEAR-REGRESSION-ANALYSIS: {productReport[3]}\n"
-                            multiLineInfo += f"_______________________________________________________________________\n"
-                            multiLineInfo += f"PREDICTED-STOCK-COUNT-FOR-NEXT-WEEK: \n-> {productReport[4]}\n"
-                            multiLineInfo += f"_______________________________________________________________________\n"
-                            multiLineInfo += f"<=========================================================================================>\n\n\n\n"
-
-                            file_.write(multiLineInfo)
-                            totalInfo += multiLineInfo
-
-                    #move weekly report file to weekly reports
-                    shutil.move(newWeeklyReportFilePath, f"weeklyReports/{newWeeklyReportFilePath}")
-
-                    #user might want the report emailed, so do this here (however this is selected by default)
-                    if self.sendEmailCheckbox.get():
-                        #send email containing report here
-                        emailAlert = appEmail()
-                        emailAlert.sendEmail(self._defAlertEmail, f"Weekly report - {date.today().strftime('%d-%m-%Y')}", totalInfo)
-
-                else:
-                    message = popUpWindow("Weekly report already exists")
-                    message.create()
-
-            else: 
-                messagebox.showwarning("Input Error", "Please enter a valid date range. One or more dates may be missing.")
-
+                #user might want the report emailed, so do this here (however this is selected by default)
+                if self.sendEmailCheckbox.get():
+                    #send email containing report here
+                    emailAlert = appEmail()
+                    emailAlert.sendEmail(self._defAlertEmail, f"Weekly report - {date.today().strftime('%d-%m-%Y')}", totalInfo)
 
     #=================================================================================================SETTINGS-UI-AND-FUNCTIONALITY=================================================================================================    
     def settingsUI(self, tab_='Settings'):
