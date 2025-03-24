@@ -35,6 +35,7 @@ from dbHandling.supplierDBHandler import *
 from dbHandling.wasteDBHandler import *
 from dbHandling.stockLevelDBHandler import *
 from dbHandling.stockLevelHistoryDBHandler import *
+from dbHandling.weeklyReportDBHandler import *
 
 #main app class
 class App(superWindow):
@@ -127,8 +128,9 @@ class App(superWindow):
         self.wasteDB = wasteDBHandler()  
         self.stockLevelDB = stockLevelDBHandler()
         self.stockLevelHistoryDB = stockLevelHistoryDBHandler()
+        self.weeklyReportDB = weeklyReportDBHandler()
 
-        databases = [self.supplierDB, self.productDB, self.wasteDB, self.stockLevelDB, self.stockLevelHistoryDB]
+        databases = [self.supplierDB, self.productDB, self.wasteDB, self.stockLevelDB, self.stockLevelHistoryDB, self.weeklyReportDB]
 
         for database in databases:
             try:
@@ -1052,13 +1054,13 @@ class App(superWindow):
             productDataMap = {}  #dict to store product data 
 
             #fetch stock history data 
-            self.DBHandler.cursor.execute("SELECT stock_count, stock_history_product_name, DATE_FORMAT(date, '%d/%m/%Y') FROM stocklevelhistory")
+            self.DBHandler.cursor.execute("SELECT stock_count, stock_history_product_name, DATE_FORMAT(date, '%d/%m/%Y'), action FROM stocklevelhistory")
             allStockData = self.DBHandler.cursor.fetchall()  
 
             #put stock history into the dict
             stockHistoryDict = {}
-            for stockCount, productName, dateStr in allStockData:
-                key = (productName, dateStr)
+            for stockCount, productName, dateStr, action in allStockData:
+                key = (productName, dateStr, action)
 
                 if key not in stockHistoryDict:
                     stockHistoryDict[key] = []
@@ -1068,19 +1070,24 @@ class App(superWindow):
             #process data into productData2dList
             for dateStr in dateRangeList:
                 for productName in productNames:
-                    key = (productName, dateStr)
+                    for action in ['delivery', 'count']:  
+                        key = (productName, dateStr, action)  
 
-                    if key in stockHistoryDict:
-                        stockCounts = stockHistoryDict[key]
-                        
-                        if productName not in productDataMap:
-                            productDataMap[productName] = [productName, [], []]
-                        
-                        productDataMap[productName][1].extend(stockCounts)  
-                        productDataMap[productName][2].extend([dateStr] * len(stockCounts))
+                        if key in stockHistoryDict:
+                            stockCounts = stockHistoryDict[key]
+                            
+                            if productName not in productDataMap:
+                                productDataMap[productName] = [productName, [], [], []]  
+                            
+                            #extend the stock counts and corresponding actions
+                            productDataMap[productName][1].extend(stockCounts)  
+                            productDataMap[productName][2].extend([dateStr] * len(stockCounts))
+                            productDataMap[productName][3].extend([action] * len(stockCounts))  
 
             #conv dict vals into list
             productData2dList = list(productDataMap.values())
+            for field in productData2dList:
+                print(field, end="\n")
 
             weeklyReportData = []
             for currentIndex, valueList in enumerate(productData2dList):
@@ -1090,10 +1097,12 @@ class App(superWindow):
                 #create a dates and stockCounts list so that data can be analysed
                 dates = []
                 stockCounts = []
+                actions = []
                 for i in range(len(valueList[1])):
                     dateObj = datetime.strptime(valueList[2][i], "%d/%m/%Y")
                     dates.append(dateObj)
                     stockCounts.append(valueList[1][i])
+                    actions.append(valueList[3][i])
 
                 #append date and subsequent stock count info to the weekly report for this product
                 newDates = []
@@ -1160,19 +1169,38 @@ class App(superWindow):
                 for i in range(1, 7): 
                     next_day = lastDay + i
                     futureDays.append(next_day)
-                    futureStock.append(gradient * next_day + intercept)
+                    futureStock.append(int(gradient * next_day + intercept))
 
                 #add the predicted stock level for the next week to the data analysis for the current product
                 weeklyReportData[currentIndex].append(futureStock)
 
                 #calculate profit margins for the current week for this product
-                self.DBHandler.cursor.execute("SELECT product_buy_price, product_sell_price FROM products")
-                allProductPriceData = self.DBHandler.cursor.fetchall()  
+                self.DBHandler.cursor.execute("SELECT product_buy_price, product_sellPrice FROM products WHERE product_name = ?", (valueList[0],))
+                buyPrice, sellPrice = self.DBHandler.cursor.fetchone()
 
-            for ls in weeklyReportData:
-                print(f"asdjklasdjkl {ls}")
-                print()
+                #calculate revenue, cost of good sale & net profit
+                totalRevenue = 0
+                totalCogs = 0
+                totalSold = 0  
 
+                for i in range(len(stockCounts)):
+                    if actions[i] == "sale":  
+                        totalSold += stockCounts[i]  
+                        totalRevenue += stockCounts[i] * sellPrice  
+                        totalCogs += stockCounts[i] * buyPrice 
+
+                    elif actions[i] == "delivery":
+                        continue
+
+                #calc net profit
+                totalSold = totalRevenue - totalCogs
+
+                weeklyReportData[currentIndex].append({"revenue": totalRevenue, "cogs": totalCogs, "profit": totalSold})
+
+            #write record to weekly report table
+            for product in weeklyReportData:
+                product_id = self.productDB.getProductID(product[0])
+                self.weeklyReportDB.addWeeklyReportRecord(product_id, product[3], json.dumps(product[4]), product[5]['revenue'], product[5]['cogs'], product[5]['profit'])
 
             #OPTIONAL STUFFS=======================================================================================================
             #if either of the send email or produce .txt file checkboxes are selected, then generate the multiline string output and go from there
@@ -1186,7 +1214,7 @@ class App(superWindow):
                     multiLineInfo += f"PRODUCT-NAME: {productReport[0]}\n"
                     
                     multiLineInfo += f"_______________________________________________________________________\n"
-                    multiLineInfo +=f"PRODUCT-STOCK-COUNTS:\n"
+                    multiLineInfo += f"PRODUCT-STOCK-COUNTS:\n"
                     multiLineInfo += f"_______________________________________________________________________\n"
                     
                     for j, date_ in enumerate(productReport[1]):

@@ -49,18 +49,21 @@ class stockLevelDBHandler(DBHandler):
             self.cursor.execute("SELECT stock_count FROM stockLevel WHERE product_id = %s", (productID,))
             stockLevelNum = self.cursor.fetchone()
             print(stockLevelNum, addedStockCount)
+            stockUpdateType = ""
 
             if isDelivery: #if the update stock level is for a delivery, we are simply adding more not overwriting the previous stock level (as a delivery = more stock)
                 self.cursor.execute("UPDATE stockLevel SET stock_count = stock_count + %s WHERE product_id = %s", (addedStockCount, productID))
+                stockUpdateType = "delivery"
             
             else:
                 self.cursor.execute("UPDATE stockLevel SET stock_count = %s WHERE product_id = %s", (addedStockCount, productID))
+                stockUpdateType = "count"
 
             self.connection.commit()
 
             #update stock level history table with change in stockLevel
             stockID = self.getStockID(productID)
-            self.stockLevelHistoryDB.addStockLevelHistoryData(stockID, productID, self.productDBHandler_.getProductName(productID), stockLevelNum[0])
+            self.stockLevelHistoryDB.addStockLevelHistoryData(stockID, productID, self.productDBHandler_.getProductName(productID), stockLevelNum[0], stockUpdateType)
 
         except Exception as error:
             print(f"error in updateStockLevel: {error}")
