@@ -52,7 +52,7 @@ class stockLevelDBHandler(DBHandler):
             stockUpdateType = ""
 
             if isDelivery: #if the update stock level is for a delivery, we are simply adding more not overwriting the previous stock level (as a delivery = more stock)
-                self.cursor.execute("UPDATE stockLevel SET stock_count = stock_count + %s WHERE product_id = %s", (addedStockCount, productID))
+                self.cursor.execute("UPDATE stockLevel SET stock_count = stock_count + %s WHERE product_id = %s", (addedStockCount+stockLevelNum[0], productID))
                 stockUpdateType = "delivery"
             
             else:

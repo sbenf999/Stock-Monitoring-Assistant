@@ -35,3 +35,31 @@ class weeklyReportDBHandler(DBHandler):
             self.connection.rollback()
             print(f"sldb: {error}")
             return False, error
+        
+    def getWeeklyReportsAsList(self):
+        try:
+            self.cursor.execute("SELECT * FROM weeklyreportrecords")
+            dataToUse = self.cursor.fetchall()
+            self.connection.commit()
+
+            groupedRecordIDs = []
+            for record in dataToUse:
+                if len(groupedRecordIDs) == 0:
+                    groupedRecordIDs.append([record[2].strftime("%d/%m/%Y"), record[0]])
+
+                else:
+                    count = 0
+                    for prevRecord in groupedRecordIDs:
+                        if record[2].strftime("%d/%m/%Y") == prevRecord[0]:
+                            count += 1
+                            prevRecord.append(record[0])
+
+                    if count == 0:
+                        groupedRecordIDs.append([record[2].strftime("%d/%m/%Y"), record[0]])
+
+            return groupedRecordIDs
+
+        except Exception as error:
+            self.connection.rollback()
+            print(f"wrdb: {error}")
+            return False, error

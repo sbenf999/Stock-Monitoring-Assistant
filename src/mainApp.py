@@ -498,9 +498,11 @@ class App(superWindow):
         self.tab_ = tab_
         self.dataViewTabs = self.DBHandler.getTables()
         self.dataViewTabs.pop(self.dataViewTabs.index('users')) #remove the user table from data that can be displayed
+        print(self.dataViewTabs)
 
         try:
-            self.dataViewTabs.pop(self.dataViewTabs.index('stockLevelHistory')) #remove the stockLevelHistory table from data that can be displayed
+            self.dataViewTabs.pop(self.dataViewTabs.index('stocklevelhistory')) #remove the stockLevelHistory table from data that can be displayed
+            self.dataViewTabs.pop(self.dataViewTabs.index('weeklyreportrecords'))
 
         except:
             self.dataViewTabs.pop(self.dataViewTabs.index('stocklevelhistory')) #remove the stockLevelHistory table from data that can be displayed
@@ -999,7 +1001,15 @@ class App(superWindow):
         self.tab_ = tab_
 
         #this should be a list of potential weeks
-        self.seePreviousWeeklyReportButtonCombobox = customtkinter.CTkComboBox(self.tabview.tab(tab_))
+        reportsSortedByWeek = []
+        prevWeeklyReports = self.weeklyReportDB.getWeeklyReportsAsList()
+
+        for report in prevWeeklyReports:
+            print(report)
+            reportsSortedByWeek.append(f"Weekly report - {report[0]}")
+
+        #this should be a list of potential weeks
+        self.seePreviousWeeklyReportButtonCombobox = customtkinter.CTkOptionMenu(self.tabview.tab(tab_), values=reportsSortedByWeek)
         self.seePreviousWeeklyReportButtonCombobox.grid(row=0, column=0, padx=(20, 20), pady=20, sticky='w')
 
         self.seePreviousWeeklyReportButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="See previous report")
@@ -1175,7 +1185,7 @@ class App(superWindow):
                 weeklyReportData[currentIndex].append(futureStock)
 
                 #calculate profit margins for the current week for this product
-                self.DBHandler.cursor.execute("SELECT product_buy_price, product_sellPrice FROM products WHERE product_name = ?", (valueList[0],))
+                self.DBHandler.cursor.execute("SELECT product_buy_price, product_sell_price FROM products WHERE product_name = ?", (valueList[0],))
                 buyPrice, sellPrice = self.DBHandler.cursor.fetchone()
 
                 #calculate revenue, cost of good sale & net profit
