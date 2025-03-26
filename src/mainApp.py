@@ -1005,14 +1005,13 @@ class App(superWindow):
         prevWeeklyReports = self.weeklyReportDB.getWeeklyReportsAsList()
 
         for report in prevWeeklyReports:
-            print(report)
             reportsSortedByWeek.append(f"Weekly report - {report[0]}")
 
         #this should be a list of potential weeks
         self.seePreviousWeeklyReportButtonCombobox = customtkinter.CTkOptionMenu(self.tabview.tab(tab_), values=reportsSortedByWeek)
         self.seePreviousWeeklyReportButtonCombobox.grid(row=0, column=0, padx=(20, 20), pady=20, sticky='w')
 
-        self.seePreviousWeeklyReportButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="See previous report")
+        self.seePreviousWeeklyReportButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="See previous report", command=lambda:self.seePrevReport(self.seePreviousWeeklyReportButtonCombobox.get()))
         self.seePreviousWeeklyReportButton.grid(row=0, column=1, padx=(20, 20), pady=20, sticky='w')
 
         seperator = customtkinter.CTkFrame(self.tabview.tab(tab_), height=2, fg_color="gray", width=660)
@@ -1039,6 +1038,9 @@ class App(superWindow):
 
         seperator2 = customtkinter.CTkFrame(self.tabview.tab(tab_), height=2, fg_color="gray", width=660)
         seperator2.grid(row=4, column=0, columnspan=10, padx=20, pady=20)
+
+    def seePrevReport(self, selected):
+        print(selected)
 
     def findDateRange(self, startDate, endDate):
         if type(startDate) == str: 
@@ -1194,7 +1196,7 @@ class App(superWindow):
                 totalSold = 0  
 
                 for i in range(len(stockCounts)):
-                    if actions[i] == "sale":  
+                    if actions[i] == "count":  
                         totalSold += stockCounts[i]  
                         totalRevenue += stockCounts[i] * sellPrice  
                         totalCogs += stockCounts[i] * buyPrice 

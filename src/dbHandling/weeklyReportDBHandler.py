@@ -8,6 +8,7 @@ class weeklyReportDBHandler(DBHandler):
                 CREATE TABLE IF NOT EXISTS weeklyReportRecords (
                     weekly_report_record_id INT AUTO_INCREMENT PRIMARY KEY,
                     product_id INT, 
+                    weekly_report_generation_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     trend VARCHAR(100) NOT NULL,
                     predicted JSON,
                     revenue DECIMAL(10,2) NOT NULL,
