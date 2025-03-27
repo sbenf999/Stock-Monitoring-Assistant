@@ -45,17 +45,18 @@ class weeklyReportDBHandler(DBHandler):
 
             groupedRecordIDs = []
             for record in dataToUse:
+                print(record)
                 if len(groupedRecordIDs) == 0:
                     groupedRecordIDs.append([record[2].strftime("%d/%m/%Y"), record[0]])
 
                 else:
-                    count = 0
+                    count1 = 0
                     for prevRecord in groupedRecordIDs:
                         if record[2].strftime("%d/%m/%Y") == prevRecord[0]:
-                            count += 1
+                            count1 += 1
                             prevRecord.append(record[0])
-
-                    if count == 0:
+                            
+                    if count1 == 0:
                         groupedRecordIDs.append([record[2].strftime("%d/%m/%Y"), record[0]])
 
             return groupedRecordIDs
@@ -64,3 +65,4 @@ class weeklyReportDBHandler(DBHandler):
             self.connection.rollback()
             print(f"wrdb: {error}")
             return False, error
+        

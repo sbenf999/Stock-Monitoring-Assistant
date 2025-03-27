@@ -608,8 +608,16 @@ class App(superWindow):
                 table.select_row(row=i)
                 
                 if tab == "products":
-                    self.visualizeButton = customtkinter.CTkButton(self.dataViewTabView.tab(tab), text="Visualize graph", command=lambda:self.visualize(itemToFind))
-                    self.visualizeButton.grid(row=3, column=0, pady=20, padx=(10,20), sticky="w")
+                    self.visualizeButtonLabel = customtkinter.CTkLabel(self.dataViewTabView.tab(tab), text="Stock level trends:")
+                    self.visualizeButtonLabel.grid(row=3, column=0, padx=(20), pady=20, sticky='w')
+                    self.visualizeButton = customtkinter.CTkButton(self.dataViewTabView.tab(tab), text="Visualize ", command=lambda:self.visualize(itemToFind))
+                    self.visualizeButton.grid(row=3, column=1, pady=20, padx=(10,20), sticky="w")
+
+                else:
+                    self.deleteRecordButtonLabel = customtkinter.CTkLabel(self.dataViewTabView.tab(tab), text="Delete this record:")
+                    self.deleteRecordButtonLabel.grid(row=4, column=0, padx=(20), pady=20, sticky='w')
+                    self.deleteRecordButton = customtkinter.CTkButton(self.dataViewTabView.tab(tab), text="Delete", command=lambda:self.deleteRecord(itemToFind, tab))
+                    self.deleteRecordButton.grid(row=4, column=1, pady=20, padx=(10,20), sticky="w")
 
             else:
                 table.deselect_row(row=i)
@@ -1022,7 +1030,7 @@ class App(superWindow):
         self.seePreviousWeeklyReportButtonCombobox = customtkinter.CTkOptionMenu(self.tabview.tab(tab_), values=reportsSortedByWeek)
         self.seePreviousWeeklyReportButtonCombobox.grid(row=0, column=0, padx=(20, 20), pady=20, sticky='w')
 
-        self.seePreviousWeeklyReportButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="See previous report", command=lambda:self.seePrevReport(self.seePreviousWeeklyReportButtonCombobox.get()))
+        self.seePreviousWeeklyReportButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="See previous report")
         self.seePreviousWeeklyReportButton.grid(row=0, column=1, padx=(20, 20), pady=20, sticky='w')
 
         seperator = customtkinter.CTkFrame(self.tabview.tab(tab_), height=2, fg_color="gray", width=660)
@@ -1050,8 +1058,16 @@ class App(superWindow):
         seperator2 = customtkinter.CTkFrame(self.tabview.tab(tab_), height=2, fg_color="gray", width=660)
         seperator2.grid(row=4, column=0, columnspan=10, padx=20, pady=20)
 
-    def seePrevReport(self, selected):
-        print(selected)
+    def seePrevReport(self, selected, reports):
+        date = selected[16:]
+        target = []
+
+        for data in reports:
+            for product in data:
+                if product[2].stftime("%d/%m/%Y") == date:
+                    target.append(product)
+
+        print(target)
 
     def findDateRange(self, startDate, endDate):
         if type(startDate) == str: 
