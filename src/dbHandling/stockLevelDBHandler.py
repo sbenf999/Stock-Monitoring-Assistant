@@ -63,7 +63,7 @@ class stockLevelDBHandler(DBHandler):
 
             #update stock level history table with change in stockLevel
             stockID = self.getStockID(productID)
-            self.stockLevelHistoryDB.addStockLevelHistoryData(stockID, productID, self.productDBHandler_.getProductName(productID), stockLevelNum[0], stockUpdateType)
+            self.stockLevelHistoryDB.addStockLevelHistoryData(stockID, productID, self.productDBHandler_.getProductName(productID), addedStockCount, stockUpdateType)
 
         except Exception as error:
             print(f"error in updateStockLevel: {error}")

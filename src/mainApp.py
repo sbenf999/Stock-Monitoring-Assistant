@@ -547,17 +547,30 @@ class App(superWindow):
         #add search entry to search entries 2d list alongisde counter
         self.searchEntries.append([self.searchEntry, counter])
 
-        #this needs to contain the database in a 2d list
-        self.tableValues = [self.DBHandler.getColumnNames(tab__)]
-        self.dataSets.append(self.tableValues)
-
         self.searchButton = customtkinter.CTkButton(self.dataViewTabView.tab(tab__), text="Search 🔍", command=lambda:self.searchButtonAlgo(self.searchEntries[counter][0].get(), columnIndex, self.dataSets[counter], self.displayTables[counter], tab__))
         self.searchButton.grid(row=0, column=1, sticky='nsew', padx=20, pady=30)
 
         self.xy_frame = CTkXYFrame(self.dataViewTabView.tab(tab__), width=600, height=150)
         self.xy_frame.grid(row=2, column=0, sticky="nsew", columnspan=6)
 
-        for row in self.DBHandler.getData(tab__):
+        #display the table of values
+        self.displayTable = CTkTable(self.xy_frame, values=self.getTableData(self.tabbbb), header_color="#1F538D", command=self.getCellData)
+        self.displayTable.grid(row=0, column=0)
+        self.displayTables.append(self.displayTable)
+
+        self.refreshTableButton = customtkinter.CTkButton(self.dataViewTabView.tab(tab__), text="↻", width=30, command=lambda:self.refreshTable(self.tabbbb))
+        self.refreshTableButton.grid(row=0, column=2, padx=(10, 0), sticky='w')
+
+    def refreshTable(self, currentTab):
+        self.displayTable.configure(values=self.getTableData(currentTab))
+        self.displayTable.grid(row=0, column=0)
+
+    def getTableData(self, currentTab):
+        #this needs to contain the database in a 2d list
+        self.tableValues = [self.DBHandler.getColumnNames(currentTab)]
+        self.dataSets.append(self.tableValues)
+
+        for row in self.DBHandler.getData(currentTab):
             listVersion = list(row)
 
             for i, listItem in enumerate(listVersion):
@@ -566,10 +579,7 @@ class App(superWindow):
 
             self.tableValues.append(listVersion)
 
-        #display the table of values
-        self.displayTable = CTkTable(self.xy_frame, values=self.tableValues, header_color="#1F538D", command=self.getCellData)
-        self.displayTable.grid(row=0, column=0)
-        self.displayTables.append(self.displayTable)
+        return self.tableValues
 
     def getCellData(self, data):
         #get the cell data from the button in the form of a dictionary, convert to list for needed values
