@@ -500,12 +500,13 @@ class App(superWindow):
         self.dataViewTabs.pop(self.dataViewTabs.index('users')) #remove the user table from data that can be displayed
         print(self.dataViewTabs)
 
-        try:
+        try: #windows based db table names are lowercase
             self.dataViewTabs.pop(self.dataViewTabs.index('stocklevelhistory')) #remove the stockLevelHistory table from data that can be displayed
-            self.dataViewTabs.pop(self.dataViewTabs.index('weeklyreportrecords'))
+            self.dataViewTabs.pop(self.dataViewTabs.index('weeklyreportrecords')) #^^^^
 
-        except:
-            self.dataViewTabs.pop(self.dataViewTabs.index('stocklevelhistory')) #remove the stockLevelHistory table from data that can be displayed
+        except: #mac data view tab names are case sensitive for some reason
+            self.dataViewTabs.pop(self.dataViewTabs.index('stockLevelHistory')) #remove the stockLevelHistory table from data that can be displayed
+            self.dataViewTabs.pop(self.dataViewTabs.index('weeklyReportRecords')) #^^^^
 
         self.dataViewTabView = customtkinter.CTkTabview(self.tabview.tab(tab_))
         self.dataViewTabView.grid(row=1, column=0, pady=(50,50), padx=(50, 50))
