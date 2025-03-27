@@ -28,3 +28,13 @@ class wasteDBHandler(DBHandler):
             self.connection.rollback()
             print(f"Error in create waste product: {error}")
             return False, error
+        
+    def updateWasteResolvementValue(self, wasteID, value=1):
+        try:
+            self.cursor.execute('UPDATE waste SET waste_dealt_with = %s WHERE waste_id = %s', (value, wasteID))
+            self.connection.commit()
+        
+        except Exception as error:
+            self.connection.rollback()
+            print(f"Error in create waste product: {error}")
+            return False, error

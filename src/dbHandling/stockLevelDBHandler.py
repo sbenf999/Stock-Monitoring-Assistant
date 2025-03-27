@@ -44,7 +44,7 @@ class stockLevelDBHandler(DBHandler):
             print(f"sldb: {error}")
             return False, error
         
-    def updateStockLevel(self, addedStockCount, productID, isDelivery=False):
+    def updateStockLevel(self, addedStockCount, productID, isDelivery=False, isWaste=False):
         try:
             self.cursor.execute("SELECT stock_count FROM stockLevel WHERE product_id = %s", (productID,))
             stockLevelNum = self.cursor.fetchone()
@@ -55,6 +55,10 @@ class stockLevelDBHandler(DBHandler):
                 self.cursor.execute("UPDATE stockLevel SET stock_count = stock_count + %s WHERE product_id = %s", (addedStockCount+stockLevelNum[0], productID))
                 stockUpdateType = "delivery"
             
+            elif isWaste: 
+                self.cursor.execute("UPDATE stockLevel SET stock_count = stock_count - %s WHERE product_id = %s", (addedStockCount, productID))
+                stockUpdateType = "waste"
+
             else:
                 self.cursor.execute("UPDATE stockLevel SET stock_count = %s WHERE product_id = %s", (addedStockCount, productID))
                 stockUpdateType = "count"

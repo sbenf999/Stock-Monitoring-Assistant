@@ -532,6 +532,7 @@ class App(superWindow):
     def seeTableData(self, tab__, searchEntrySuggestions, columnIndex, counter):
         self.tabbbb = tab__
         self.counter = counter
+
         #search entry to search the tableValues list
         self.searchEntry = AutocompleteEntry(self.dataViewTabView.tab(tab__), placeholder_text="search...", width=400)
 
@@ -554,16 +555,9 @@ class App(superWindow):
         self.xy_frame.grid(row=2, column=0, sticky="nsew", columnspan=6)
 
         #display the table of values
-        self.displayTable = CTkTable(self.xy_frame, values=self.getTableData(self.tabbbb), header_color="#1F538D", command=self.getCellData)
+        self.displayTable = CTkTable(self.xy_frame, values=self.getTableData(self.tabbbb), header_color="#1F538D")
         self.displayTable.grid(row=0, column=0)
         self.displayTables.append(self.displayTable)
-
-        self.refreshTableButton = customtkinter.CTkButton(self.dataViewTabView.tab(tab__), text="↻", width=30, command=lambda:self.refreshTable(self.tabbbb))
-        self.refreshTableButton.grid(row=0, column=2, padx=(10, 0), sticky='w')
-
-    def refreshTable(self, currentTab):
-        self.displayTable.configure(values=self.getTableData(currentTab))
-        self.displayTable.grid(row=0, column=0)
 
     def getTableData(self, currentTab):
         #this needs to contain the database in a 2d list
@@ -580,44 +574,31 @@ class App(superWindow):
             self.tableValues.append(listVersion)
 
         return self.tableValues
-
-    def getCellData(self, data):
-        #get the cell data from the button in the form of a dictionary, convert to list for needed values
-        cellData = [data['row'], data['column'], data['value']]
-
-        #ensure nothing happens if a user clicks on a table column name
-        if (cellData[0] != 0):
-            self.changeFieldData(cellData)
-
-    def changeFieldData(self, valuesList):
-        #create the entry to change a val
-        self.cellEntry = customtkinter.CTkEntry(self.dataViewTabView.tab(self.dataViewTabView.get()), width=400)
-        self.cellEntry.grid(row=4, column=0, padx=(10, 20), columnspan=3, sticky="w")
-
-        #config the pre-existing val into the entry placeholder text
-        self.cellEntry.configure(placeholder_text=f"Change chosen value {valuesList[2]}...")
-
-        #button to confirm the change, command will be tied to an sql statement that updates the value in the correct table
-        self.cellEntryButton = customtkinter.CTkButton(self.dataViewTabView.tab(self.dataViewTabView.get()), text="Confirm change")
-        self.cellEntryButton.grid(row=4, column=1, pady=20, padx=(20, 0), sticky="w")
         
     def searchButtonAlgo(self, itemToFind, column, dataSet, table, tab):
         self.graphVisualiser = CheckStockCount()
         for i, row in enumerate(dataSet):
             if str(row[int(column)]) == str(itemToFind):
+                print(row)
                 table.select_row(row=i)
                 
                 if tab == "products":
                     self.visualizeButtonLabel = customtkinter.CTkLabel(self.dataViewTabView.tab(tab), text="Stock level trends:")
-                    self.visualizeButtonLabel.grid(row=3, column=0, padx=(20), pady=20, sticky='w')
+                    self.visualizeButtonLabel.grid(row=3, column=0, padx=(10, 20), pady=20, sticky='w')
                     self.visualizeButton = customtkinter.CTkButton(self.dataViewTabView.tab(tab), text="Visualize ", command=lambda:self.visualize(itemToFind))
                     self.visualizeButton.grid(row=3, column=1, pady=20, padx=(10,20), sticky="w")
 
-                else:
-                    self.deleteRecordButtonLabel = customtkinter.CTkLabel(self.dataViewTabView.tab(tab), text="Delete this record:")
-                    self.deleteRecordButtonLabel.grid(row=4, column=0, padx=(20), pady=20, sticky='w')
-                    self.deleteRecordButton = customtkinter.CTkButton(self.dataViewTabView.tab(tab), text="Delete", command=lambda:self.deleteRecord(itemToFind, tab))
-                    self.deleteRecordButton.grid(row=4, column=1, pady=20, padx=(10,20), sticky="w")
+                if tab == "waste":
+                    if row[4] == "0": #if waste isnt resolved, then allow user to resolve by updating waste_dealt_with value to 1
+                        self.changeResolvementStatusLabel = customtkinter.CTkLabel(self.dataViewTabView.tab(tab), text="Update resolvement status:")
+                        self.changeResolvementStatusLabel.grid(row=4, column=0, padx=(10), pady=20, sticky='w')
+
+                        self.changeResolvementStatusButton = customtkinter.CTkButton(self.dataViewTabView.tab(tab), text="Change", command=lambda:self.wasteDB.updateWasteResolvementValue(row[0]))
+                        self.changeResolvementStatusButton.grid(row=4, column=1, pady=20, padx=(10,20), sticky="w")
+                    
+                    else:
+                        self.resolvementStatusLabel = customtkinter.CTkLabel(self.dataViewTabView.tab(tab), text="Waste already resolved")
+                        self.resolvementStatusLabel.grid(row=4, column=0, padx=10, pady=20, sticky='w')
 
             else:
                 table.deselect_row(row=i)
@@ -938,8 +919,8 @@ class App(superWindow):
                     #create waste product in the database
                     self.wasteDB.createWasteProduct(self.productDB.getProductID(product_id), supplier_id, wasteReason, wasteState)
 
-                    #update stock level (subtracting waste quantity)
-                    self.stockLevelDB.updateStockLevel(wasteQuantity*-1, self.productDB.getProductID(product_id))
+                    #update stock level (subtracting waste quantity in the stock level db handler)
+                    self.stockLevelDB.updateStockLevel(wasteQuantity, self.productDB.getProductID(product_id))
 
                 #reset widgets
                 self.uiWidgetClearer()
@@ -1230,6 +1211,11 @@ class App(superWindow):
 
                     elif actions[i] == "delivery":
                         continue
+
+                    elif actions[i] == "waste":
+                        totalSold += stockCounts[i]
+                        totalRevenue -= stockCounts[i] * sellPrice
+                        totalCogs += stockCounts[i] * buyPrice
 
                 #calc net profit
                 totalSold = totalRevenue - totalCogs
