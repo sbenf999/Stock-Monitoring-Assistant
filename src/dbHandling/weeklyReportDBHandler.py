@@ -45,7 +45,6 @@ class weeklyReportDBHandler(DBHandler):
 
             groupedRecordIDs = []
             for record in dataToUse:
-                print(record)
                 if len(groupedRecordIDs) == 0:
                     groupedRecordIDs.append([record[2].strftime("%d/%m/%Y"), record[0]])
 
@@ -59,7 +58,7 @@ class weeklyReportDBHandler(DBHandler):
                     if count1 == 0:
                         groupedRecordIDs.append([record[2].strftime("%d/%m/%Y"), record[0]])
 
-            return groupedRecordIDs
+            return groupedRecordIDs, dataToUse
 
         except Exception as error:
             self.connection.rollback()
