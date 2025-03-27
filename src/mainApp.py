@@ -1109,7 +1109,7 @@ class App(superWindow):
             #process data into productData2dList
             for dateStr in dateRangeList:
                 for productName in productNames:
-                    for action in ['delivery', 'count']:  
+                    for action in ['delivery', 'count', 'waste']:  
                         key = (productName, dateStr, action)  
 
                         if key in stockHistoryDict:
