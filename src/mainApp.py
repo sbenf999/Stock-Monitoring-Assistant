@@ -1,3 +1,6 @@
+#Author: Soma Benfell
+#Version number: v1.0.0
+
 #general lib imports
 import customtkinter
 from tkinter import messagebox
