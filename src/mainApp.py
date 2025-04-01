@@ -239,10 +239,12 @@ class App(superWindow):
         self.enterDeliveryDateLabel.grid(row=1, column=0, padx=(20, 20), pady=20, sticky='w')
         self.deliveryDate = CTkDatePicker(self.tabview.tab(tab_))
         self.deliveryDate.grid(row=1, column=1, padx=(15, 20), pady=10, sticky='w')
-        month = str(datetime.now().month)
-        if len(month) == 1:
-            month = f"0{datetime.now().month}"
-        self.deliveryDate.date_entry.insert(0, f"{datetime.now().day}/{month}/{datetime.now().year}")
+
+        self.month = str(datetime.now().month)
+        if len(self.month) == 1:
+            self.month = f"0{datetime.now().month}"
+
+        self.deliveryDate.date_entry.insert(0, f"{datetime.now().day}/{self.month}/{datetime.now().year}")
 
         #delivery time shoud create an ovveride feature if user doesnt want to use current system time
         self.enterDeliveryTimeLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Delivery time:")
@@ -307,7 +309,7 @@ class App(superWindow):
             #clear entry fields after adding
             self.autocompleteEntry.delete(0, customtkinter.END)
             self.quantityEntry.delete(0, customtkinter.END)
-            self.deliveryDate.date_entry.delete(0, customtkinter.END)
+
         else:
             messagebox.showwarning("Input Error", "Please enter a valid product name and quantity")
 
@@ -351,6 +353,9 @@ class App(superWindow):
             if widget not in [self.productNumLabel, self.itemLabel, self.itemQuantityLabel, self.toolLabel]:
                 widget.destroy()
 
+        self.deliveryDate.date_entry.delete(0, customtkinter.END)
+        self.deliveryDate.date_entry.insert(0, f"{datetime.now().day}/{self.month}/{datetime.now().year}")
+
     #Function to confirm the delivery
     def confirmDelivery(self):
         if messagebox.askquestion(title='Confirm delivery', message="Do you wish to confirm the delivery?"):
@@ -361,11 +366,12 @@ class App(superWindow):
                     productID = self.productDB.getProductID(product[0])
                     self.stockLevelDB.updateStockLevel(product[1], productID, True)
                     #update last delivery date for product
-                    self.stockLevelDB.updateLastDelivery(f'["{self.deliveryDate.get_date()}"]', productID) #check json stuff
+                    self.stockLevelDB.updateLastDelivery(json.dumps(self.deliveryDate.get_date()), productID) #check json stuff
 
                 #clear widgets once the delivery has been confirmed
                 self.uiWidgetClearer()
                 self.clearProductList()
+                self.products = []
 
             except Exception as error:
                 print(f"error encountered on delivery confirmation: {error}")
@@ -592,7 +598,7 @@ class App(superWindow):
                     self.visualizeButton.grid(row=3, column=1, pady=20, padx=(10,20), sticky="w")
 
                 if tab == "waste":
-                    if row[4] == "0": #if waste isnt resolved, then allow user to resolve by updating waste_dealt_with value to 1
+                    if row[4] == 0: #if waste isnt resolved, then allow user to resolve by updating waste_dealt_with value to 1
                         self.changeResolvementStatusLabel = customtkinter.CTkLabel(self.dataViewTabView.tab(tab), text="Update resolvement status:")
                         self.changeResolvementStatusLabel.grid(row=4, column=0, padx=(10), pady=20, sticky='w')
 
@@ -923,7 +929,7 @@ class App(superWindow):
                     self.wasteDB.createWasteProduct(self.productDB.getProductID(product_id), supplier_id, wasteReason, wasteState)
 
                     #update stock level (subtracting waste quantity in the stock level db handler)
-                    self.stockLevelDB.updateStockLevel(wasteQuantity, self.productDB.getProductID(product_id))
+                    self.stockLevelDB.updateStockLevel(wasteQuantity, self.productDB.getProductID(product_id), isWaste=True)
 
                 #reset widgets
                 self.uiWidgetClearer()
@@ -1318,7 +1324,7 @@ class App(superWindow):
             for settingsButton in [self.addUserButton]:
                 settingsButton.configure(state="disabled")
 
-        if self.userAccessLevel == 1:
+        if int(self.userAccessLevel) == 1:
             #show environment variables and edit them if the user is an admin
             self.envVariableLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Environment variables:")
             self.envVariableLabel.grid(row=2, column=0, padx=(20, 20), pady=20, sticky='nw')
@@ -1393,10 +1399,15 @@ if __name__ == "__main__":
         #initalise the databases logon database
         initialiser = logonDBHandler()
         initialiser.initializeDatabase()
+        initialiser.createUserCreds("admin", "12345", 1, "sbenf999@outlook.com")
+        
 
-        #Run the UI 
-        app = App(1)
-        app.mainloop()
+        # #Run the UI 
+        # app = App(1)
+        # app.mainloop()
+
+        login = Logon()
+        login.mainloop()
 
     def checkStockCounts():
         runStockCheck = CheckStockCount()
@@ -1414,8 +1425,3 @@ if __name__ == "__main__":
 
     checkStockCountThread.start()
     checkStockCountThread.join()
-
-    
-
-    
-

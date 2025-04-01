@@ -84,15 +84,7 @@ class stockLevelDBHandler(DBHandler):
 
     def updateLastDelivery(self, lastDelivery, productID):
         try:
-            self.cursor.execute("SELECT COUNT(*) FROM stockLevel")
-            rowCount = self.cursor.fetchone()[0]
-
-            if rowCount == 0:
-                self.cursor.execute("INSERT INTO stockLevel (lastDelivery) VALUES (%s) WHERE product_id = %s", (lastDelivery,productID))
-
-            else:
-                self.cursor.execute("UPDATE stockLevel SET lastDelivery = %s WHERE product_id = %s", (lastDelivery,productID))
-
+            self.cursor.execute("UPDATE stockLevel SET lastDelivery = %s WHERE product_id = %s", (lastDelivery,productID))
             self.connection.commit()
 
         except Exception as error:

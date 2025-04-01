@@ -44,7 +44,7 @@ class logonDBHandler(DBHandler):
             message = popUpWindow(f"Recovery code: {recoveryCode}")
             message.create()
             newEmail = appEmail()
-            newEmail.sendEmai(emailAddress, "Recovery code for Onestop Stock Monitoring Assistant", f"Recovery code: {recoveryCode}") 
+            newEmail.sendEmail(emailAddress, "Recovery code for Onestop Stock Monitoring Assistant", f"Recovery code: {recoveryCode}") 
             
             try:
                 #Use parameterized query for safety
