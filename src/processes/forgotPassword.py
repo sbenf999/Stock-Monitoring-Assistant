@@ -55,10 +55,9 @@ class forgotPassword(superWindow):
             print(f"Temporary password: {tempPass} - use this password to create a new password")
             message = popUpWindow(f"Temporary password: {tempPass}")
             message.create()
-            check.changePasswordOutright(self.userEntry.get(), tempPass)
             self.on_closing()
             # you now need to generate a new recovery code. this code is not displayed to the user, rather emailed, as a form of security.
-            changePasswordWin = changePassword()
+            changePasswordWin = changePassword(True)
             changePasswordWin.mainloop()
 
         else:

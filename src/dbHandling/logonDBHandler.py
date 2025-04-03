@@ -78,23 +78,29 @@ class logonDBHandler(DBHandler):
     def validateUser(self, providedUsername, providedPassword):
         try:
             hashedPassword = logonDBHandler.hashData(str(providedPassword))
-            self.cursor.execute('SELECT user_id, access_level FROM users WHERE username = %s AND password = %s',(providedUsername, hashedPassword))
+            print(providedUsername, hashedPassword)
+            self.cursor.execute('SELECT user_id, access_level, username, password FROM users WHERE password = %s',(hashedPassword,))
             data = self.cursor.fetchone()
-            print(f"Query Result: {data}")  # Debugging output
-            return bool(data)  # Return True if data is found, else False
+
+            print(f"Query Result: {data}")
+            if (data[2] == providedUsername) and (data[3] == hashedPassword):
+                return True
+            
+            else:
+                return False
         
         except Exception as e:
             print(f"Error during user validation: {e}")
             return False
         
-    def changePasswordProcess(self, username, old_password, new_password):
+    def changePasswordProcess(self, username, old_password, new_password, overWrite=False):
         self.cursor.execute("SELECT password FROM users WHERE username = %s", (username,))
         current_password = self.cursor.fetchall()
 
         if current_password is None:
             return False
 
-        elif current_password[0][0] == logonDBHandler.hashData(str(old_password)):
+        elif (current_password[0][0] == logonDBHandler.hashData(str(old_password))) or overWrite:
             self.cursor.execute('UPDATE users SET password = %s WHERE username = %s', (logonDBHandler.hashData(str(new_password)), username))
             self.connection.commit()
             

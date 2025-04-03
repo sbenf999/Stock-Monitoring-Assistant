@@ -1399,12 +1399,6 @@ if __name__ == "__main__":
         #initalise the databases logon database
         initialiser = logonDBHandler()
         initialiser.initializeDatabase()
-        initialiser.createUserCreds("admin", "12345", 1, "sbenf999@outlook.com")
-        
-
-        # #Run the UI 
-        # app = App(1)
-        # app.mainloop()
 
         login = Logon()
         login.mainloop()

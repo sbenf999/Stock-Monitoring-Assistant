@@ -4,6 +4,7 @@ from processes.changePassword import *
 from processes.windowSuperClass import superWindow
 from mainApp import *
 from time import sleep
+from processes.stockLevelChecker import CheckStockCount
 
 customtkinter.set_default_color_theme("dark-blue")
 
@@ -47,6 +48,7 @@ class Logon(superWindow):
     def logonProcess(self):
         self.logon_ = logonDBHandler()
         self.logon_.initializeDatabase()
+        print(self.usernameEntry.get(), self.passwordEntry.get())
 
         login = self.logon_.validateUser(self.usernameEntry.get(), self.passwordEntry.get())
         if login:
@@ -60,7 +62,7 @@ class Logon(superWindow):
             message.create()
 
     def changePasswordWindow(self):
-        changePasswordWin = changePassword()
+        changePasswordWin = changePassword(False)
         changePasswordWin.mainloop()
         
     def newWindow(self):
