@@ -8,8 +8,6 @@ A stock monitoring application written in Python for a local business
 
 
 ## Contributing
-> [!WARNING]
-As this project is the source for a Non-Examination Assessment (NEA), unless otherwise stated, no pull requests or contributions will be accepted. For everything else, please follow the GPL v3 license accordingly
 
 - Contributions are always welcome! 
 - See `contributing.md` for ways to get started
