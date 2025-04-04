@@ -12,8 +12,9 @@ class changePassword(superWindow):
     WIDTH = 500
     HEIGHT = 250
     
-    def __init__(self, *args, **kwargs):
+    def __init__(self, overWrite, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.overwrite = overWrite
 
         self.title(changePassword.APP_NAME)
         self.geometry(str(changePassword.WIDTH) + "x" + str(changePassword.HEIGHT))
@@ -55,7 +56,7 @@ class changePassword(superWindow):
         logon_.initializeDatabase()
         
         print(self.usernameEntry.get(), self.oldPasswordEntry.get(), self.newPasswordEntry.get())
-        changePass = logon_.changePasswordProcess(self.usernameEntry.get(), self.oldPasswordEntry.get(), self.newPasswordEntry.get())
+        changePass = logon_.changePasswordProcess(self.usernameEntry.get(), self.oldPasswordEntry.get(), self.newPasswordEntry.get(), self.overwrite)
         
         if changePass:
             print("Password Changed")

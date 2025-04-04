@@ -35,7 +35,7 @@ class stockLevelDBHandler(DBHandler):
             self.connection.commit()
 
             stockID = self.getStockID(productID)
-            self.stockLevelHistoryDB.addStockLevelHistoryData(stockID, productID, self.productDBHandler_.getProductName(productID), stockCount)
+            self.stockLevelHistoryDB.addStockLevelHistoryData(stockID, productID, self.productDBHandler_.getProductName(productID), stockCount, "count")
 
             return True
 
@@ -58,6 +58,7 @@ class stockLevelDBHandler(DBHandler):
             elif isWaste: 
                 self.cursor.execute("UPDATE stockLevel SET stock_count = stock_count - %s WHERE product_id = %s", (addedStockCount, productID))
                 stockUpdateType = "waste"
+                addedStockCount = stockLevelNum[0]
 
             else:
                 self.cursor.execute("UPDATE stockLevel SET stock_count = %s WHERE product_id = %s", (addedStockCount, productID))
@@ -67,6 +68,7 @@ class stockLevelDBHandler(DBHandler):
 
             #update stock level history table with change in stockLevel
             stockID = self.getStockID(productID)
+            print(f"type of data: {stockUpdateType}")
             self.stockLevelHistoryDB.addStockLevelHistoryData(stockID, productID, self.productDBHandler_.getProductName(productID), addedStockCount, stockUpdateType)
 
         except Exception as error:
@@ -84,15 +86,7 @@ class stockLevelDBHandler(DBHandler):
 
     def updateLastDelivery(self, lastDelivery, productID):
         try:
-            self.cursor.execute("SELECT COUNT(*) FROM stockLevel")
-            rowCount = self.cursor.fetchone()[0]
-
-            if rowCount == 0:
-                self.cursor.execute("INSERT INTO stockLevel (lastDelivery) VALUES (%s) WHERE product_id = %s", (lastDelivery,productID))
-
-            else:
-                self.cursor.execute("UPDATE stockLevel SET lastDelivery = %s WHERE product_id = %s", (lastDelivery,productID))
-
+            self.cursor.execute("UPDATE stockLevel SET lastDelivery = %s WHERE product_id = %s", (lastDelivery,productID))
             self.connection.commit()
 
         except Exception as error:
