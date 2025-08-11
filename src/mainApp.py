@@ -12,7 +12,6 @@ from functools import reduce
 import threading
 from CTkTable import *
 import os
-from os import path
 import sys 
 import shutil
 from datetime import *
@@ -57,7 +56,7 @@ class App(superWindow):
         #configure window
         self.title("OneStop Stock Assistant System")
         self.geometry(f"{App.WIDTH}x{App.HEIGHT}")
-        self.resizable(True, False)
+        self.resizable(False, False)
 
         #configure grid layout (4x4)
         self.grid_columnconfigure(1, weight=1)
@@ -1365,6 +1364,13 @@ class App(superWindow):
                 self.envVarButtons[i] = customtkinter.CTkButton(self.tabview.tab(tab_), text="↻", width=30,  command=updateEnvVar)
                 self.envVarButtons[i].grid(row=rows[i], column=2, padx=(10, 0), sticky='w')
 
+                #functionality to be able to add multiple email addresses
+                if i == 4:
+                    print("This is a test!")
+                    #self.addEmailAddrButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="+", width=30, command=addNewEmailAddrEntry)
+                    #self.addEmailAddrButton.grid(row=rows[i], column=2, padx=(10, 0), sticky="w")
+
+
     def addNewUser(self):
         user = newUser()
         user.mainloop()
@@ -1391,8 +1397,6 @@ class App(superWindow):
                 return False  
         
         return True
-
-
 
 if __name__ == "__main__":
     def runMainApp():
