@@ -1361,15 +1361,17 @@ class App(superWindow):
                         print(f"Updated {var} -> {newValue}") 
                         entryWidget.delete(0, customtkinter.END)
 
-                self.envVarButtons[i] = customtkinter.CTkButton(self.tabview.tab(tab_), text="↻", width=30,  command=updateEnvVar)
+                self.envVarButtons[i] = customtkinter.CTkButton(self.tabview.tab(tab_), text="↻", width=30, command=updateEnvVar)
                 self.envVarButtons[i].grid(row=rows[i], column=2, padx=(10, 0), sticky='w')
 
                 #functionality to be able to add multiple email addresses
-                if i == 4:
-                    print("This is a test!")
-                    #self.addEmailAddrButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="+", width=30, command=addNewEmailAddrEntry)
-                    #self.addEmailAddrButton.grid(row=rows[i], column=2, padx=(10, 0), sticky="w")
+                if i == 6:
+                    def newDefAlertRecipientEmailAddr():
+                        getNewEmailAddr = popUpWindow("Enter additional email address: ", buttonText="Add new")
+                        getNewEmailAddr.createWithInputDialog(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', "\nExamples include: \n name+test@example.co.uk \nfirst_last@domain123.io \nhello123@dev.site.com")
 
+                    self.addEmailAddrButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="+", width=30, command=newDefAlertRecipientEmailAddr)
+                    self.addEmailAddrButton.grid(row=rows[6], column=3, padx=(10, 0), sticky="w")
 
     def addNewUser(self):
         user = newUser()
@@ -1404,8 +1406,12 @@ if __name__ == "__main__":
         initialiser = logonDBHandler()
         initialiser.initializeDatabase()
 
-        login = Logon()
-        login.mainloop()
+        # login = Logon()
+        # login.mainloop()
+
+        #Run the UI 
+        app = App(1)
+        app.mainloop()
 
     def checkStockCounts():
         runStockCheck = CheckStockCount()
