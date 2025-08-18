@@ -38,6 +38,7 @@ from dbHandling.wasteDBHandler import *
 from dbHandling.stockLevelDBHandler import *
 from dbHandling.stockLevelHistoryDBHandler import *
 from dbHandling.weeklyReportDBHandler import *
+from dbHandling.eventTrackingDBHandler import *
 
 #main app class
 class App(superWindow):
@@ -56,7 +57,7 @@ class App(superWindow):
         #configure window
         self.title("OneStop Stock Assistant System")
         self.geometry(f"{App.WIDTH}x{App.HEIGHT}")
-        self.resizable(False, False)
+        self.resizable(True, False)
 
         #configure grid layout (4x4)
         self.grid_columnconfigure(1, weight=1)
@@ -79,7 +80,7 @@ class App(superWindow):
 
         #exit button
         self.sidebarExitButton = customtkinter.CTkButton(self.sidebarFrame, command=self.onClosing, text="Exit")
-        self.sidebarExitButton.grid(row=4, column=0, padx=20, pady=10)
+        self.sidebarExitButton.grid(row=15, column=0, padx=20, pady=(0,20))
         
         #create a section of buttons for database tools, such as adding a product or supplier
         self.label2 = customtkinter.CTkLabel(self.sidebarFrame, text="Database tools:", font=customtkinter.CTkFont(size=12))
@@ -131,8 +132,9 @@ class App(superWindow):
         self.stockLevelDB = stockLevelDBHandler()
         self.stockLevelHistoryDB = stockLevelHistoryDBHandler()
         self.weeklyReportDB = weeklyReportDBHandler()
+        self.eventTrackingDB = eventTrackingDBHandler()
 
-        databases = [self.supplierDB, self.productDB, self.wasteDB, self.stockLevelDB, self.stockLevelHistoryDB, self.weeklyReportDB]
+        databases = [self.supplierDB, self.productDB, self.wasteDB, self.stockLevelDB, self.stockLevelHistoryDB, self.weeklyReportDB, self.eventTrackingDB]
 
         for database in databases:
             try:
@@ -185,36 +187,10 @@ class App(superWindow):
         self.welcomeLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text=f"Hi {self.userName}!", font=customtkinter.CTkFont(size=35, weight="bold"), padx=0, pady=0)
         self.welcomeLabel.grid(row=0, column=0, columnspan=4, pady=(30,30))
 
-        self.databaseBreakdown = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Database table breakdown:", font=customtkinter.CTkFont(size=15, weight="normal"), padx=0, pady=0)
+        self.databaseBreakdown = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Event tracking history:", font=customtkinter.CTkFont(size=15, weight="normal"), padx=0, pady=0)
         self.databaseBreakdown.grid(row=1, column=0, columnspan=4, pady=(15,30))
 
-        #create the pie chart for displaying the table values
-        pieChart = CTkPieChart(self.tabview.tab(tab_), line_width=50)
-        pieChart.grid(row=2, column=0, padx=10, pady=(10, 50), sticky="e")
-
-        try:
-            pieChart.add("Products", self.productDB.getCount("products", False), text_color="black", color="#1F538D")
-            pieChart.add("Suppliers", self.productDB.getCount("suppliers", False), text_color="black", color="gray")
-            pieChart.add("Waste", self.productDB.getCount("waste", False), text_color="black", color="green")
-            pieChart.add("Stocklevel", self.productDB.getCount("stocklevel", False), text_color="black", color="purple")
-            pieChart.add("Users", self.productDB.getCount("users", False), text_color="black", color="yellow")
-            pieChart.add("StockLevelHistory", self.productDB.getCount("stocklevelhistory", False), text_color="black", color="indigo")
-
-        except TypeError:
-            pass
-        
-        #get the dictionary of key value pairs to create the key for the pie chart
-        pieChartValues = pieChart.get()
-
-        #create a frame for the piechart
-        pieChartFrame = customtkinter.CTkFrame(self.tabview.tab(tab_), fg_color="transparent")
-        pieChartFrame.grid(row=2, column=1, padx=10, pady=10, sticky="e", columnspan=2) 
-
-        #display the values for the key
-        for key, values in pieChartValues.items():
-            dataCircle = customtkinter.CTkRadioButton(pieChartFrame, hover=False, text=key, width=1,fg_color=values["color"])
-            dataCircle.select()
-            dataCircle.pack(side='top', anchor='nw', pady=5)
+        self.searchEntry = AutocompleteEntry(self.tabview.tab(tab_), placeholder_text="search...", width=400)
 
     #=========================================================================================RECORD-DELIVERY-UI-AND-FUNCTIONALITY=================================================================================================    
     def recordDeliveryUI(self, tab_='Record a delivery'): #you might want to make this a scrollable fram
@@ -227,7 +203,7 @@ class App(superWindow):
         #if no data in table, CTKOptionMenu throws an error, so try except block creates failure lable if this issue is encountered
         try:
             self.chooseSupplier1 = customtkinter.CTkOptionMenu(self.tabview.tab(tab_), dynamic_resizing=False, values=self.supplierDB.getSupplierNames(), width=200) #values list should be taken from a database call once the supplier database is created
-            self.chooseSupplier1.grid(row=0, column=1, padx=20, pady=20)
+            self.chooseSupplier1.grid(row=0, column=1, padx=(10, 20), pady=20)
             
         except Exception as error:
             self.noSupplierLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="No suppliers found", anchor="w")
@@ -511,10 +487,12 @@ class App(superWindow):
         try: #windows based db table names are lowercase
             self.dataViewTabs.pop(self.dataViewTabs.index('stocklevelhistory')) #remove the stockLevelHistory table from data that can be displayed
             self.dataViewTabs.pop(self.dataViewTabs.index('weeklyreportrecords')) #^^^^
+            self.dataViewTabs.pop(self.dataViewTabs.index('eventtracking'))
 
         except: #mac data view tab names are case sensitive for some reason
             self.dataViewTabs.pop(self.dataViewTabs.index('stockLevelHistory')) #remove the stockLevelHistory table from data that can be displayed
             self.dataViewTabs.pop(self.dataViewTabs.index('weeklyReportRecords')) #^^^^
+            self.dataViewTabs.pop(self.dataViewTabs.index('eventTracking'))
 
         self.dataViewTabView = customtkinter.CTkTabview(self.tabview.tab(tab_))
         self.dataViewTabView.grid(row=1, column=0, pady=(50,50), padx=(50, 50))
@@ -534,7 +512,12 @@ class App(superWindow):
         #add table tabs to tabview
         for i, _tab in enumerate(self.dataViewTabs):
             self.dataViewTabView.add(_tab)
-            self.seeTableData(_tab, searchEntrySuggestionsColumns[i][0], searchEntrySuggestionsColumns[i][1], i) #set the individual dataview UI for each respective table and its UI
+
+            try:
+                self.seeTableData(_tab, searchEntrySuggestionsColumns[i][0], searchEntrySuggestionsColumns[i][1], i) #set the individual dataview UI for each respective table and its UI
+
+            except:
+                pass
         
     #function to display the data inside the current table
     def seeTableData(self, tab__, searchEntrySuggestions, columnIndex, counter):
@@ -1308,15 +1291,27 @@ class App(superWindow):
                     emailAlert = appEmail()
                     emailAlert.sendEmail(self._defAlertEmail, f"Weekly report - {date.today().strftime('%d-%m-%Y')}", totalInfo)
 
+    #==============================================================================================EVENT-TRACKING-UI-AND-FUNCTIONALITY=================================================================================================    
+    # def eventTrackingUI(self, tab_='Event tracking'):
+    #     self.tab_ = tab_
+
+    #     #Configure the grid to center for the centered welcome text
+    #     self.tabview.tab(tab_).grid_rowconfigure([0, 1, 2], weight=1)
+    #     self.tabview.tab(tab_).grid_columnconfigure([0, 1, 2, 3], weight=1)
+
     #=================================================================================================SETTINGS-UI-AND-FUNCTIONALITY=================================================================================================    
     def settingsUI(self, tab_='Settings'):
         self.tab_ = tab_
 
         #user tools
-        self.userToolsLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="User tools:")
+        self.buttonFrame = customtkinter.CTkFrame(self.tabview.tab(tab_))
+        self.buttonFrame.grid(row=0, column=0, sticky="w")
+        self.userToolsLabel = customtkinter.CTkLabel(self.buttonFrame, text="Tools:")
         self.userToolsLabel.grid(row=0, column=0, padx=(20, 20), pady=20, sticky='w')
-        self.addUserButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="Create new user", command=self.addNewUser)
+        self.addUserButton = customtkinter.CTkButton(self.buttonFrame, text="Create new user", command=self.addNewUser)
         self.addUserButton.grid(row=1, column=0, sticky="nw", padx=(20, 20))
+        self.visualiseDatabaseButton = customtkinter.CTkButton(self.buttonFrame, text="Database table breakdown", command=self.showPieChart)
+        self.visualiseDatabaseButton.grid(row=1, column=1, sticky="w", padx=(20, 20))
 
         #configure settings button states
         if int(self.userAccessLevel) != 1:
@@ -1356,7 +1351,7 @@ class App(superWindow):
                     newValue = entryWidget.get()
                     envVarPath="src/config/.env"
 
-                    if newValue:
+                    if newValue and messagebox.askquestion(title='Confirm value change', message="Do you wish to confirm this value change?"):
                         dotenv.set_key(envVarPath, var, newValue, quote_mode='always', export=False, encoding='utf-8')
                         print(f"Updated {var} -> {newValue}") 
                         entryWidget.delete(0, customtkinter.END)
@@ -1376,6 +1371,36 @@ class App(superWindow):
     def addNewUser(self):
         user = newUser()
         user.mainloop()
+
+    def showPieChart(self):
+        pass
+                #create the pie chart for displaying the table values
+        # pieChart = CTkPieChart(self.tabview.tab(tab_), line_width=50)
+        # pieChart.grid(row=2, column=0, padx=10, pady=(10, 50), sticky="e")
+
+        # try:
+        #     pieChart.add("Products", self.productDB.getCount("products", False), text_color="black", color="#1F538D")
+        #     pieChart.add("Suppliers", self.productDB.getCount("suppliers", False), text_color="black", color="gray")
+        #     pieChart.add("Waste", self.productDB.getCount("waste", False), text_color="black", color="green")
+        #     pieChart.add("Stocklevel", self.productDB.getCount("stocklevel", False), text_color="black", color="purple")
+        #     pieChart.add("Users", self.productDB.getCount("users", False), text_color="black", color="yellow")
+        #     pieChart.add("StockLevelHistory", self.productDB.getCount("stocklevelhistory", False), text_color="black", color="indigo")
+
+        # except TypeError:
+        #     pass
+        
+        # #get the dictionary of key value pairs to create the key for the pie chart
+        # pieChartValues = pieChart.get()
+
+        # #create a frame for the piechart
+        # pieChartFrame = customtkinter.CTkFrame(self.tabview.tab(tab_), fg_color="transparent")
+        # pieChartFrame.grid(row=2, column=1, padx=10, pady=10, sticky="e", columnspan=2) 
+
+        # #display the values for the key
+        # for key, values in pieChartValues.items():
+        #     dataCircle = customtkinter.CTkRadioButton(pieChartFrame, hover=False, text=key, width=1,fg_color=values["color"])
+        #     dataCircle.select()
+        #     dataCircle.pack(side='top', anchor='nw', pady=5)
 
     #=================================================================================================MISC-FUNCTIONALITY=============================================================================================================
     def uiWidgetClearer(self):
