@@ -1347,7 +1347,7 @@ class App(superWindow):
                 self.envVarEntries[i].grid(row=rows[i], column=1, padx=(10, 10), sticky='w')
 
                 #tick button to update the variable
-                def updateEnvVar(var=variable, entryWidget=self.envVarEntries[i]):
+                def updateEnvVar(dot=dots, var=variable, entryWidget=self.envVarEntries[i], labelWidget=self.envVarLabels[i]):
                     newValue = entryWidget.get()
                     envVarPath="src/config/.env"
 
@@ -1355,6 +1355,7 @@ class App(superWindow):
                         dotenv.set_key(envVarPath, var, newValue, quote_mode='always', export=False, encoding='utf-8')
                         print(f"Updated {var} -> {newValue}") 
                         entryWidget.delete(0, customtkinter.END)
+                        labelWidget.configure(text=f"{i}) {var} {dot} {newValue}")
 
                 self.envVarButtons[i] = customtkinter.CTkButton(self.tabview.tab(tab_), text="↻", width=30, command=updateEnvVar)
                 self.envVarButtons[i].grid(row=rows[i], column=2, padx=(10, 0), sticky='w')
@@ -1374,7 +1375,8 @@ class App(superWindow):
 
     def showPieChart(self):
         pass
-                #create the pie chart for displaying the table values
+        
+        #create the pie chart for displaying the table values
         # pieChart = CTkPieChart(self.tabview.tab(tab_), line_width=50)
         # pieChart.grid(row=2, column=0, padx=10, pady=(10, 50), sticky="e")
 
@@ -1385,6 +1387,7 @@ class App(superWindow):
         #     pieChart.add("Stocklevel", self.productDB.getCount("stocklevel", False), text_color="black", color="purple")
         #     pieChart.add("Users", self.productDB.getCount("users", False), text_color="black", color="yellow")
         #     pieChart.add("StockLevelHistory", self.productDB.getCount("stocklevelhistory", False), text_color="black", color="indigo")
+        #     pieChart.add("EventTracking", self.productDB.getCount("eventTracking", False), text_color="black", color="blue")
 
         # except TypeError:
         #     pass
