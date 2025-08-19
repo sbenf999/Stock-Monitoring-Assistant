@@ -48,16 +48,19 @@ class App(superWindow):
     _appLocation = os.path.dirname(os.path.abspath(sys.argv[0]))
     _defAlertEmail = os.getenv('DEF_ALERT_RECIPIENT_EMAIL')
 
-    def __init__(self, userAccessLevel, userName="user"):
+    def __init__(self, userAccessLevel, userName):
         super().__init__()
 
-        self.userAccessLevel = userAccessLevel
         self.userName = userName
+        self.userAccessLevel = userAccessLevel
+
+        useridgetter = logonDBHandler()
+        self.userID = useridgetter.getUserIDByUsername(self.userName)
 
         #configure window
         self.title("OneStop Stock Assistant System")
         self.geometry(f"{App.WIDTH}x{App.HEIGHT}")
-        self.resizable(True, False)
+        self.resizable(False, False)
 
         #configure grid layout (4x4)
         self.grid_columnconfigure(1, weight=1)
@@ -190,7 +193,44 @@ class App(superWindow):
         self.databaseBreakdown = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Event tracking history:", font=customtkinter.CTkFont(size=15, weight="normal"), padx=0, pady=0)
         self.databaseBreakdown.grid(row=1, column=0, columnspan=4, pady=(15,30))
 
-        self.searchEntry = AutocompleteEntry(self.tabview.tab(tab_), placeholder_text="search...", width=400)
+        self.searchFrame = ctk.CTkFrame(self.tabview.tab(tab_), width=200, height=100, corner_radius=10)
+        self.searchFrame.grid(row=2, column=0, sticky="nsew") 
+
+        filter_var = ctk.StringVar(value="All")
+        self.filterDropdown = customtkinter.CTkOptionMenu(self.searchFrame, variable=filter_var, values=["event_id", "user_id", "username", "eventName", "date"], dynamic_resizing=False, width=200)
+        self.filterDropdown.grid(row=0, column=1, padx=20, pady=30)
+        self.filterDropdown.set("Filter ⚙️")
+
+        self.searchEntry = AutocompleteEntry(self.searchFrame, placeholder_text="search...", get_filter=lambda: filter_var.get(), width=400)
+        self.searchEntry.grid(row=0, column=0, padx=20, pady=30, sticky='nsew')
+
+        self.searchButton = customtkinter.CTkButton(self.searchFrame, text="Search 🔍")
+        self.searchButton.grid(row=0, column=2, sticky='w', padx=20, pady=30)
+
+        self.eventTrackingTableFrame = CTkXYFrame(self.tabview.tab(tab_), width=300, height=200)
+        self.eventTrackingTableFrame.grid(row=3, column=0, sticky="nsew", columnspan=6)
+
+        self.eventValues = []
+        self.eventData = []
+
+        self.eventValues = [self.DBHandler.getColumnNames("eventTracking")]
+        self.eventData.append(self.eventValues)
+
+        for row in self.DBHandler.getData("eventTracking"):
+            listVersion = list(row)
+
+            for i, listItem in enumerate(listVersion):
+                if type(listItem) is bytearray: #if the listItem is a byteArray (aka supplier dates as its stored in json), remove the byteArray prefixes
+                    listVersion[i] = str(listItem.decode("utf-8"))
+
+            self.eventValues.append(listVersion)
+
+        #display the table of values
+        reversed_rest = self.eventValues[:0:-1]  # reverse all except first
+        finalEvents = [self.eventValues[0]] + reversed_rest #reverse events except first sublist to have most revent first
+
+        self.displayTable = CTkTable(self.eventTrackingTableFrame, values=finalEvents, header_color="#1F538D")
+        self.displayTable.grid(row=0, column=0, padx=20, pady=30)
 
     #=========================================================================================RECORD-DELIVERY-UI-AND-FUNCTIONALITY=================================================================================================    
     def recordDeliveryUI(self, tab_='Record a delivery'): #you might want to make this a scrollable fram
@@ -348,6 +388,8 @@ class App(superWindow):
                 self.clearProductList()
                 self.products = []
 
+                eventTrackingDBHandler.logEvent(self.userID, self.userName, "Delivery logged")
+
             except Exception as error:
                 print(f"error encountered on delivery confirmation: {error}")
                 return False
@@ -470,6 +512,8 @@ class App(superWindow):
                 self.uiWidgetClearer()
                 self.clearStockCountList()
 
+                eventTrackingDBHandler.logEvent(self.userID, self.userName, "Stock count logged")
+
             except Exception as error:
                 print(f"error encountered on stock count confirmation: {error}")
                 return False
@@ -576,7 +620,7 @@ class App(superWindow):
                 if tab == "products":
                     self.visualizeButtonLabel = customtkinter.CTkLabel(self.dataViewTabView.tab(tab), text="Stock level trends:")
                     self.visualizeButtonLabel.grid(row=3, column=0, padx=(10, 20), pady=20, sticky='w')
-                    self.visualizeButton = customtkinter.CTkButton(self.dataViewTabView.tab(tab), text="Visualize ", command=lambda:self.visualize(itemToFind))
+                    self.visualizeButton = customtkinter.CTkButton(self.dataViewTabView.tab(tab), text="Visualize 📈", command=lambda:self.visualize(itemToFind))
                     self.visualizeButton.grid(row=3, column=1, pady=20, padx=(10,20), sticky="w")
 
                 if tab == "waste":
@@ -625,6 +669,8 @@ class App(superWindow):
 
         #show the plot
         plt.show()
+
+        eventTrackingDBHandler.logEvent(self.userID, self.userName, "Stock level trend visualized")
 
     #=================================================================================================ADD-PRODUCT-UI-AND-FUNCTIONALITY=================================================================================================    
     def addProductUI(self, tab_='Add product'): 
@@ -710,10 +756,12 @@ class App(superWindow):
                         print(f"e: {error}")
                         continue
 
-                #resume with app if "no" option is selected
-                else:
-                    pass
-    
+                eventTrackingDBHandler.logEvent(self.userID, self.userName, "New product added")
+
+            #resume with app if "no" option is selected
+            else:
+                pass
+
         except Exception as error:
             print(error)
             messagebox.showerror("Error", f"An error occurred! Please try again. If this issue persits, please contact the maintainer. Error {error}")
@@ -790,6 +838,8 @@ class App(superWindow):
                 #delete supplier delivery date fields upon successful supplier creation
                 self.supplierDates = []
                 self.updateSupplierDeliveryDateList()
+
+                eventTrackingDBHandler.logEvent(self.userID, self.userName, "New supplier added")
 
             #resume with app if "no" option is selected
             else:
@@ -919,6 +969,8 @@ class App(superWindow):
                 self.wasteProducts = []
                 self.updateWasteProductList(True)
 
+                eventTrackingDBHandler.logEvent(self.userID, self.userName, "New waste product added")
+
             #resume with app if "no" option is selected
             else:
                 pass
@@ -986,6 +1038,8 @@ class App(superWindow):
         # Remove waste product from the list
         del self.wasteProducts[index]
         self.updateWasteProductList()
+
+        eventTrackingDBHandler.logEvent(self.userID, self.userName, "Waste product deleted")
 
     #===============================================================================================WEEKLY-REPORT-UI-AND-FUNCTIONALITY===================================================================================================    
     def weeklyReportUI(self, tab_='Weekly report'):
@@ -1078,6 +1132,7 @@ class App(superWindow):
 
     def generateWeeklyReport(self, startDate, endDate):
         if messagebox.askquestion(title='Confirm generate weekly report', message="Do you wish to generate this weekly report?"):
+            eventTrackingDBHandler.logEvent(self.userID, self.userName, "Weekly reported generated")
             #WEEKLY REPORT GENERATION==============================================================================================
             dateRangeList = self.findDateRange(startDate, endDate)
             productNames = self.productDB.getProductNames()
@@ -1291,14 +1346,6 @@ class App(superWindow):
                     emailAlert = appEmail()
                     emailAlert.sendEmail(self._defAlertEmail, f"Weekly report - {date.today().strftime('%d-%m-%Y')}", totalInfo)
 
-    #==============================================================================================EVENT-TRACKING-UI-AND-FUNCTIONALITY=================================================================================================    
-    # def eventTrackingUI(self, tab_='Event tracking'):
-    #     self.tab_ = tab_
-
-    #     #Configure the grid to center for the centered welcome text
-    #     self.tabview.tab(tab_).grid_rowconfigure([0, 1, 2], weight=1)
-    #     self.tabview.tab(tab_).grid_columnconfigure([0, 1, 2, 3], weight=1)
-
     #=================================================================================================SETTINGS-UI-AND-FUNCTIONALITY=================================================================================================    
     def settingsUI(self, tab_='Settings'):
         self.tab_ = tab_
@@ -1310,8 +1357,10 @@ class App(superWindow):
         self.userToolsLabel.grid(row=0, column=0, padx=(20, 20), pady=20, sticky='w')
         self.addUserButton = customtkinter.CTkButton(self.buttonFrame, text="Create new user", command=self.addNewUser)
         self.addUserButton.grid(row=1, column=0, sticky="nw", padx=(20, 20))
-        self.visualiseDatabaseButton = customtkinter.CTkButton(self.buttonFrame, text="Database table breakdown", command=self.showPieChart)
+        self.visualiseDatabaseButton = customtkinter.CTkButton(self.buttonFrame, text="Database table breakdown 📊", command=self.showPieChart)
         self.visualiseDatabaseButton.grid(row=1, column=1, sticky="w", padx=(20, 20))
+        self.viewUserAccountsButton = customtkinter.CTkButton(self.buttonFrame, text="View user accounts")
+        self.viewUserAccountsButton.grid(row=1, column=2, sticky="w", padx=(20, 20))
 
         #configure settings button states
         if int(self.userAccessLevel) != 1:
@@ -1356,6 +1405,7 @@ class App(superWindow):
                         print(f"Updated {var} -> {newValue}") 
                         entryWidget.delete(0, customtkinter.END)
                         labelWidget.configure(text=f"{i}) {var} {dot} {newValue}")
+                        eventTrackingDBHandler.logEvent(self.userID, self.userName, "Environment variable changed / updated")
 
                 self.envVarButtons[i] = customtkinter.CTkButton(self.tabview.tab(tab_), text="↻", width=30, command=updateEnvVar)
                 self.envVarButtons[i].grid(row=rows[i], column=2, padx=(10, 0), sticky='w')
@@ -1434,12 +1484,12 @@ if __name__ == "__main__":
         initialiser = logonDBHandler()
         initialiser.initializeDatabase()
 
-        # login = Logon()
-        # login.mainloop()
+        login = Logon()
+        login.mainloop()
 
         #Run the UI 
-        app = App(1)
-        app.mainloop()
+        #app = App(1)
+        #app.mainloop()
 
     def checkStockCounts():
         runStockCheck = CheckStockCount()

@@ -5,6 +5,7 @@ from processes.windowSuperClass import superWindow
 from mainApp import *
 from time import sleep
 from processes.stockLevelChecker import CheckStockCount
+from dbHandling.eventTrackingDBHandler import *
 
 customtkinter.set_default_color_theme("dark-blue")
 
@@ -53,6 +54,9 @@ class Logon(superWindow):
         login = self.logon_.validateUser(self.usernameEntry.get(), self.passwordEntry.get())
         if login:
             print("Hoorah")
+            eventTrackingDB = eventTrackingDBHandler()
+            userID = self.logon_.getUserIDByUsername(self.usernameEntry.get())
+            eventTrackingDB.logEvent(userID, self.usernameEntry.get(), "Log on")
             self.newWindow()
         
         else:
