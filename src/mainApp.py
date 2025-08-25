@@ -198,18 +198,26 @@ class App(superWindow):
 
         filter_var = ctk.StringVar(value="All")
         self.filterDropdown = customtkinter.CTkOptionMenu(self.searchFrame, variable=filter_var, values=["event_id", "user_id", "username", "eventName", "date"], dynamic_resizing=False, width=200)
-        self.filterDropdown.grid(row=0, column=1, padx=20, pady=30)
+        self.filterDropdown.grid(row=0, column=1, padx=10, pady=30)
         self.filterDropdown.set("Filter ⚙️")
 
         self.searchEntry = AutocompleteEntry(self.searchFrame, placeholder_text="search...", get_filter=lambda: filter_var.get(), width=400)
         self.searchEntry.grid(row=0, column=0, padx=20, pady=30, sticky='nsew')
 
         self.searchButton = customtkinter.CTkButton(self.searchFrame, text="Search 🔍")
-        self.searchButton.grid(row=0, column=2, sticky='w', padx=20, pady=30)
+        self.searchButton.grid(row=0, column=2, sticky='w', padx=10, pady=30)
+
+        self.refreshButton = customtkinter.CTkButton(self.searchFrame, text="↻", width=30, command=self.updateTableValues)
+        self.refreshButton.grid(row=0, column=3, sticky='w', padx=10, pady=30)
 
         self.eventTrackingTableFrame = CTkXYFrame(self.tabview.tab(tab_), width=300, height=200)
         self.eventTrackingTableFrame.grid(row=3, column=0, sticky="nsew", columnspan=6)
 
+        self.getEvents()
+        self.displayTable = CTkTable(self.eventTrackingTableFrame, values=self.finalEvents, header_color="#1F538D")
+        self.displayTable.grid(row=0, column=0, padx=20, pady=30)
+
+    def getEvents(self):
         self.eventValues = []
         self.eventData = []
 
@@ -225,11 +233,22 @@ class App(superWindow):
 
             self.eventValues.append(listVersion)
 
-        #display the table of values
-        reversed_rest = self.eventValues[:0:-1]  # reverse all except first
-        finalEvents = [self.eventValues[0]] + reversed_rest #reverse events except first sublist to have most revent first
+            #display the table of values
+            reversed_rest = self.eventValues[:0:-1]  # reverse all except first
+            self.finalEvents = [self.eventValues[0]] + reversed_rest #reverse events except first sublist to have most recent first
 
-        self.displayTable = CTkTable(self.eventTrackingTableFrame, values=finalEvents, header_color="#1F538D")
+    def updateTableValues(self):
+        threading.Thread(target=self._fetch_and_update_table, daemon=True).start()
+
+    def _fetch_and_update_table(self):
+        self.getEvents()  
+        self.eventTrackingTableFrame.after(0, self._refresh_table_on_main_thread)
+
+    def _refresh_table_on_main_thread(self):
+        if hasattr(self, "displayTable"):
+            self.displayTable.destroy()
+
+        self.displayTable = CTkTable(self.eventTrackingTableFrame, values=self.finalEvents, header_color="#1F538D")
         self.displayTable.grid(row=0, column=0, padx=20, pady=30)
 
     #=========================================================================================RECORD-DELIVERY-UI-AND-FUNCTIONALITY=================================================================================================    
@@ -388,7 +407,7 @@ class App(superWindow):
                 self.clearProductList()
                 self.products = []
 
-                eventTrackingDBHandler.logEvent(self.userID, self.userName, "Delivery logged")
+                self.eventTrackingDB.logEvent(self.userID, self.userName, "Delivery logged")
 
             except Exception as error:
                 print(f"error encountered on delivery confirmation: {error}")
@@ -413,8 +432,23 @@ class App(superWindow):
         self.stockCountQuantityLabel.grid(row=1, column=0, padx=(20, 20), pady=10, sticky='w')
         self.stockCountQuantityEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="x")
         self.stockCountQuantityEntry.grid(row=1, column=1, padx=(20, 20), pady=10, sticky='w')
+
+        def comboboxCallback(choice):
+            print("combobox dropdown clicked:", choice)
+            if choice == "Weight":
+                self.stockCountQuantityLabel.configure(text="Weight: ")
+                self.stockCountQuantityEntry.configure(placeholder_text="g")
+
+            else:
+                self.stockCountQuantityLabel.configure(text="Quantity: ")
+                self.stockCountQuantityEntry.configure(placeholder_text="x")
+
+        self.byQuanityOrWeightOption = customtkinter.CTkComboBox(self.tabview.tab(tab_), values=["Quanitity", "Weight"], command=comboboxCallback)
+        self.byQuanityOrWeightOption.grid(row=1, column=2, padx=20, pady=10)
+        self.byQuanityOrWeightOption.set("Quantity")
+
         self.addProduct = customtkinter.CTkButton(self.tabview.tab(tab_), text="Add product", command=self.addStockCountProductToDelivery)
-        self.addProduct.grid(row=1, column=2, padx=20, pady=10)
+        self.addProduct.grid(row=1, column=3, padx=20, pady=10)
 
         #create a seperator to distuinguish between sections
         stockSeperator = customtkinter.CTkFrame(self.tabview.tab(tab_), height=2, fg_color="gray")
@@ -429,7 +463,7 @@ class App(superWindow):
         self.stockCountProductNumLabel.grid(row=0, column=0, padx=(20), pady=20, sticky='w')
         self.stockCountitemLabel = customtkinter.CTkLabel(self.stockCountProductFrame, text="Date", fg_color="transparent")
         self.stockCountitemLabel.grid(row=0, column=1, padx=(20), pady=20, sticky='w')
-        self.stockCountitemQuantityLabel = customtkinter.CTkLabel(self.stockCountProductFrame, text="Quantity", fg_color="transparent")
+        self.stockCountitemQuantityLabel = customtkinter.CTkLabel(self.stockCountProductFrame, text="Quantity/Weight", fg_color="transparent")
         self.stockCountitemQuantityLabel.grid(row=0, column=2, padx=(20), pady=20, sticky='w')
         self.stockCounttoolLabel = customtkinter.CTkLabel(self.stockCountProductFrame, text="Tool")
         self.stockCounttoolLabel.grid(row=0, column=3, padx=(20), pady=20, sticky='w')
@@ -456,6 +490,10 @@ class App(superWindow):
             #clear entry fields after adding
             self.stockCountAutocompleteEntry.delete(0, customtkinter.END)
             self.stockCountQuantityEntry.delete(0, customtkinter.END)
+            self.byQuanityOrWeightOption.set("Quantity")
+            self.stockCountQuantityLabel.configure(text="Quantity")
+            self.stockCountQuantityEntry.configure(placeholder_text="x")
+
         else:
             messagebox.showwarning("Input Error", "Please enter a valid product name and quantity")
 
@@ -512,7 +550,7 @@ class App(superWindow):
                 self.uiWidgetClearer()
                 self.clearStockCountList()
 
-                eventTrackingDBHandler.logEvent(self.userID, self.userName, "Stock count logged")
+                self.eventTrackingDB.logEvent(self.userID, self.userName, "Stock count logged")
 
             except Exception as error:
                 print(f"error encountered on stock count confirmation: {error}")
@@ -670,7 +708,7 @@ class App(superWindow):
         #show the plot
         plt.show()
 
-        eventTrackingDBHandler.logEvent(self.userID, self.userName, "Stock level trend visualized")
+        self.eventTrackingDB.logEvent(self.userID, self.userName, "Stock level trend visualized")
 
     #=================================================================================================ADD-PRODUCT-UI-AND-FUNCTIONALITY=================================================================================================    
     def addProductUI(self, tab_='Add product'): 
@@ -756,7 +794,7 @@ class App(superWindow):
                         print(f"e: {error}")
                         continue
 
-                eventTrackingDBHandler.logEvent(self.userID, self.userName, "New product added")
+                self.eventTrackingDB.logEvent(self.userID, self.userName, "New product added")
 
             #resume with app if "no" option is selected
             else:
@@ -839,7 +877,7 @@ class App(superWindow):
                 self.supplierDates = []
                 self.updateSupplierDeliveryDateList()
 
-                eventTrackingDBHandler.logEvent(self.userID, self.userName, "New supplier added")
+                self.eventTrackingDB.logEvent(self.userID, self.userName, "New supplier added")
 
             #resume with app if "no" option is selected
             else:
@@ -969,7 +1007,7 @@ class App(superWindow):
                 self.wasteProducts = []
                 self.updateWasteProductList(True)
 
-                eventTrackingDBHandler.logEvent(self.userID, self.userName, "New waste product added")
+                self.eventTrackingDB.logEvent(self.userID, self.userName, "New waste product added")
 
             #resume with app if "no" option is selected
             else:
@@ -1039,7 +1077,7 @@ class App(superWindow):
         del self.wasteProducts[index]
         self.updateWasteProductList()
 
-        eventTrackingDBHandler.logEvent(self.userID, self.userName, "Waste product deleted")
+        self.eventTrackingDB.logEvent(self.userID, self.userName, "Waste product deleted")
 
     #===============================================================================================WEEKLY-REPORT-UI-AND-FUNCTIONALITY===================================================================================================    
     def weeklyReportUI(self, tab_='Weekly report'):
@@ -1132,7 +1170,7 @@ class App(superWindow):
 
     def generateWeeklyReport(self, startDate, endDate):
         if messagebox.askquestion(title='Confirm generate weekly report', message="Do you wish to generate this weekly report?"):
-            eventTrackingDBHandler.logEvent(self.userID, self.userName, "Weekly reported generated")
+            self.eventTrackingDB.logEvent(self.userID, self.userName, "Weekly reported generated")
             #WEEKLY REPORT GENERATION==============================================================================================
             dateRangeList = self.findDateRange(startDate, endDate)
             productNames = self.productDB.getProductNames()
@@ -1405,7 +1443,7 @@ class App(superWindow):
                         print(f"Updated {var} -> {newValue}") 
                         entryWidget.delete(0, customtkinter.END)
                         labelWidget.configure(text=f"{i}) {var} {dot} {newValue}")
-                        eventTrackingDBHandler.logEvent(self.userID, self.userName, "Environment variable changed / updated")
+                        self.eventTrackingDB.logEvent(self.userID, self.userName, "Environment variable changed / updated")
 
                 self.envVarButtons[i] = customtkinter.CTkButton(self.tabview.tab(tab_), text="↻", width=30, command=updateEnvVar)
                 self.envVarButtons[i].grid(row=rows[i], column=2, padx=(10, 0), sticky='w')
