@@ -4,9 +4,11 @@ from tkinter import messagebox
 import re
 
 from processes.windowSuperClass import *
+from processes.pieChart import *
+from dbHandling.DBHandler import *
 
 class popUpWindow(superWindow):
-    def __init__(self, message, windowName="Popup Message", buttonText="Dismiss"):
+    def __init__(self, message=None, windowName="Popup Message", buttonText="Dismiss"):
         self.message = message
         self.windowName = windowName
         self.buttonText = buttonText
@@ -46,8 +48,43 @@ class popUpWindow(superWindow):
         confirmButton = customtkinter.CTkButton(master=frame_new, width=20, corner_radius=10, text=self.buttonText, command=self.getValue)
         confirmButton.grid(row=1, column=1, sticky="w", padx=(0, 12), pady=12) 
 
-    def onClosing(self, event=0):
-        self.box.destroy()
+    def createGraph(self, width, height):
+        self.box = customtkinter.CTk()
+        self.box.geometry(f"{width}x{height}")
+        self.box.title(self.windowName)
+
+        graphValHandler = DBHandler()
+        
+        centeredFrame = customtkinter.CTkFrame(master=self.box,width=width, height=height, corner_radius=10)
+        centeredFrame.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
+
+        pieChart = CTkPieChart(centeredFrame, line_width=50)
+        pieChart.grid(row=0, column=0, padx=10, pady=(10, 50), sticky="e")
+
+        try:
+            pieChart.add("Products", graphValHandler.getCount("products", False), text_color="black", color="#1F538D")
+            pieChart.add("Suppliers", graphValHandler.getCount("suppliers", False), text_color="black", color="gray")
+            pieChart.add("Waste", graphValHandler.getCount("waste", False), text_color="black", color="green")
+            pieChart.add("Stocklevel", graphValHandler.getCount("stocklevel", False), text_color="black", color="purple")
+            pieChart.add("Users", graphValHandler.getCount("users", False), text_color="black", color="yellow")
+            pieChart.add("StockLevelHistory", graphValHandler.getCount("stocklevelhistory", False), text_color="black", color="indigo")
+            pieChart.add("EventTracking", graphValHandler.getCount("eventTracking", False), text_color="black", color="blue")
+
+        except Exception as error:
+            print("Error")
+        
+        #get the dictionary of key value pairs to create the key for the pie chart
+        pieChartValues = pieChart.get()
+
+        #create a frame for the piechart
+        pieChartFrame = customtkinter.CTkFrame(centeredFrame, fg_color="transparent")
+        pieChartFrame.grid(row=1, column=1, padx=10, pady=10, sticky="e", columnspan=2) 
+
+        #display the values for the key
+        for key, values in pieChartValues.items():
+            dataCircle = customtkinter.CTkRadioButton(pieChartFrame, hover=False, text=key, width=1,fg_color=values["color"])
+            dataCircle.select()
+            dataCircle.pack(side='top', anchor='nw', pady=5)
 
     def getValue(self):
         def isValidInput(input):
@@ -69,6 +106,9 @@ class popUpWindow(superWindow):
 
         else:
             messagebox.showwarning("Input Error", "Please enter a valid input")
+
+    def onClosing(self, event=0):
+        self.box.destroy()
 
 
 

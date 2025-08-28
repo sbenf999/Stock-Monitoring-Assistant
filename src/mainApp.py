@@ -15,6 +15,7 @@ import os
 import sys 
 import shutil
 from datetime import *
+from PIL import Image
 
 #import processes
 from processes.changePassword import *
@@ -43,8 +44,8 @@ from dbHandling.eventTrackingDBHandler import *
 #main app class
 class App(superWindow):
 
-    WIDTH = 1100
-    HEIGHT = 675
+    WIDTH = 1150
+    HEIGHT = 670
     _appLocation = os.path.dirname(os.path.abspath(sys.argv[0]))
     _defAlertEmail = os.getenv('DEF_ALERT_RECIPIENT_EMAIL')
 
@@ -66,46 +67,53 @@ class App(superWindow):
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure((0, 1, 2), weight=1)
 
-        #create sidebar frame with widgets and create the logo text
+        #create sidebar frame with widgets and create the logo text & img
         self.sidebarFrame = customtkinter.CTkFrame(self, width=140, corner_radius=0)
         self.sidebarFrame.grid(row=0, column=0, rowspan=4, sticky="nsew")
-        self.sidebarFrame.grid_rowconfigure(4, weight=1)
+        self.sidebarFrame.grid_columnconfigure(0, weight=1)
+
+        self.logoImg = customtkinter.CTkImage(dark_image=Image.open("img/logo.png"), size=(80, 80))
+        self.logoImgLabel = customtkinter.CTkLabel(self.sidebarFrame, image=self.logoImg, text="")
+        self.logoImgLabel.grid(row=0, column=0, pady=(20, 5), sticky="n")
+
         self.logoLabel = customtkinter.CTkLabel(self.sidebarFrame, text="OSSMA", font=customtkinter.CTkFont(size=20, weight="bold"))
-        self.logoLabel.grid(row=0, column=0, padx=20, pady=(20, 10))
+        self.logoLabel.grid(row=1, column=0, padx=20, pady=(5, 10), sticky="n")
 
-        #create a section of buttons for stock taking tools
         self.label1 = customtkinter.CTkLabel(self.sidebarFrame, text="Stock taking tools:", font=customtkinter.CTkFont(size=12))
-        self.label1.grid(row=1, column=0, padx=20)
+        self.label1.grid(row=2, column=0, padx=20, sticky="n")
+
         self.sideBarButton1 = customtkinter.CTkButton(self.sidebarFrame, command=lambda: self.goToTab("Record a delivery"), text="Record a delivery")
-        self.sideBarButton1.grid(row=2, column=0, padx=20, pady=10)
+        self.sideBarButton1.grid(row=3, column=0, padx=20, pady=10, sticky="ew")
+
         self.sideBarButton2 = customtkinter.CTkButton(self.sidebarFrame, command=lambda: self.goToTab("Stock counting"), text="Stock counting")
-        self.sideBarButton2.grid(row=3, column=0, padx=20, pady=10)
+        self.sideBarButton2.grid(row=4, column=0, padx=20, pady=10, sticky="ew")
 
-        #exit button
-        self.sidebarExitButton = customtkinter.CTkButton(self.sidebarFrame, command=self.onClosing, text="Exit")
-        self.sidebarExitButton.grid(row=15, column=0, padx=20, pady=(0,20))
-        
-        #create a section of buttons for database tools, such as adding a product or supplier
         self.label2 = customtkinter.CTkLabel(self.sidebarFrame, text="Database tools:", font=customtkinter.CTkFont(size=12))
-        self.label2.grid(row=5, column=0, padx=20)
-        self.sideBarButton3 = customtkinter.CTkButton(self.sidebarFrame, command=lambda: self.goToTab("Data view"), text="Data view")
-        self.sideBarButton3.grid(row=6, column=0, padx=20, pady=10)
-        self.sideBarButton4 = customtkinter.CTkButton(self.sidebarFrame, command=lambda: self.goToTab("Add product"), text="Add product")
-        self.sideBarButton4.grid(row=7, column=0, padx=20, pady=10)
-        self.sideBarButton5 = customtkinter.CTkButton(self.sidebarFrame, command=lambda: self.goToTab("Add supplier"), text="Add supplier")
-        self.sideBarButton5.grid(row=8, column=0, padx=20, pady=10)
-        self.sideBarButton6 = customtkinter.CTkButton(self.sidebarFrame, command=lambda: self.goToTab("Waste"), text="Waste")
-        self.sideBarButton6.grid(row=9, column=0, padx=20, pady=10)
+        self.label2.grid(row=6, column=0, padx=20, sticky="n")
 
-        #create a section of buttons for tools that present data in graph format etc
-        seperator2 = customtkinter.CTkFrame(self.sidebarFrame, height=1, width=100,fg_color="gray")
-        seperator2.grid(row=10, column=0, padx=20, pady=10)
+        self.sideBarButton3 = customtkinter.CTkButton(self.sidebarFrame, command=lambda: self.goToTab("Data view"), text="Data view")
+        self.sideBarButton3.grid(row=7, column=0, padx=20, pady=10, sticky="ew")
+
+        self.sideBarButton4 = customtkinter.CTkButton(self.sidebarFrame, command=lambda: self.goToTab("Add product"),text="Add product")
+        self.sideBarButton4.grid(row=8, column=0, padx=20, pady=10, sticky="ew")
+
+        self.sideBarButton5 = customtkinter.CTkButton(self.sidebarFrame, command=lambda: self.goToTab("Add supplier"), text="Add supplier")
+        self.sideBarButton5.grid(row=9, column=0, padx=20, pady=10, sticky="ew")
+
+        self.sideBarButton6 = customtkinter.CTkButton(self.sidebarFrame, command=lambda: self.goToTab("Waste"), text="Waste")
+        self.sideBarButton6.grid(row=10, column=0, padx=20, pady=10, sticky="ew")
+
         self.label3 = customtkinter.CTkLabel(self.sidebarFrame, text="Data tools:", font=customtkinter.CTkFont(size=12))
-        self.label3.grid(row=11, column=0, padx=20)
+        self.label3.grid(row=11, column=0, padx=20, sticky="n")
+
         self.sideBarButton7 = customtkinter.CTkButton(self.sidebarFrame, command=lambda: self.goToTab("Weekly report"), text="Weekly report")
-        self.sideBarButton7.grid(row=12, column=0, padx=20, pady=10)
+        self.sideBarButton7.grid(row=12, column=0, padx=20, pady=10, sticky="ew")
+
         self.sideBarButton8 = customtkinter.CTkButton(self.sidebarFrame, command=lambda: self.goToTab("Settings"), text="Settings")
-        self.sideBarButton8.grid(row=13, column=0, padx=20, pady=(10,20))
+        self.sideBarButton8.grid(row=13, column=0, padx=20, pady=(10, 20), sticky="ew")
+
+        self.sidebarExitButton = customtkinter.CTkButton(self.sidebarFrame, command=self.onClosing,text="Exit")
+        self.sidebarExitButton.grid(row=14, column=0, padx=20, pady=(0, 20), sticky="ew")
 
         #========================BUTTON-STATES=======================>
         #tabview in which all UI will take place to do with functions of the application - the sidebar on the side simply allows for easier switching of the tabs
@@ -193,29 +201,26 @@ class App(superWindow):
         self.databaseBreakdown = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Event tracking history:", font=customtkinter.CTkFont(size=15, weight="normal"), padx=0, pady=0)
         self.databaseBreakdown.grid(row=1, column=0, columnspan=4, pady=(15,30))
 
-        self.searchFrame = ctk.CTkFrame(self.tabview.tab(tab_), width=200, height=100, corner_radius=10)
+        self.searchFrame = ctk.CTkFrame(self.tabview.tab(tab_), width=200, height=75, corner_radius=10)
         self.searchFrame.grid(row=2, column=0, sticky="nsew") 
 
         filter_var = ctk.StringVar(value="All")
-        self.filterDropdown = customtkinter.CTkOptionMenu(self.searchFrame, variable=filter_var, values=["event_id", "user_id", "username", "eventName", "date"], dynamic_resizing=False, width=200)
+        self.filterDropdown = customtkinter.CTkComboBox(self.searchFrame, variable=filter_var, values=["event_id", "user_id", "username", "eventName", "date"], width=200)
         self.filterDropdown.grid(row=0, column=1, padx=10, pady=30)
         self.filterDropdown.set("Filter ⚙️")
 
         self.searchEntry = AutocompleteEntry(self.searchFrame, placeholder_text="search...", get_filter=lambda: filter_var.get(), width=400)
-        self.searchEntry.grid(row=0, column=0, padx=20, pady=30, sticky='nsew')
+        self.searchEntry.grid(row=0, column=0, padx=10, pady=30, sticky='nsew')
 
         self.searchButton = customtkinter.CTkButton(self.searchFrame, text="Search 🔍")
         self.searchButton.grid(row=0, column=2, sticky='w', padx=10, pady=30)
 
-        self.refreshButton = customtkinter.CTkButton(self.searchFrame, text="↻", width=30, command=self.updateTableValues)
-        self.refreshButton.grid(row=0, column=3, sticky='w', padx=10, pady=30)
-
-        self.eventTrackingTableFrame = CTkXYFrame(self.tabview.tab(tab_), width=300, height=200)
-        self.eventTrackingTableFrame.grid(row=3, column=0, sticky="nsew", columnspan=6)
+        self.eventTrackingTableFrame = customtkinter.CTkScrollableFrame(self.tabview.tab(tab_), width=300, height=320)
+        self.eventTrackingTableFrame.grid(row=3, column=0, sticky="nsew", columnspan=6, pady=(0, 10))
 
         self.getEvents()
         self.displayTable = CTkTable(self.eventTrackingTableFrame, values=self.finalEvents, header_color="#1F538D")
-        self.displayTable.grid(row=0, column=0, padx=20, pady=30)
+        self.displayTable.grid(row=0, column=0, padx=10, pady=(0, 30))
 
     def getEvents(self):
         self.eventValues = []
@@ -236,20 +241,6 @@ class App(superWindow):
             #display the table of values
             reversed_rest = self.eventValues[:0:-1]  # reverse all except first
             self.finalEvents = [self.eventValues[0]] + reversed_rest #reverse events except first sublist to have most recent first
-
-    def updateTableValues(self):
-        threading.Thread(target=self._fetch_and_update_table, daemon=True).start()
-
-    def _fetch_and_update_table(self):
-        self.getEvents()  
-        self.eventTrackingTableFrame.after(0, self._refresh_table_on_main_thread)
-
-    def _refresh_table_on_main_thread(self):
-        if hasattr(self, "displayTable"):
-            self.displayTable.destroy()
-
-        self.displayTable = CTkTable(self.eventTrackingTableFrame, values=self.finalEvents, header_color="#1F538D")
-        self.displayTable.grid(row=0, column=0, padx=20, pady=30)
 
     #=========================================================================================RECORD-DELIVERY-UI-AND-FUNCTIONALITY=================================================================================================    
     def recordDeliveryUI(self, tab_='Record a delivery'): #you might want to make this a scrollable fram
@@ -831,7 +822,6 @@ class App(superWindow):
         self.supplierDates.grid(row=3, column=0, padx=(20, 20), pady=10, sticky='w')
         self.supplierDatesEntry = CTkDatePicker(self.tabview.tab(tab_))
         self.supplierDatesEntry.grid(row=3, column=1, padx=(15, 20), pady=10, sticky='w')
-
 
         self.addSupplierDate = customtkinter.CTkButton(self.tabview.tab(tab_), text="Add supplier delivery date", command=self.addSupplierDeliveryDate)
         self.addSupplierDate.grid(row=3, column=2, padx=20, pady=10)
@@ -1462,36 +1452,8 @@ class App(superWindow):
         user.mainloop()
 
     def showPieChart(self):
-        pass
-        
-        #create the pie chart for displaying the table values
-        # pieChart = CTkPieChart(self.tabview.tab(tab_), line_width=50)
-        # pieChart.grid(row=2, column=0, padx=10, pady=(10, 50), sticky="e")
-
-        # try:
-        #     pieChart.add("Products", self.productDB.getCount("products", False), text_color="black", color="#1F538D")
-        #     pieChart.add("Suppliers", self.productDB.getCount("suppliers", False), text_color="black", color="gray")
-        #     pieChart.add("Waste", self.productDB.getCount("waste", False), text_color="black", color="green")
-        #     pieChart.add("Stocklevel", self.productDB.getCount("stocklevel", False), text_color="black", color="purple")
-        #     pieChart.add("Users", self.productDB.getCount("users", False), text_color="black", color="yellow")
-        #     pieChart.add("StockLevelHistory", self.productDB.getCount("stocklevelhistory", False), text_color="black", color="indigo")
-        #     pieChart.add("EventTracking", self.productDB.getCount("eventTracking", False), text_color="black", color="blue")
-
-        # except TypeError:
-        #     pass
-        
-        # #get the dictionary of key value pairs to create the key for the pie chart
-        # pieChartValues = pieChart.get()
-
-        # #create a frame for the piechart
-        # pieChartFrame = customtkinter.CTkFrame(self.tabview.tab(tab_), fg_color="transparent")
-        # pieChartFrame.grid(row=2, column=1, padx=10, pady=10, sticky="e", columnspan=2) 
-
-        # #display the values for the key
-        # for key, values in pieChartValues.items():
-        #     dataCircle = customtkinter.CTkRadioButton(pieChartFrame, hover=False, text=key, width=1,fg_color=values["color"])
-        #     dataCircle.select()
-        #     dataCircle.pack(side='top', anchor='nw', pady=5)
+        pieChartPopup = popUpWindow()
+        pieChartPopup.createGraph(1000, 1000)
 
     #=================================================================================================MISC-FUNCTIONALITY=============================================================================================================
     def uiWidgetClearer(self):
