@@ -146,6 +146,12 @@ class logonDBHandler(DBHandler):
         result = self.cursor.fetchone()[0]
 
         return result
+    
+    def getUserIDByUsername(self, username):
+        self.cursor.execute('SELECT user_id FROM users WHERE username = %s', (username,))
+        result = self.cursor.fetchone()[0]
+
+        return result
 
     #<=======================STATIC-METHODS=======================>#
     

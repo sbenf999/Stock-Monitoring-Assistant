@@ -73,7 +73,7 @@ class DBHandler:
     
     def getColumnData(self, columnName, tableName):
         self.cursor.execute(f"SELECT {columnName} FROM {tableName}") 
-    
+
         return self.cursor.fetchall()
     
     def getColumnCount(self, tableName):
