@@ -20,3 +20,7 @@ class eventTrackingDBHandler(DBHandler):
     def logEvent(self, user_id, username, eventName):
         self.cursor.execute("""INSERT INTO eventTracking (user_id, username, eventName) VALUES (%s, %s, %s)""",(user_id, username, eventName))
         self.connection.commit()
+
+    def filterDBCall(self, columnName):
+        pass
+

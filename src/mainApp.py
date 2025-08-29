@@ -204,15 +204,27 @@ class App(superWindow):
         self.searchFrame = ctk.CTkFrame(self.tabview.tab(tab_), width=200, height=75, corner_radius=10)
         self.searchFrame.grid(row=2, column=0, sticky="nsew") 
 
+        def comboboxCallback(choice):
+            if choice == "default":
+                suggestions = self.DBHandler.getData("eventTracking")
+            
+            else:
+                suggestions = self.DBHandler.getColumnData(choice, "eventTracking")
+            
+            for i, suggestion in enumerate(suggestions):
+                suggestions[i] = str(reduce(lambda x, y: str(x) + ' ' + str(y), suggestion))
+        
+            self.searchEntryEventTracking.setSuggestions(suggestions)
+
         filter_var = ctk.StringVar(value="All")
-        self.filterDropdown = customtkinter.CTkComboBox(self.searchFrame, variable=filter_var, values=["event_id", "user_id", "username", "eventName", "date"], width=200)
+        self.filterDropdown = customtkinter.CTkComboBox(self.searchFrame, variable=filter_var, values=["default", "event_id", "user_id", "username", "eventName", "date"], command=comboboxCallback, width=200)
         self.filterDropdown.grid(row=0, column=1, padx=10, pady=30)
-        self.filterDropdown.set("Filter ⚙️")
+        self.filterDropdown.set("default")
 
-        self.searchEntry = AutocompleteEntry(self.searchFrame, placeholder_text="search...", get_filter=lambda: filter_var.get(), width=400)
-        self.searchEntry.grid(row=0, column=0, padx=10, pady=30, sticky='nsew')
+        self.searchEntryEventTracking = AutocompleteEntry(self.searchFrame, placeholder_text="search...", width=400)
+        self.searchEntryEventTracking.grid(row=0, column=0, padx=10, pady=30, sticky='nsew')
 
-        self.searchButton = customtkinter.CTkButton(self.searchFrame, text="Search 🔍")
+        self.searchButton = customtkinter.CTkButton(self.searchFrame, text="Search 🔍", command=lambda:self.searchEventTrackingDB(self.searchEntryEventTracking.get(), self.filterDropdown.get(), self.finalEvents))
         self.searchButton.grid(row=0, column=2, sticky='w', padx=10, pady=30)
 
         self.eventTrackingTableFrame = customtkinter.CTkScrollableFrame(self.tabview.tab(tab_), width=300, height=320)
@@ -221,6 +233,17 @@ class App(superWindow):
         self.getEvents()
         self.displayTable = CTkTable(self.eventTrackingTableFrame, values=self.finalEvents, header_color="#1F538D")
         self.displayTable.grid(row=0, column=0, padx=10, pady=(0, 30))
+
+    def searchEventTrackingDB(self, itemToFind, column, dataSet):
+        self.getEvents()
+        self.displayTable.update_values(self.finalEvents)
+
+        vals = [["event_id", 0], ["user_id", 1], ["username", 2], ["eventName", 3], ["date", 4]]
+        for i, row in enumerate(dataSet):
+            for val in vals:
+                if val[0] == column:
+                    if str(row[val[1]]) == str(itemToFind):
+                        self.displayTable.select_row(row=2)
 
     def getEvents(self):
         self.eventValues = []
@@ -1384,11 +1407,11 @@ class App(superWindow):
         self.userToolsLabel = customtkinter.CTkLabel(self.buttonFrame, text="Tools:")
         self.userToolsLabel.grid(row=0, column=0, padx=(20, 20), pady=20, sticky='w')
         self.addUserButton = customtkinter.CTkButton(self.buttonFrame, text="Create new user", command=self.addNewUser)
-        self.addUserButton.grid(row=1, column=0, sticky="nw", padx=(20, 20))
+        self.addUserButton.grid(row=1, column=0, sticky="nw", padx=(20,10))
         self.visualiseDatabaseButton = customtkinter.CTkButton(self.buttonFrame, text="Database table breakdown 📊", command=self.showPieChart)
-        self.visualiseDatabaseButton.grid(row=1, column=1, sticky="w", padx=(20, 20))
+        self.visualiseDatabaseButton.grid(row=1, column=1, sticky="w", padx=(10))
         self.viewUserAccountsButton = customtkinter.CTkButton(self.buttonFrame, text="View user accounts")
-        self.viewUserAccountsButton.grid(row=1, column=2, sticky="w", padx=(20, 20))
+        self.viewUserAccountsButton.grid(row=1, column=2, sticky="w", padx=(10))
 
         #configure settings button states
         if int(self.userAccessLevel) != 1:
