@@ -217,7 +217,7 @@ class App(superWindow):
             self.searchEntryEventTracking.setSuggestions(suggestions)
 
         filter_var = ctk.StringVar(value="All")
-        self.filterDropdown = customtkinter.CTkComboBox(self.searchFrame, variable=filter_var, values=["default", "event_id", "user_id", "username", "eventName", "date"], command=comboboxCallback, width=200)
+        self.filterDropdown = customtkinter.CTkComboBox(self.searchFrame, variable=filter_var, state="readonly", values=["default", "event_id", "user_id", "username", "eventName", "date"], command=comboboxCallback, width=200)
         self.filterDropdown.grid(row=0, column=1, padx=10, pady=30)
         self.filterDropdown.set("default")
 
@@ -457,7 +457,7 @@ class App(superWindow):
                 self.stockCountQuantityLabel.configure(text="Quantity: ")
                 self.stockCountQuantityEntry.configure(placeholder_text="x")
 
-        self.byQuanityOrWeightOption = customtkinter.CTkComboBox(self.tabview.tab(tab_), values=["Quanitity", "Weight"], command=comboboxCallback)
+        self.byQuanityOrWeightOption = customtkinter.CTkComboBox(self.tabview.tab(tab_),  state="readonly", values=["Quanitity", "Weight"], command=comboboxCallback)
         self.byQuanityOrWeightOption.grid(row=1, column=2, padx=20, pady=10)
         self.byQuanityOrWeightOption.set("Quantity")
 
