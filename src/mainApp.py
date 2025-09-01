@@ -1408,10 +1408,8 @@ class App(superWindow):
         self.userToolsLabel.grid(row=0, column=0, padx=(20, 20), pady=20, sticky='w')
         self.addUserButton = customtkinter.CTkButton(self.buttonFrame, text="Create new user", command=self.addNewUser)
         self.addUserButton.grid(row=1, column=0, sticky="nw", padx=(20,10))
-        self.visualiseDatabaseButton = customtkinter.CTkButton(self.buttonFrame, text="Database table breakdown 📊", command=self.showPieChart)
-        self.visualiseDatabaseButton.grid(row=1, column=1, sticky="w", padx=(10))
         self.viewUserAccountsButton = customtkinter.CTkButton(self.buttonFrame, text="View user accounts")
-        self.viewUserAccountsButton.grid(row=1, column=2, sticky="w", padx=(10))
+        self.viewUserAccountsButton.grid(row=1, column=1, sticky="w", padx=(10))
 
         #configure settings button states
         if int(self.userAccessLevel) != 1:
@@ -1473,9 +1471,6 @@ class App(superWindow):
     def addNewUser(self):
         user = newUser()
         user.mainloop()
-
-    def showPieChart(self):
-        pieChartPopup = popUpWindow()
         pieChartPopup.createGraph(1000, 1000)
 
     #=================================================================================================MISC-FUNCTIONALITY=============================================================================================================
