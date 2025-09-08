@@ -16,6 +16,7 @@ import sys
 import shutil
 from datetime import *
 from PIL import Image
+from tksheet import Sheet
 
 #import processes
 from processes.changePassword import *
@@ -227,23 +228,22 @@ class App(superWindow):
         self.searchButton = customtkinter.CTkButton(self.searchFrame, text="Search 🔍", command=lambda:self.searchEventTrackingDB(self.searchEntryEventTracking.get(), self.filterDropdown.get(), self.finalEvents))
         self.searchButton.grid(row=0, column=2, sticky='w', padx=10, pady=30)
 
-        self.eventTrackingTableFrame = customtkinter.CTkScrollableFrame(self.tabview.tab(tab_), width=300, height=320)
+        self.eventTrackingTableFrame = customtkinter.CTkFrame(self.tabview.tab(tab_))
         self.eventTrackingTableFrame.grid(row=3, column=0, sticky="nsew", columnspan=6, pady=(0, 10))
 
         self.getEvents()
-        self.displayTable = CTkTable(self.eventTrackingTableFrame, values=self.finalEvents, header_color="#1F538D")
-        self.displayTable.grid(row=0, column=0, padx=10, pady=(0, 30))
+        self.sheet = Sheet(self.eventTrackingTableFrame, data=self.finalEvents, headers=self.headers, auto_resize_columns=4, width=800, height=300)
+        self.sheet.grid(row=0, column=0, padx=10, pady=15)
+        self.sheet.change_theme("dark_blue")
 
     def searchEventTrackingDB(self, itemToFind, column, dataSet):
-        self.getEvents()
-        self.displayTable.update_values(self.finalEvents)
+        self.displayTable.draw_table()
+        self.update_idletasks()
 
-        vals = [["event_id", 0], ["user_id", 1], ["username", 2], ["eventName", 3], ["date", 4]]
-        for i, row in enumerate(dataSet):
-            for val in vals:
-                if val[0] == column:
-                    if str(row[val[1]]) == str(itemToFind):
-                        self.displayTable.select_row(row=2)
+        #self.displayTable = CTkTable(self.eventTrackingTableFrame, values=self.finalEvents, header_color="#1F538D")
+        #self.displayTable.grid(row=0, column=0, padx=10, pady=(0, 30))
+        print("worked")
+
 
     def getEvents(self):
         self.eventValues = []
@@ -261,9 +261,8 @@ class App(superWindow):
 
             self.eventValues.append(listVersion)
 
-            #display the table of values
-            reversed_rest = self.eventValues[:0:-1]  # reverse all except first
-            self.finalEvents = [self.eventValues[0]] + reversed_rest #reverse events except first sublist to have most recent first
+            self.headers = self.eventValues[0]
+            self.finalEvents = self.eventValues[1:][::-1]
 
     #=========================================================================================RECORD-DELIVERY-UI-AND-FUNCTIONALITY=================================================================================================    
     def recordDeliveryUI(self, tab_='Record a delivery'): #you might want to make this a scrollable fram
@@ -1462,9 +1461,9 @@ class App(superWindow):
                 #functionality to be able to add multiple email addresses
                 if i == 6:
                     def newDefAlertRecipientEmailAddr():
-                        getNewEmailAddr = popUpWindow("Enter additional email address: ", buttonText="Add new")
+                        getNewEmailAddr = popUpWindow("Enter additional email address: ", buttonText="Add new", callback=self.popupValue)
                         getNewEmailAddr.createWithInputDialog(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', "\nExamples include: \n name+test@example.co.uk \nfirst_last@domain123.io \nhello123@dev.site.com")
-
+                        
                     self.addEmailAddrButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="+", width=30, command=newDefAlertRecipientEmailAddr)
                     self.addEmailAddrButton.grid(row=rows[6], column=3, padx=(10, 0), sticky="w")
 
