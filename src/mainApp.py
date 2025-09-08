@@ -227,7 +227,6 @@ class App(superWindow):
         self.sheet = Sheet(self.eventTrackingTableFrame, data=self.finalEvents, auto_resize_columns=True, headers=self.headers, width=800, height=300)
         self.sheet.grid(row=0, column=0, padx=10, pady=15)
         self.sheet.change_theme("dark_blue")
-        self.sheet.auto_resize_column(3)
 
     def comboboxCallback(self, choice):
         if choice == "default":
@@ -302,8 +301,8 @@ class App(superWindow):
 
         #if no data in table, CTKOptionMenu throws an error, so try except block creates failure lable if this issue is encountered
         try:
-            self.chooseSupplier1 = customtkinter.CTkOptionMenu(self.tabview.tab(tab_), dynamic_resizing=False, values=self.supplierDB.getSupplierNames(), width=200) #values list should be taken from a database call once the supplier database is created
-            self.chooseSupplier1.grid(row=0, column=1, padx=(10, 20), pady=20)
+            self.chooseSupplier1 = customtkinter.CTkOptionMenu(self.tabview.tab(tab_), dynamic_resizing=False, values=self.supplierDB.getSupplierNames(), width=150) #values list should be taken from a database call once the supplier database is created
+            self.chooseSupplier1.grid(row=0, column=1, padx=(20, 20), pady=20)
             
         except Exception as error:
             self.noSupplierLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="No suppliers found", anchor="w")
@@ -311,9 +310,9 @@ class App(superWindow):
 
         #delivery date shoud create an ovveride feature if user doesnt want t   o use current system date
         self.enterDeliveryDateLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Delivery date:", anchor='w')
-        self.enterDeliveryDateLabel.grid(row=1, column=0, padx=(20, 20), pady=20, sticky='w')
+        self.enterDeliveryDateLabel.grid(row=0, column=2, padx=(20, 20), pady=20, sticky='w')
         self.deliveryDate = CTkDatePicker(self.tabview.tab(tab_))
-        self.deliveryDate.grid(row=1, column=1, padx=(15, 20), pady=10, sticky='w')
+        self.deliveryDate.grid(row=0, column=3, padx=(20), pady=10, sticky='w')
 
         self.month = str(datetime.now().month)
         if len(self.month) == 1:
@@ -321,37 +320,32 @@ class App(superWindow):
 
         self.deliveryDate.date_entry.insert(0, f"{datetime.now().day}/{self.month}/{datetime.now().year}")
 
-        #delivery time shoud create an ovveride feature if user doesnt want to use current system time
-        self.enterDeliveryTimeLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Delivery time:")
-        self.enterDeliveryTimeLabel.grid(row=1, column=2, padx=(20, 20), pady=20, sticky='w')
-        self.deliveryTime = strftime("%X", gmtime())
-        self.enterDeliveryTimeLabelAbs = customtkinter.CTkLabel(self.tabview.tab(tab_), text=self.deliveryTime)
-        self.enterDeliveryTimeLabelAbs.grid(row=1, column=3, padx=(20, 20), pady=20, sticky='w')
-
         #create the autocomplete search for a product
         self.findProductLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Search product:")
-        self.findProductLabel.grid(row=3, column=0, padx=(20), pady=20, sticky='w')
+        self.findProductLabel.grid(row=2, column=0, padx=(20), pady=20, sticky='w')
+
         self.autocompleteEntry = AutocompleteEntry(self.tabview.tab(tab_), width=500, placeholder_text='Search product...')
-        
         self.autocompleteEntry.setSuggestions(self.productDB.getProductNames()) #set suggestions needs to be based on a call to the product table in the database
-        self.autocompleteEntry.grid(row=3, column=1, padx=20, pady=20, columnspan=3, sticky='w')
+        self.autocompleteEntry.grid(row=2, column=1, padx=20, pady=(15, 20), columnspan=3, sticky='w')
         
         self.quantityLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Quantity: ")
-        self.quantityLabel.grid(row=4, column=0, padx=(20, 20), pady=10, sticky='w')
+        self.quantityLabel.grid(row=3, column=0, padx=(20, 20), pady=10, sticky='w')
         self.quantityEntry = customtkinter.CTkEntry(self.tabview.tab(tab_), placeholder_text="x")
-        self.quantityEntry.grid(row=4, column=1, padx=(20, 20), pady=10, sticky='w')
-        self.addProduct = customtkinter.CTkButton(self.tabview.tab(tab_), text="Add product", command=self.addProductToDelivery)
-        self.addProduct.grid(row=4, column=2, padx=20, pady=10)
+        self.quantityEntry.grid(row=3, column=1, padx=(20, 20), pady=10, sticky='w')
+        self.addProductLabel = customtkinter.CTkLabel(self.tabview.tab(tab_), text="Add product: ")
+        self.addProductLabel.grid(row=3, column=2, padx=(20, 20), pady=10, sticky='w')
+        self.addProduct = customtkinter.CTkButton(self.tabview.tab(tab_), text="Add", command=self.addProductToDelivery)
+        self.addProduct.grid(row=3, column=3, padx=(10, 20), pady=10)
 
         #create a seperator to distuinguish between sections
         seperator2 = customtkinter.CTkFrame(self.tabview.tab(tab_), height=2, fg_color="gray")
-        seperator2.grid(row=5, column=0, columnspan=10, padx=20, pady=20, sticky='nsew')
+        seperator2.grid(row=4, column=0, columnspan=10, padx=20, pady=20, sticky='nsew')
 
         #scrollable frame for added products
         self.products = []
 
         self.productFrame = customtkinter.CTkScrollableFrame(master=self.tabview.tab(tab_), width=300, height=200, corner_radius=0, fg_color="transparent")
-        self.productFrame.grid(row=6, column=0, sticky="nsew", columnspan=6)
+        self.productFrame.grid(row=5, column=0, sticky="nsew", columnspan=6)
         self.productNumLabel = customtkinter.CTkLabel(self.productFrame, text="Item num", fg_color="transparent")
         self.productNumLabel.grid(row=0, column=0, padx=(20), pady=20, sticky='w')
         self.itemLabel = customtkinter.CTkLabel(self.productFrame, text="Item", fg_color="transparent")
@@ -363,10 +357,10 @@ class App(superWindow):
         
         #create a seperator to distuinguish between sections
         seperator3 = customtkinter.CTkFrame(self.tabview.tab(tab_), height=2, fg_color="gray")
-        seperator3.grid(row=7, column=0, columnspan=10, padx=20, pady=20, sticky='nsew')
+        seperator3.grid(row=6, column=0, columnspan=10, padx=20, pady=20, sticky='nsew')
 
         self.confirmDelivery = customtkinter.CTkButton(self.tabview.tab(tab_), text="Confirm delivery", command=self.confirmDelivery)
-        self.confirmDelivery.grid(row=8, column=0, padx=20, pady=10)
+        self.confirmDelivery.grid(row=7, column=0, padx=20, pady=10)
     
     #function to add product
     def addProductToDelivery(self):
