@@ -16,6 +16,7 @@ import sys
 import shutil
 from datetime import *
 from PIL import Image
+from tksheet import Sheet
 
 #import processes
 from processes.changePassword import *
@@ -205,22 +206,72 @@ class App(superWindow):
         self.searchFrame.grid(row=2, column=0, sticky="nsew") 
 
         filter_var = ctk.StringVar(value="All")
-        self.filterDropdown = customtkinter.CTkComboBox(self.searchFrame, variable=filter_var, values=["event_id", "user_id", "username", "eventName", "date"], width=200)
+        self.filterDropdown = customtkinter.CTkComboBox(self.searchFrame, variable=filter_var, state="readonly", values=["default", "event_id", "user_id", "username", "eventName", "date"], command=self.comboboxCallback, width=170)
         self.filterDropdown.grid(row=0, column=1, padx=10, pady=30)
-        self.filterDropdown.set("Filter ⚙️")
+        self.filterDropdown.set("default")
 
-        self.searchEntry = AutocompleteEntry(self.searchFrame, placeholder_text="search...", get_filter=lambda: filter_var.get(), width=400)
-        self.searchEntry.grid(row=0, column=0, padx=10, pady=30, sticky='nsew')
+        self.searchEntryEventTracking = AutocompleteEntry(self.searchFrame, placeholder_text="search...", width=400)
+        self.searchEntryEventTracking.grid(row=0, column=0, padx=10, pady=30, sticky='nsew')
+        self.comboboxCallback("default") #set default search suggestion immediately after creation
 
-        self.searchButton = customtkinter.CTkButton(self.searchFrame, text="Search 🔍")
+        self.searchButton = customtkinter.CTkButton(self.searchFrame, text="Search 🔍", command=lambda:self.filterByColumnValue(self.filterDropdown.get(), self.searchEntryEventTracking.get()))
         self.searchButton.grid(row=0, column=2, sticky='w', padx=10, pady=30)
 
-        self.eventTrackingTableFrame = customtkinter.CTkScrollableFrame(self.tabview.tab(tab_), width=300, height=320)
+        self.resetButton = customtkinter.CTkButton(self.searchFrame, text="↻", width=30, command=self.reset)
+        self.resetButton.grid(row=0, column=3, sticky="w", padx=10, pady=3)
+
+        self.eventTrackingTableFrame = customtkinter.CTkFrame(self.tabview.tab(tab_))
         self.eventTrackingTableFrame.grid(row=3, column=0, sticky="nsew", columnspan=6, pady=(0, 10))
 
         self.getEvents()
-        self.displayTable = CTkTable(self.eventTrackingTableFrame, values=self.finalEvents, header_color="#1F538D")
-        self.displayTable.grid(row=0, column=0, padx=10, pady=(0, 30))
+        self.sheet = Sheet(self.eventTrackingTableFrame, data=self.finalEvents, auto_resize_columns=True, headers=self.headers, width=800, height=300)
+        self.sheet.grid(row=0, column=0, padx=10, pady=15)
+        self.sheet.change_theme("dark_blue")
+        self.sheet.auto_resize_column(3)
+
+    def comboboxCallback(self, choice):
+        if choice == "default":
+            suggestions = self.DBHandler.getData("eventTracking")
+        
+        else:
+            suggestions = self.DBHandler.getColumnData(choice, "eventTracking")
+        
+        for i, suggestion in enumerate(suggestions):
+            suggestions[i] = str(reduce(lambda x, y: str(x) + ' ' + str(y), suggestion))
+    
+        self.searchEntryEventTracking.setSuggestions(suggestions)
+
+    def reset(self):
+        self.searchEntryEventTracking.delete(0, customtkinter.END)
+        self.filterDropdown.set("default")
+        self.comboboxCallback("default")
+        self.getEvents()
+        self.sheet.set_sheet_data(self.finalEvents)
+
+    def filterByColumnValue(self, column_name, match_value):
+        if column_name == "default":
+            for row in self.finalEvents:
+                if str(reduce(lambda x, y: str(x) + ' ' + str(y), row)) == match_value:
+                    filtered_data = [list(row)]
+    
+        else:
+            try:
+                col_index = self.headers.index(column_name)
+
+            except ValueError:
+                print(f"Column '{column_name}' not found.")
+                return
+
+            self.getEvents()
+            filtered_data = [row for row in self.finalEvents if row[col_index] == match_value]
+
+            if not filtered_data:
+                filtered_data = [["" for _ in self.headers]]
+
+            elif len(filtered_data) == 1:
+                filtered_data = [list(filtered_data[0])]  
+
+        self.sheet.set_sheet_data(filtered_data)
 
     def getEvents(self):
         self.eventValues = []
@@ -238,9 +289,8 @@ class App(superWindow):
 
             self.eventValues.append(listVersion)
 
-            #display the table of values
-            reversed_rest = self.eventValues[:0:-1]  # reverse all except first
-            self.finalEvents = [self.eventValues[0]] + reversed_rest #reverse events except first sublist to have most recent first
+            self.headers = self.eventValues[0]
+            self.finalEvents = self.eventValues[1:][::-1]
 
     #=========================================================================================RECORD-DELIVERY-UI-AND-FUNCTIONALITY=================================================================================================    
     def recordDeliveryUI(self, tab_='Record a delivery'): #you might want to make this a scrollable fram
@@ -434,7 +484,7 @@ class App(superWindow):
                 self.stockCountQuantityLabel.configure(text="Quantity: ")
                 self.stockCountQuantityEntry.configure(placeholder_text="x")
 
-        self.byQuanityOrWeightOption = customtkinter.CTkComboBox(self.tabview.tab(tab_), values=["Quanitity", "Weight"], command=comboboxCallback)
+        self.byQuanityOrWeightOption = customtkinter.CTkComboBox(self.tabview.tab(tab_),  state="readonly", values=["Quanitity", "Weight"], command=comboboxCallback)
         self.byQuanityOrWeightOption.grid(row=1, column=2, padx=20, pady=10)
         self.byQuanityOrWeightOption.set("Quantity")
 
@@ -1384,11 +1434,9 @@ class App(superWindow):
         self.userToolsLabel = customtkinter.CTkLabel(self.buttonFrame, text="Tools:")
         self.userToolsLabel.grid(row=0, column=0, padx=(20, 20), pady=20, sticky='w')
         self.addUserButton = customtkinter.CTkButton(self.buttonFrame, text="Create new user", command=self.addNewUser)
-        self.addUserButton.grid(row=1, column=0, sticky="nw", padx=(20, 20))
-        self.visualiseDatabaseButton = customtkinter.CTkButton(self.buttonFrame, text="Database table breakdown 📊", command=self.showPieChart)
-        self.visualiseDatabaseButton.grid(row=1, column=1, sticky="w", padx=(20, 20))
+        self.addUserButton.grid(row=1, column=0, sticky="nw", padx=(20,10))
         self.viewUserAccountsButton = customtkinter.CTkButton(self.buttonFrame, text="View user accounts")
-        self.viewUserAccountsButton.grid(row=1, column=2, sticky="w", padx=(20, 20))
+        self.viewUserAccountsButton.grid(row=1, column=1, sticky="w", padx=(10))
 
         #configure settings button states
         if int(self.userAccessLevel) != 1:
@@ -1441,18 +1489,15 @@ class App(superWindow):
                 #functionality to be able to add multiple email addresses
                 if i == 6:
                     def newDefAlertRecipientEmailAddr():
-                        getNewEmailAddr = popUpWindow("Enter additional email address: ", buttonText="Add new")
+                        getNewEmailAddr = popUpWindow("Enter additional email address: ", buttonText="Add new", callback=self.popupValue)
                         getNewEmailAddr.createWithInputDialog(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', "\nExamples include: \n name+test@example.co.uk \nfirst_last@domain123.io \nhello123@dev.site.com")
-
+                        
                     self.addEmailAddrButton = customtkinter.CTkButton(self.tabview.tab(tab_), text="+", width=30, command=newDefAlertRecipientEmailAddr)
                     self.addEmailAddrButton.grid(row=rows[6], column=3, padx=(10, 0), sticky="w")
 
     def addNewUser(self):
         user = newUser()
         user.mainloop()
-
-    def showPieChart(self):
-        pieChartPopup = popUpWindow()
         pieChartPopup.createGraph(1000, 1000)
 
     #=================================================================================================MISC-FUNCTIONALITY=============================================================================================================

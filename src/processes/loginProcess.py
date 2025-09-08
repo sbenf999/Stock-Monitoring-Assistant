@@ -61,6 +61,9 @@ class Logon(superWindow):
         self.buttonExit = customtkinter.CTkButton(self.buttonFrame, text="Exit", command=self.onClosing, width=100)
         self.buttonExit.pack(side="left", padx=10)
 
+        self.lift()
+        self.focus_force()
+        self.usernameEntry.focus_set()
 
     def logonProcess(self, event=None):
         self.logon_ = logonDBHandler()

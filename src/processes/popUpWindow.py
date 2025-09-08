@@ -8,10 +8,11 @@ from processes.pieChart import *
 from dbHandling.DBHandler import *
 
 class popUpWindow(superWindow):
-    def __init__(self, message=None, windowName="Popup Message", buttonText="Dismiss"):
+    def __init__(self, message=None, windowName="Popup Message", buttonText="Dismiss", *, callback=None):
         self.message = message
         self.windowName = windowName
         self.buttonText = buttonText
+        self.callback = callback
 
     def create(self):
         self.box = customtkinter.CTk()
@@ -98,11 +99,10 @@ class popUpWindow(superWindow):
                 self.entry_new.delete(0, customtkinter.END)
                 self.onClosing()
 
-                return self.data
+                self.callback = self.data
             
             else:
                 messagebox.showwarning("Input Error", f"Please enter a valid input conforming to the RegEx: \n{self.regexInputChecking}. \n\n{self.examples}")
-
 
         else:
             messagebox.showwarning("Input Error", "Please enter a valid input")
