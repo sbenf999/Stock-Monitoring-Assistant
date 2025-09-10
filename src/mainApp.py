@@ -26,6 +26,7 @@ from processes.windowSuperClass import superWindow
 from processes.autoCompleteSearch import AutocompleteEntry
 from processes.newUser import *
 from processes.stockLevelChecker import *
+from processes.viewUserAccounts import *
 
 #not programmed by me
 from processes.pieChart import *
@@ -1429,7 +1430,7 @@ class App(superWindow):
         self.userToolsLabel.grid(row=0, column=0, padx=(20, 20), pady=20, sticky='w')
         self.addUserButton = customtkinter.CTkButton(self.buttonFrame, text="Create new user", command=self.addNewUser)
         self.addUserButton.grid(row=1, column=0, sticky="nw", padx=(20,10))
-        self.viewUserAccountsButton = customtkinter.CTkButton(self.buttonFrame, text="View user accounts")
+        self.viewUserAccountsButton = customtkinter.CTkButton(self.buttonFrame, text="View user accounts", command=self.viewUserAccounts)
         self.viewUserAccountsButton.grid(row=1, column=1, sticky="w", padx=(10))
 
         #configure settings button states
@@ -1492,7 +1493,10 @@ class App(superWindow):
     def addNewUser(self):
         user = newUser()
         user.mainloop()
-        pieChartPopup.createGraph(1000, 1000)
+
+    def viewUserAccounts(self):
+        userAccountsWindow = viewUserAccountWindow()
+        userAccountsWindow.create()
 
     #=================================================================================================MISC-FUNCTIONALITY=============================================================================================================
     def uiWidgetClearer(self):
