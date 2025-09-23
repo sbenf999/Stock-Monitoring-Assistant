@@ -57,7 +57,7 @@ class logonDBHandler(DBHandler):
         self.connection.commit()
 
     def readUserCreds(self):
-        self.cursor.execute('SELECT user_id, username, password, access_level FROM users')
+        self.cursor.execute('SELECT user_id, username, password, access_level, recovery_code, email_address FROM users')
         rows = self.cursor.fetchall()
         self.connection.close()
         
