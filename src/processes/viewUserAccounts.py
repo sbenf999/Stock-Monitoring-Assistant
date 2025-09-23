@@ -29,6 +29,5 @@ class viewUserAccountWindow(superWindow):
         self.userAccountsSheet = Sheet(self.sheetFrame, data=self.userAccounts, header=self.tableHeaders, auto_resize_columns=True, width=800, height=200)
         self.userAccountsSheet.grid(row=0, column=0, padx=5, pady=5)
         self.userAccountsSheet.change_theme("dark_blue")
-        self.userAccountsSheet.set_column_widths(110)
 
         self.box.mainloop()
